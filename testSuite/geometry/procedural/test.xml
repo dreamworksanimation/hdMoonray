@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Bill Spitzak">
+    <description>
+    Renders 16 SphereGeometry with various settings using the Procedural Usd prim
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/proceduralSphere.usda -out ${result} ${args} -res ${res}</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn 0.01 --fail 0.04 --failpercent .02 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>

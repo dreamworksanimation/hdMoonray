@@ -1,0 +1,16 @@
+Import('env')
+
+env.DWAUseComponents([
+    'mkl',
+    'OpenImageIO',
+    'usd_imaging',
+    'scene_rdl2',
+    'tbb'
+])
+
+prog = env.DWAProgram(
+     'hd_render',
+     env.DWAGlob('*.cc')
+)
+
+env.DWAInstallBin(prog)

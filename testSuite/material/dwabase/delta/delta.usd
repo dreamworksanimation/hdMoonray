@@ -1,0 +1,9 @@
+#usda 1.0
+
+over "surfacing_geom"
+{
+        over "geomMtl"
+        {
+                color3f inputs:albedo = (0.0, 0.0, 1.0)
+        }
+}

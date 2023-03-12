@@ -1,0 +1,92 @@
+#usda 1.0
+(
+    defaultPrim = "grid"
+    endTimeCode = 6
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 4
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Xform "grid" (
+    prepend apiSchemas = ["MaterialBindingAPI"]
+    kind = "component"
+)
+{
+    rel material:binding = </materials/usdpreviewsurface1>
+    matrix4d xformOp:transform:xform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:xform"]
+
+    def Mesh "mesh_0" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, 0), (0.5, 0.5, 0)]
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 3, 2]
+        rel material:binding = </materials/usdpreviewsurface1>
+        uniform token orientation = "leftHanded"
+        point3f[] points = [(-0.5, -0.5, 0), (0.5, -0.5, 0), (-0.5, 0.5, 0), (0.5, 0.5, 0)] (
+            interpolation = "vertex"
+        )
+        uniform token subdivisionScheme = "none"
+    }
+}
+
+def Scope "materials" (
+    prepend apiSchemas = ["MaterialBindingAPI"]
+)
+{
+    rel material:binding = </materials/usdpreviewsurface1>
+
+    def Material "usdpreviewsurface1" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </materials/usdpreviewsurface1>
+        token outputs:displacement.connect = </materials/usdpreviewsurface1/usdpreviewsurface1.outputs:displacement>
+        token outputs:surface.connect = </materials/usdpreviewsurface1/usdpreviewsurface1.outputs:surface>
+
+        def Shader "usdpreviewsurface1" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0, 0, 0)
+            color3f inputs:emissiveColor = (1, 1, 1)
+            rel material:binding = </materials/usdpreviewsurface1>
+            token outputs:displacement
+            token outputs:surface
+        }
+    }
+}
+
+def Camera "camera" (
+    prepend apiSchemas = ["HoudiniCameraPlateAPI", "HoudiniViewportGuideAPI"]
+)
+{
+    float2 clippingRange = (1, 1000000)
+    float exposure = 0
+    float focalLength = 0.5
+    float focusDistance = 5
+    float fStop = 0
+    float horizontalAperture = 0.20955
+    float horizontalApertureOffset = 0
+    asset houdini:backgroundimage = @@
+    asset houdini:foregroundimage = @@
+    float houdini:guidescale = 1
+    bool houdini:inviewermenu = 1
+    token projection = "perspective"
+    double shutter:close = 0.25
+    double shutter:open = -0.25
+    float verticalAperture = 0.11787187
+    float verticalApertureOffset = 0
+    matrix4d xformOp:transform.timeSamples = {
+        4: ( (0.44838321609003223, 0.8938414241512638, 0, 0), (-0.8938414241512638, 0.44838321609003223, 0, 0), (0, 0, 1, 0), (0, 0.5920000000000004, 10, 1) ),
+        5: ( (5.053215498074303e-16, 1, 0, 0), (-1, 5.053215498074303e-16, 0, 0), (0, 0, 1, 0), (0, 2.220446049250313e-16, 10, 1) ),
+        6: ( (-0.4483832160900321, 0.8938414241512639, 0, 0), (-0.8938414241512639, -0.4483832160900321, 0, 0), (0, 0, 1, 0), (0, -0.5920000000000001, 10, 1) ),
+    }
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+

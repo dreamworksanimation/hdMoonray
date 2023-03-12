@@ -1,0 +1,112 @@
+{
+    "name": "hd_multi",
+    "computations": {
+        "(client)": {
+            "messages": {
+                "merge": "*"
+            }
+        },
+
+        "dispatch": {
+            "entry": "yes",
+            "continuous": "false",
+            "dso": "libcomputation_progmcrt_dispatch.so",
+            "fps": 12,
+            "requirements": {
+                "packaging_system": "current-environment",
+                "computationAPI": "4.x"
+            },
+            "messages": {
+                "(client)": {
+                    "accept": [
+                        "RDLMessage",
+                        "GenericMessage",
+                        "RenderedFrame",
+                        "ViewportMessage",
+                        "JSONMessage",
+                        "RenderSetupMessage"
+                    ]
+                },
+                "merge": {
+                    "accept" : [
+                        "GenericMessage"
+                    ]
+                }
+            },
+            "numMachines": "$arrayNumber.mcrt",
+            "sendLogMessages": false
+        },
+
+        "mcrt": {
+            "arrayExpand": 2,
+            "dso": "libcomputation_progmcrt.so",
+            "fps": 12,
+            "imageEncoding": 3,
+            "machineId": "$arrayIndex",
+            "numMachines": "$arrayNumber",
+            "sendLogMessages": false,
+            "initialCredit": 2,
+            "requirements": {
+                "computationAPI": "4.x",
+                "packaging_system": "current-environment",
+                "resources": {
+                    "maxCores": "*",
+                    "minCores": 1.0,
+                    "memoryMB": 16384
+                }
+            },
+            "messages": {
+                "(client)": {
+                    "accept": [
+                        "GenericMessage",
+                        "ViewportMessage",
+                        "JSONMessage"
+                    ]
+                },
+                "merge": {
+                    "accept": [
+                        "GenericMessage",
+                        "CreditUpdate"
+                    ]
+                },
+                "dispatch": "*"
+            },
+            "renderMode": "timeInterval"
+        },
+
+        "merge": {
+            "dso": "libcomputation_progmcrt_merge.so",
+            "fps": 12,
+            "imageEncoding": 3,
+            "initialCredit": 2,
+            "sendCredit": true,
+            "requirements": {
+                "packaging_system": "current-environment",
+                "computationAPI": "4.x"
+            },
+            "messages": {
+                "(client)": {
+                    "accept": [
+                        "GenericMessage",
+                        "ViewportMessage",
+                        "CreditUpdate"
+                    ]
+                },
+                "dispatch": {
+                    "accept" : [
+                        "GenericMessage"
+                    ]
+                },
+                "mcrt": {
+                    "accept": [
+                        "PartialFrame",
+                        "ProgressiveFrame",
+                        "GenericMessage"
+                    ]
+                }
+            },
+            "numMachines": "$arrayNumber.mcrt",
+            "sendLogMessages": false
+        }
+    }
+}

@@ -1,0 +1,17 @@
+@PACKAGE_INIT@
+
+# @PACKAGE_cmakeModulesDir@
+# The variables <var1> to <varN> given as PATH_VARS are the variables which contain install destinations.
+# For each of them the macro will create a helper variable PACKAGE_<var...>.
+# These helper variables must be used in the FooConfig.cmake.in file for setting the installed location.
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(pxr)
+find_dependency(Moonray)
+find_dependency(Moonshine)
+find_dependency(SceneRdl2)
+
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
+
+check_required_components(@PROJECT_NAME@)

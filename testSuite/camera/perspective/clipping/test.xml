@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Rob Wilson">
+    <description>
+    Hydra version of perspective camera clipping test
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -size 500 500 -refine-level 0 -set 'sceneVariable:light_samples' 1 -set 'sceneVariable:bsdf_samples' 1 -set 'sceneVariable:pixel_samples' 4 -set 'sceneVariable:max_depth' 0 -set doubleSided 0</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail ${error_threshold} --failpercent .365 --warnpercent .365 --hardfail 0.38 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>

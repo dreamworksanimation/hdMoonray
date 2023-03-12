@@ -1,0 +1,478 @@
+
+# -*- coding: utf-8 -*-
+#
+# Package Build Pipeline Configuration File
+# Created by rwoods.
+# Created at 2021-03-11T19:02:40.368226.
+# Creating with /rel/rez/dwa/flowpipeline/3.7.5.0/bin/quickstart.
+#
+# Any value defined in here will override the default value used at runtime
+# by the Package Build Pipeline.  Therefore, only uncomment sections and
+# fields you wish to change from the default.
+
+# The values in this automatically generated file are a copy of the defaults.
+
+# Never comment the syntax line and modifying it is for advanced users!
+syntax: 1
+
+# Everything is configurable!
+#
+# You control how the pipeline runs and how it builds your source.
+# pipeline-configurations: how it runs, e.g. skip tests, make a release
+# package-configurations: how it builds, e.g. rez version, where it releases
+
+# -- Annotated Pipeline Configuration Schema  ----------------------------------
+
+# The following sections and settings explain the pipeline configuration.
+# Do not uncomment these because they are an example and explanation.
+#
+# Each section controls a stage in the pipeline.
+# Each setting controls task and procedure behavior within the stage.
+
+# checkout:
+
+  # Disable code check out.  Set to "false" at your own risk.
+  # The pipeline is designed to check out source from a repository.
+  # enabled: [true|false]
+
+  # Set whether to delete the existing build sandbox if it exists.  This will
+  # delete the checkout, build, and install directories.
+  # fresh: [true|false]
+
+  # Set whether to run a git clone and get the entire commit history, tags, etc.
+  # If set to 0, it will do a git pull instead.
+  # clone: [1|0]
+
+  # Merge the checkout target below into your build target prior to building.
+  # Often used to pick up the latest changes.
+  # merge_enabled: [true|false]
+
+  # Merge this checkout target into your bulid target (if enabled)
+  # prior to building.
+  # merge_target: [master|develop|...]
+
+  # Tell what kind of commit-ish checkout the target above is.
+  # merge_target_type: [branch|tag|commit]
+
+# build:
+
+  # Disable the build stage.
+  # enabled: [true|false]
+
+  # Define a specific Electric Flow resource or pool.  If you use a resource
+  # name or pool that doesn't exist, you're jobs will block waiting.  Leave
+  # empty to use the pipeline's default.
+  # resource: [EL7|CM_BUILD|EF_AGENT|default|...]
+
+  # Specify custom commands to run post-build.  They will run in the
+  # directory the source code was checked out to.
+  # post_cmd: [commands or scripts to run]
+
+  # Specify the post-processor (aka: log text scanner) to use on builds.
+  # postp: [/opt/electriccloud/electriccommander/bin/postp]
+
+  # Specify the root directory to store intermediate build artifacts.
+  # Relative paths will be relative from the "checkout" (source) directory.
+  # build_directory: ../build
+
+  # Indicate whether you want variant builds to run in parallel or serially.
+  # Some builds, like some 3rd party packages, may have variants that make changes
+  # to a centralized directory requiring a serial build.
+  # parallel_variants: [true|false]
+
+# scan:
+
+  # Disable the scan stage.
+  # enabled: [true|false]
+
+  # Enable theh ABI checker scan.
+  # https://github.com/lvc/abi-dumper
+  # https://lvc.github.io/abi-compliance-checker
+  # abi_checker: [true|false]
+
+  # Enable the security vulnerability scan.
+  # https://checkmarx.atlassian.net/wiki/spaces/KC/pages/59211846/CxSAST+Overview
+  # checkmarx: [true|false]
+
+  # Enable the third-party use license scan.
+  # https://fossid.com/open-source-compliance/
+  # fossID: [true|false]
+
+# test:
+
+  # Enable the test running stage.
+  # enabled: [true|false]
+
+  # Command that runs the tests.
+  # The _packagename_ token is replaced with <package>-<version> at run time.
+  # cmd: [rez-test _packagename_|pytest|scons @test|...]
+
+  # Ignore failed tests and proceed to subsequent stages.
+  # Test results are still reported.
+  # ignore_failures: [true|false]
+
+  # Define a specific Electric Flow resource or pool.  If you use a resource
+  # name or pool that doesn't exist, you're jobs will block waiting.  Leave
+  # empty to use the pipeline's default.
+  # resource: '$[/myProject/resource_default]'
+
+  # Specify the post-processor (aka: log text scanner) to use on tests.
+  # postp: [/opt/electriccloud/electriccommander/bin/postp]
+
+  # Provide an egrep-compatible regex for finding test output xml files.
+  # The default is to find xml files with the string "test" in it.
+  # name_filter: '[^/]*test[^/]*\\.xml'
+
+# release:
+
+  # Enable releasing your build products as a rez package.
+  # enabled: [true|false]
+
+  # Enable gate keeping behavior.
+  # An authorized user must manually approve the release via the Electric Flow
+  # web interface.
+  # ask_approval: [true|false]
+
+  # Enable tagging the release commit with <package>-<version>.
+  # update_git: [true|false]
+
+  # Enabling adding a comment to the jira issues found in the commit history.
+  # Only commits since the last release are searched.
+  # update_jira: [true|false]
+
+# finalize:
+
+  # Enable sending an e-mail to the users listed in the settings below.
+  # email_enabled: [true|false]
+
+  # Whom to e-mail when the pipeline run fails, e.g. build error, failed tests.
+  # This is a YAML list of e-mail addresses.
+  # email_recipients_failure:
+  # - _submitter_    # who triggered the pipeline run.
+  # - _contributor_  # who made the release commit.
+
+  # Whom to e-mail when the pipeline run succeeds.
+  # This is a YAML list of e-mail addresses.
+  # email_recipients_success:
+  # - _submitter_    # who triggered the pipeline run.
+  # - _contributor_  # who made the release commit.
+  # first.last@dreamworks.com
+
+  # Enable sending a message to a Google Chat Room listed in the settings below.
+  # You must have previously created a webhook through the Chat Room's GUI.
+  # https://developers.google.com/hangouts/chat/how-tos/webhooks#setting_up_an_incoming_webhook
+  # chat_enabled: [true|false]
+
+  # This is the URL that Google gives you when you create a webhook.
+  # chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/_YOUR CHAT ROOM WEBHOOK URL GOES HERE_
+
+# -- Annotated Package Configuration Schema  ----------------------------------
+
+# The following sections and settings explain the package configuration.
+# Do not uncomment these because they are an example and explanation.
+#
+# Each section & setting controls how rez-build, rez-release, rez-cp, etc. run.
+# The available settings are the same for EVERY package build configuration.
+
+# [8x|jobenv-10|rez-1|rez-2|...]:
+
+  # YAML list of rez packages to pass to rez-env.
+  # build_context:
+  # - buildtools
+  # - yourpackage-1.2.3
+
+  # Additional environment variables to set prior to calling rez-build.
+  # This is a YAML mapping.
+  # environment:
+  #   IMPORTANT_VARIABLE_NAME: foo
+  #   OTHER_VARIABLE: bar
+
+  # YAML list of packages to construct REZ_PACKAGES_PATH.
+  # $HOME/rez, /rel/test, and /rel/test/packages are not included by default.
+  # packages_path:
+  # - /rel/lang/python/packages
+  # - /my/test/package/area
+
+  # Where to copy the build products during the release stage.
+  # release_packages_path: /path/to/folio/or/packages/directory
+
+  # Where to place the symlink to release_packages_path
+  # This is only used by rez-1 releases and ignored by rez-2 ones.
+  # symlink_directory: /path/to/path/on/REZ_PACKAGES_PATH
+
+  # Enable creating a symlink from release_packages_path to symlink_directory.
+  # symlinks: [true|false]
+
+  # Enable preserving variants created by rez-build.
+  # Typically true for rez-2 and false for rez-1 releases.
+  # variants: [true|false]
+
+  # Enable creating a package.yaml file.
+  # This is only useful for rez-1 releases.
+  # yaml: [true|false]
+
+# -- Pipeline Run Mode Configuration -------------------------------------------
+
+# These are pre-defined configurations that the pipeline expects to exist.
+# You may remove these to use the system defaults or rename them to create
+# a custom configuration.
+
+# Uncomment this if you make any changes below!
+#
+pipeline-configurations:
+#
+# -- Customize Your Continuous Integration Here --------------------------------
+
+  continuous-integration:
+    checkout:
+      enabled: true
+      fresh: true
+      clone: 1
+      merge_enabled: false
+      merge_target: develop
+      merge_target_type: branch
+    build:
+      enabled: true
+      rez_args: -b scons
+      resource: EL7_RaTS_build_fast
+      post_cmd:
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      build_directory: ../build
+      parallel_variants: true
+      prepend_release_dir: false
+    scan:
+      enabled: false
+      abi_checker: false
+      checkmarx: false
+      fossID: false
+    test:
+      enabled: true
+      cmd:
+#      - rez-test _packagename_ rats-debug
+      - rez-test _packagename_ rats-opt-debug
+      ignore_failures: false
+      resource:
+#      - EL7_RaTS2_cpu
+      - EL7_RaTS
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      name_filter: foobar
+    release:
+      enabled: false
+      ask_approval: false
+      update_git: false
+      update_jira: false
+    finalize:
+      email_enabled: false
+      email_recipients_failure:
+      - _submitter_
+      - _contributor_
+      email_recipients_success:
+      - _submitter_
+      - _contributor_
+      chat_enabled: true
+      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      zulip_enabled: false
+    initialize:
+      email_enabled: true
+      email_recipients:
+      - _submitter_
+      - _contributor_
+      chat_enabled: true
+      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      zulip_enabled: false
+
+# -- Customize Your Pre-Release, aka, Test Maps, Here --------------------------
+
+  pre-release:
+    checkout:
+      enabled: true
+      fresh: false
+      clone: 0
+      merge_enabled: false
+      merge_target: develop
+      merge_target_type: branch
+    build:
+      enabled: true
+      rez_args: -b scons
+      resource: EL7_RaTS_build_fast
+      post_cmd:
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      build_directory: ../build
+      parallel_variants: true
+      prepend_release_dir: true
+    scan:
+      enabled: true
+      abi_checker: true
+      checkmarx: true
+      fossID: true
+    test:
+      enabled: false
+      cmd: rez-test _packagename_
+      ignore_failures: false
+      resource: EL7_RaTS
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      #name_filter: \'[^/]*test[^/]*\\.xml\'
+    release:
+      enabled: true
+      ask_approval: false
+      update_git: false
+      update_jira: false
+    finalize:
+      email_enabled: true
+      email_recipients_failure:
+      - _submitter_
+      - _contributor_
+      email_recipients_success:
+      - _submitter_
+      - _contributor_
+      chat_enabled: true
+      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      zulip_enabled: false
+    initialize:
+      email_enabled: true
+      email_recipients:
+      - _submitter_
+      - _contributor_
+      chat_enabled: true
+      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      zulip_enabled: false
+
+# -- Customize Your Release Here -----------------------------------------------
+
+  release:
+    checkout:
+      enabled: true
+      fresh: true
+      clone: 1
+      merge_enabled: false
+      merge_target: develop
+      merge_target_type: branch
+    build:
+      enabled: true
+      rez_args: -b scons
+      resource: EL7_RaTS_build_fast
+      post_cmd:
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      build_directory: ../build
+      parallel_variants: true
+      prepend_release_dir: false
+    test:
+      enabled: false
+      cmd: rez-test _packagename_
+      ignore_failures: false
+      resource: EL7_RaTS
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      #name_filter: \'[^/]*test[^/]*\\.xml\'
+    release:
+      enabled: true
+      ask_approval: false
+      update_git: true
+      update_jira: true
+    finalize:
+      email_enabled: true
+      email_recipients_failure:
+      - _submitter_
+      - _contributor_
+      email_recipients_success:
+      - _submitter_
+      - _contributor_
+      chat_enabled: true
+      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      zulip_enabled: false
+    initialize:
+      email_enabled: true
+      email_recipients:
+      - _submitter_
+      - _contributor_
+      chat_enabled: true
+      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      zulip_enabled: false
+
+# -- Package Build Configuration -------------------------------------------
+
+# These are pre-defined configurations that the pipeline expects to exist.
+# You may remove these to use the system defaults or rename them to create
+# a custom configuration.
+
+# Uncomment this if you make any changes below!
+#
+package-configurations:
+#
+# -- Customize Your 8x Build Here ----------------------------------------------
+
+#   8x:
+#     build_context:
+#     - buildtools
+#     environment:
+#       REZ_ALTERNATE_CONFIGURATION: 8x
+#     packages_path:
+#     - /rel/packages
+#     - /rel/lang/python/packages
+#     release_packages_path: /rel/folio
+#     symlink_directory: /rel/packages
+#     symlinks: true
+#     variants: false
+#     yaml: true
+
+# -- Customize Your 10x Build Here ---------------------------------------------
+
+#   jobenv-10:
+#     build_context:
+#     - buildtools
+#     environment:
+#       REZ_ALTERNATE_CONFIGURATION: jobenv10
+#     packages_path:
+#     - /rel/packages
+#     - /rel/lang/python/packages
+#     release_packages_path: /rel/folio
+#     symlink_directory: /rel/packages
+#     symlinks: true
+#     variants: false
+#     yaml: true
+
+# -- Customize Your Vanilla Rez 1 Build Here -----------------------------------
+
+#   rez-1:
+#     build_context:
+#     - buildtools
+#     environment: {}
+#     packages_path:
+#     - /rel/packages
+#     - /rel/lang/python/packages
+#     release_packages_path: /rel/folio
+#     symlink_directory: /rel/packages
+#     symlinks: true
+#     variants: false
+#     yaml: true
+
+# -- Customize Your Vanilla Rez 2 Build Here -----------------------------------
+
+  rez-2:
+    build_context:
+    - buildtools
+    environment: {}
+    packages_path:
+    - /rel/rez/dwa
+    - /rel/rez/third_party
+    - /rel/lang/python/packages
+    release_packages_path: /rel/rez/dwa
+    symlink_directory: null
+    symlinks: false
+    variants: true
+    yaml: false
+
+  rez-2-CI-RaTS:
+    build_context:
+    - buildtools
+    environment:
+      BROKEN_CUSTOM_ARGS_RATS: 1
+      BROKEN_CUSTOM_ARGS_UNITTESTS: 1
+    packages_path:
+    - /rel/rez/dwa
+    - /rel/rez/third_party
+    - /rel/lang/python/packages
+    release_packages_path: /rel/rez/dwa
+    symlink_directory: null
+    symlinks: false
+    variants: true
+    yaml: false

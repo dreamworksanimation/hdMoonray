@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Rob Wilson">
+    <description>
+    Hydra version of disk_basic test : solid disk light
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -size 960 540 -set 'sceneVariable:pixel_samples' 2 -set 'sceneVariable:max_depth' 0 -set doubleSided 0</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail ${error_threshold} --failpercent .01 --hardfail 0.02 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>

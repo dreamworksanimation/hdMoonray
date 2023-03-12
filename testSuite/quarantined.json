@@ -1,0 +1,78 @@
+{
+    "quarantinedTests": {
+        "teal": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
+        },
+        "pearl": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
+        },
+        "cobalt": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
+        }
+    },
+    "unsupportedTests": {
+        "teal": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
+        },
+        "pearl": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
+        },
+        "cobalt": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
+        }
+    }
+}

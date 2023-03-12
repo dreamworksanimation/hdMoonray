@@ -1,0 +1,16 @@
+Import('env')
+
+env.DWAUseComponents([
+    'usd_core',
+    'usd_imaging',
+])
+
+plugin = env.DWASharedLibrary(
+    'hdMoonrayAdapters',
+    env.DWAGlob('*.cc'),
+    NO_VARIANT_NAME=True,
+    SHLIBPREFIX=''
+)
+
+env.DWAInstallFiles('adapters', plugin)
+env.DWAInstallFiles('adapters', 'plugInfo.json')

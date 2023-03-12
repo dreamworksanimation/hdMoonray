@@ -1,0 +1,45 @@
+#usda 1.0
+(
+    defaultPrim = "Volume"
+)
+
+def Volume "Volume"
+{
+    rel field:density = </Volume/Field>
+    double3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, 0, 0)
+    token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    Vec3f[] extent = [(-24, -2.4, -18.6), (21.6, 42.8, 17.8)]
+    rel material:binding = </Material>
+
+    def OpenVDBAsset "Field"
+    {
+        token fieldName = "density"
+        asset filePath = @/work/rd/raas/hydra/rats/data/bunny.vdb@
+    }
+}
+
+def Material "Material"
+{
+    color4f outputs:moonray:volume.connect = <shader.outputs:volume>
+    def Shader "shader"
+    {
+        uniform token info:id = "VdbVolume"
+        color3f inputs:color_mult = (1, .8, .8)
+        color4f outputs:volume
+    }
+}
+
+def Mesh "box"
+{
+    double3 xformOp:scale = (45.6, 45.2, 36.4)
+    double3 xformOp:translate = (-24, -2.4, -18.6)
+    token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    Vec3f[] extent = [(0,0,0), (1,1,1)]
+    int[] faceVertexCounts = [4, 4, 4]
+    int[] faceVertexIndices = [0, 1, 2, 3, 0, 3, 4, 5, 0, 5, 6, 1]
+    float3[] points = [(0,0,0), (1,0,0), (1,1,0), (0,1,0), (0,1,1), (0,0,1), (1,0,1)]
+    color3f[] primvars:displayColor = [(1, 1, 0), (0, 1, 1), (1, 0, 1)] ( interpolation = "uniform" )
+    uniform token subdivisionScheme = "none"
+}
+

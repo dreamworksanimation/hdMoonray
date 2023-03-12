@@ -1,0 +1,38 @@
+{
+    "name": "hd_single",
+    "computations": {
+        "(client)": {
+            "messages": {
+                "mcrt": "*"
+            }
+        },
+        "mcrt": {
+            "dso": "libcomputation_progmcrt.so",
+            "entry": "yes",
+            "fps": 12,
+            "imageEncoding": 3,
+            "initialCredit": 2,
+            "machineId": 0,
+            "requirements": {
+                "computationAPI": "4.x",
+                "packaging_system": "current-environment",
+                "resources": {
+                    "maxCores": "*",
+                    "minCores": 1.0,
+                    "memoryMB": 16384.0
+                }
+            },
+            "messages": {
+                "(client)": {
+                    "accept": [
+                        "RDLMessage",
+                        "GenericMessage",
+                        "ViewportMessage",
+                        "JSONMessage",
+                        "CreditUpdate"
+                    ]
+                }
+            }
+        }
+    }
+}

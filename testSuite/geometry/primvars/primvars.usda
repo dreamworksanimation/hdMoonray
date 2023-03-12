@@ -1,0 +1,287 @@
+#usda 1.0
+
+def Material "mat"
+{
+    token outputs:surface.connect = <previewMtl.outputs:surface>
+
+    def Shader "previewMtl"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        token outputs:surface
+        color3f inputs:diffuseColor.connect = </mat/PrimvarColor.outputs:result>
+        float inputs:opacity.connect = </mat/PrimvarOpacity.outputs:result>
+        float inputs:roughness.connect = </mat/PrimvarRoughness.outputs:result>
+    }
+
+    def Shader "PrimvarColor"
+    {
+        uniform token info:id = "UsdPrimvarReader_float3"
+        string inputs:varname = "displayColor"
+        float3 inputs:fallback = (.5, .5, .5)
+        float3 outputs:result
+    }
+
+    def Shader "PrimvarOpacity"
+    {
+        uniform token info:id = "UsdPrimvarReader_float"
+        string inputs:varname = "displayOpacity"
+        float inputs:fallback = 1
+        float outputs:result
+    }
+
+    def Shader "PrimvarRoughness"
+    {
+        uniform token info:id = "UsdPrimvarReader_float"
+        string inputs:varname = "roughness"
+        float inputs:fallback = 0.5
+        float outputs:result
+    }
+
+    def Shader "PrimvarColorMoonray"
+    {
+        uniform token info:id = "AttributeMap"
+        string inputs:primitive_attribute_name = "displayColor"
+        float3 inputs:default_value = (.5, .5, .5)
+        float3 outputs:result
+    }
+
+    token outputs:moonray:surface.connect = <MoonrayMtl.outputs:surface>
+
+    def Shader "MoonrayMtl"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        token outputs:surface
+        color3f inputs:diffuseColor.connect = </mat/PrimvarColorMoonray.outputs:result>
+        float inputs:opacity.connect = </mat/PrimvarOpacity.outputs:result>
+        float inputs:roughness.connect = </mat/PrimvarRoughness.outputs:result>
+    }
+}
+
+def Xform "World"
+{
+    float3 primvars:displayColor = (.5,.5,.5)
+    float[] primvars:roughness = [0]
+    float primvars:moonray:mesh_resolution = 4
+
+    def Sphere "s00"
+    {
+        double3 xformOp:translate = (-3, -3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        bool primvars:moonray:visible_in_camera = false
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s01"
+    {
+        double3 xformOp:translate = (-1, -3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s02"
+    {
+        double3 xformOp:translate = (1, -3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s03"
+    {
+        double3 xformOp:translate = (3, -3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+        float primvars:moonray:mesh_resolution = 0
+    }
+
+    def Xform "x1" {
+        bool primvars:moonray:visible_in_camera = False
+
+    def Sphere "s10"
+    {
+        double3 xformOp:translate = (-3, -1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s11"
+    {
+        double3 xformOp:translate = (-1, -1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        bool primvars:moonray:visible_in_camera = True
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s12"
+    {
+        double3 xformOp:translate = (1, -1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s13"
+    {
+        double3 xformOp:translate = (3, -1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+    }
+
+    def Sphere "s20"
+    {
+        double3 xformOp:translate = (-3, 1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s21"
+    {
+        double3 xformOp:translate = (-1, 1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s22"
+    {
+        double3 xformOp:translate = (1, 1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+        float[] primvars:displayOpacity = [0]
+    }
+
+    def Sphere "s23"
+    {
+        double3 xformOp:translate = (3, 1, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s30"
+    {
+        double3 xformOp:translate = (-3, 3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+        float primvars:moonray:mesh_resolution = 1
+    }
+
+    def Sphere "s31"
+    {
+        double3 xformOp:translate = (-1, 3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s32"
+    {
+        double3 xformOp:translate = (1, 3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Sphere "s33"
+    {
+        double3 xformOp:translate = (3, 3, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </mat>
+    }
+
+    def Mesh "plane"
+    {
+        float3[] extent = [(-4, -4, 0), (4, 4, 0)]
+        float3[] points = [
+            (-4, -4, 0), (-3, -4, 0), (-2, -4, 0), (-1, -4, 0), (0, -4, 0), (1, -4, 0), (2, -4, 0), (3, -4, 0), (4, -4, 0),
+            (-4, -3, 0), (-3, -3, 0), (-2, -3, 0), (-1, -3, 0), (0, -3, 0), (1, -3, 0), (2, -3, 0), (3, -3, 0), (4, -3, 0),
+            (-4, -2, 0), (-3, -2, 0), (-2, -2, 0), (-1, -2, 0), (0, -2, 0), (1, -2, 0), (2, -2, 0), (3, -2, 0), (4, -2, 0),
+            (-4, -1, 0), (-3, -1, 0), (-2, -1, 0), (-1, -1, 0), (0, -1, 0), (1, -1, 0), (2, -1, 0), (3, -1, 0), (4, -1, 0),
+            (-4, 0, 0), (-3, 0, 0), (-2, 0, 0), (-1, 0, 0), (0, 0, 0), (1, 0, 0), (2, 0, 0), (3, 0, 0), (4, 0, 0),
+            (-4, 1, 0), (-3, 1, 0), (-2, 1, 0), (-1, 1, 0), (0, 1, 0), (1, 1, 0), (2, 1, 0), (3, 1, 0), (4, 1, 0),
+            (-4, 2, 0), (-3, 2, 0), (-2, 2, 0), (-1, 2, 0), (0, 2, 0), (1, 2, 0), (2, 2, 0), (3, 2, 0), (4, 2, 0),
+            (-4, 3, 0), (-3, 3, 0), (-2, 3, 0), (-1, 3, 0), (0, 3, 0), (1, 3, 0), (2, 3, 0), (3, 3, 0), (4, 3, 0),
+            (-4, 4, 0), (-3, 4, 0), (-2, 4, 0), (-1, 4, 0), (0, 4, 0), (1, 4, 0), (2, 4, 0), (3, 4, 0), (4, 4, 0)]
+        int[] faceVertexCounts = [
+            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [
+            0, 9, 10, 1,
+            1, 10, 11, 2,
+            2, 11, 12, 3,
+            3, 12, 13, 4,
+            4, 13, 14, 5,
+            5, 14, 15, 6,
+            6, 15, 16, 7,
+            7, 16, 17, 8,
+            9, 18, 19, 10,
+            10, 19, 20, 11,
+            11, 20, 21, 12,
+            12, 21, 22, 13,
+            13, 22, 23, 14,
+            14, 23, 24, 15,
+            15, 24, 25, 16,
+            16, 25, 26, 17,
+            18, 27, 28, 19,
+            19, 28, 29, 20,
+            20, 29, 30, 21,
+            21, 30, 31, 22,
+            22, 31, 32, 23,
+            23, 32, 33, 24,
+            24, 33, 34, 25,
+            25, 34, 35, 26,
+            27, 36, 37, 28,
+            28, 37, 38, 29,
+            29, 38, 39, 30,
+            30, 39, 40, 31,
+            31, 40, 41, 32,
+            32, 41, 42, 33,
+            33, 42, 43, 34,
+            34, 43, 44, 35,
+            36, 45, 46, 37,
+            37, 46, 47, 38,
+            38, 47, 48, 39,
+            39, 48, 49, 40,
+            40, 49, 50, 41,
+            41, 50, 51, 42,
+            42, 51, 52, 43,
+            43, 52, 53, 44,
+            45, 54, 55, 46,
+            46, 55, 56, 47,
+            47, 56, 57, 48,
+            48, 57, 58, 49,
+            49, 58, 59, 50,
+            50, 59, 60, 51,
+            51, 60, 61, 52,
+            52, 61, 62, 53,
+            54, 63, 64, 55,
+            55, 64, 65, 56,
+            56, 65, 66, 57,
+            57, 66, 67, 58,
+            58, 67, 68, 59,
+            59, 68, 69, 60,
+            60, 69, 70, 61,
+            61, 70, 71, 62,
+            63, 72, 73, 64,
+            64, 73, 74, 65,
+            65, 74, 75, 66,
+            66, 75, 76, 67,
+            67, 76, 77, 68,
+            68, 77, 78, 69,
+            69, 78, 79, 70,
+            70, 79, 80, 71]
+        color3f[] primvars:displayColor = [
+            (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0),
+            (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1),
+            (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0),
+            (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1),
+            (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0),
+            (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1),
+            (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0),
+            (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1), (1,0,0), (1,1,1)] ( interpolation = "uniform" )
+        uniform token subdivisionScheme = "none"
+        uniform bool doubleSided = true
+    }
+}
+

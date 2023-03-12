@@ -1,0 +1,98 @@
+#usda 1.0
+
+def Camera "camera"
+{
+    matrix4d xformOp:transform = ( (1, 0, 0, 0),
+                                   (0, 0.87462, -0.48481, 0),
+                                   (0, 0.48481, 0.87462, 0),
+                                   (0, 3.18164, 3.93579, 1) )
+
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+
+    float focalLength = 350;
+    float horizontalAperture = 240;
+    float verticalAperture = 134
+    float2 clippingRange = (1, 10000)
+}
+
+def DomeLight "env"
+{
+    float intensity = 0.8
+    float inputs:intensity = 0.8
+    asset texture:file = "/work/gshad/moonshine_test/rats_data/material/dwametal/defaults/med/gld_dusk_GI_HS_PF_hdr.exr"
+    asset inputs:texture:file = "/work/gshad/moonshine_test/rats_data/material/dwametal/defaults/med/gld_dusk_GI_HS_PF_hdr.exr"
+}
+
+def RectLight "key"
+{
+    matrix4d xformOp:transform = ( (0.5, 0, 0.866025, 0),
+                                (0.75, 0.5, -0.433013, 0),
+                                (-0.433013, 0.866025, 0.25, 0),
+                                (-43.3013, 86.6025, 25, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    float intensity = 12
+    float inputs:intensity = 12
+    color3f color = (0.855, 0.77, 0.535)
+    color3f inputs:color = (0.855, 0.77, 0.535)
+    float width = 50
+    float inputs:width = 50
+    float height = 50
+    float inputs:height = 50
+    bool normalize = true
+    bool inputs:normalize = true
+}
+
+def "plane" ( payload = @/work/rd/raas/hydra/rats/data/plane_xz.usda@ )
+{
+    matrix4d xformOp:transform = ( (10, 0, 0, 0),
+                                   ( 0, 1, 0, 0),
+                                   ( 0, 0, 10, 0),
+                                   ( 0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    rel material:binding = </surfacing_plane>
+}
+
+def Material "surfacing_plane"
+{
+        color4f outputs:moonray:surface.connect = <planeMtl.outputs:surface>
+
+        def Shader "planeMtl"
+        {
+            uniform token info:id = "DwaBaseMaterial"
+            color4f outputs:surface
+            color3f inputs:albedo.connect = <../planeMap.outputs:out>
+            float inputs:specular = 0
+            float inputs:roughness = 0
+        }
+
+        def Shader "planeMap"
+        {
+            uniform token info:id = "ImageMap"
+            color3f outputs:out
+            asset inputs:texture = "/work/gshad/moonshine_test/rats_data/material/dwametal/defaults/misc/rgb_checker.exr"
+            float2 inputs:scale = (10,10)
+            float2 inputs:offset = (-5,-5)
+            bool inputs:wrap_around = true
+        }
+}
+
+def "geom" ( payload = @/work/rd/raas/hydra/rats/data/sphere.usdc@ )
+{
+      matrix4d xformOp:transform = ( (1, 0, 0, 0),
+                                     (0, 1, 0, 0),
+                                     (0, 0, 1, 0),
+                                     (0, 1, 0, 1) )
+      uniform token[] xformOpOrder = ["xformOp:transform"]
+      rel material:binding = </surfacing_geom>
+}
+
+def Material "surfacing_geom"
+{
+    color4f outputs:moonray:surface.connect = <geomMtl.outputs:surface>
+
+    def Shader "geomMtl"
+    {
+        uniform token info:id = "DwaBaseMaterial"
+        color4f outputs:surface
+    }
+}

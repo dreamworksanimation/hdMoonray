@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Bill Spitzak">
+    <description>
+    Renders two triangles using displayColor and free camera.
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/two_triangles.usd -out ${result} ${args} -res ${res}</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail 0.02 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>

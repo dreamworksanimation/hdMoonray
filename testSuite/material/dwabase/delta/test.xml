@@ -1,0 +1,39 @@
+<testsuite>
+  <testcase owner="Rob Wilson">
+    <description>
+    Applies a delta to dwabase/basic
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -camera camera -size 600 500 -set 'sceneVariable:pixel_samples' 2 -set 'sceneVariable:light_samples' 2 -set 'sceneVariable:bsdf_samples' 3 -set 'sceneVariable:max_depth' 3 -delta_in ${shot_dir}/delta.usd -delta_out ${result0}</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail 0.02 --failpercent .1 --warnpercent .1 --hardfail .25 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result0} ${shot_tmp_dir}/${canonical0} -a --warn ${error_threshold} --fail 0.02 --failpercent .1 --warnpercent .1 --hardfail .25 --diff --absdiff -o ${shot_tmp_dir}/${diff0}</args>
+      </command>
+    </commands>
+  </testcase>
+  <canonicals>
+    <canonical>
+      <canonicalvariable>canonical</canonicalvariable>
+      <canonicalname>canonical.exr</canonicalname>
+      <resultvariable>result</resultvariable>
+      <resultname>result.exr</resultname>
+      <diffvariable>diff</diffvariable>
+      <diffname>diff.exr</diffname>
+    </canonical>
+    <canonical>
+      <canonicalvariable>canonical0</canonicalvariable>
+      <canonicalname>canonical0.exr</canonicalname>
+      <resultvariable>result0</resultvariable>
+      <resultname>result0.exr</resultname>
+      <diffvariable>diff0</diffvariable>
+      <diffname>diff0.exr</diffname>
+    </canonical>
+  </canonicals>
+</testsuite>

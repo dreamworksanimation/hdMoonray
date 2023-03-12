@@ -1,0 +1,29 @@
+Import('env')
+
+env.DWAUseComponents([
+    'atomic',
+    'arras4_log',
+    'client_api',
+    'common_except',
+    'core_messages',
+    'client_receiver',
+    'mcrt_messages',
+    'message_api',
+    'rendering_rndr',
+    'render_logging',
+    'scene_rdl2',
+    'sdk',
+    'tbb',
+    'usd_core',
+    'usd_imaging',
+])
+
+plugin = env.DWASharedLibrary(
+    'hdMoonray',
+    env.DWAGlob('*.cc'),
+    NO_VARIANT_NAME=True,
+    SHLIBPREFIX=''
+)
+
+env.DWAInstallFiles('plugin', plugin)
+env.DWAInstallFiles('plugin', 'plugInfo.json')

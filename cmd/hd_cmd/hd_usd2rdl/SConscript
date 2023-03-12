@@ -1,0 +1,15 @@
+Import('env')
+
+env.DWAUseComponents([
+    'mkl',
+    'usd_imaging',
+    'scene_rdl2',
+    'tbb'
+])
+
+prog = env.DWAProgram(
+     'hd_usd2rdla',
+     env.DWAGlob('*.cc')
+)
+
+env.DWAInstallBin(prog)

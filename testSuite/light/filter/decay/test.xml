@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Rob Wilson">
+    <description>
+    Hydra test of decay light filter
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -set 'sceneVariable:pixel_samples' 3 -set 'sceneVariable:max_depth' 3 -set doubleSided 0</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail 0.005 --failpercent .01 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>

@@ -1,0 +1,118 @@
+#usda 1.0
+
+def Camera "camera"
+{
+        float3 xformOp:translate = (0, 0, 2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        float horizontalAperture = 10
+        float focalLength = 10
+        float2 clippingRange = (1.25, 1.875)
+}
+
+def DomeLight "l0"
+{
+}
+
+def "floorGeom" ( payload = @/work/rd/raas/hydra/rats/data/plane_xz_unit.usd@ )
+{
+        float3 xformOp:translate = (0, -0.5, 0.5)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        rel material:binding = </surfacing_floor>
+}
+
+def "wallGeom" ( payload = @/work/rd/raas/hydra/rats/data/plane_xz_unit.usd@ )
+{
+        float xformOp:rotateX = 90
+        uniform token[] xformOpOrder = ["xformOp:rotateX"]
+        rel material:binding = </surfacing_floor>
+}
+
+def Cube "box0"
+{
+        float3 xformOp:translate = (-0.4375, -0.4375, 0.9375)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+def Cube "box1"
+{
+        float3 xformOp:translate = (-0.3125, -0.4375, 0.8125)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+def Cube "box2"
+{
+        float3 xformOp:translate = (-0.1875, -0.4375, 0.6875)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+def Cube "box3"
+{
+        float3 xformOp:translate = (-0.0625, -0.4375, 0.5625)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+def Cube "box4"
+{
+        float3 xformOp:translate = (0.0625, -0.4375, 0.4375)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+def Cube "box5"
+{
+        float3 xformOp:translate = (0.1875, -0.4375, 0.3125)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+def Cube "box6"
+{
+        float3 xformOp:translate = (0.3125, -0.4375, 0.1875)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+def Cube "box7"
+{
+        float3 xformOp:translate = (0.4375, -0.4375, 0.0625)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        double size = 0.125
+        rel material:binding = </surfacing_box>
+}
+
+def Material "surfacing_floor"
+{
+        color4f outputs:moonray:surface.connect = <baseMtl.outputs:surface>
+
+        def Shader "baseMtl"
+        {
+            uniform token info:id = "BaseMaterial"
+            color4f outputs:surface
+            color3f inputs:diffuse_color.connect = <../floorMap.outputs:out>
+            float inputs:specular_factor = 0
+        }
+
+        def Shader "floorMap"
+        {
+            uniform token info:id = "ImageMap"
+            float3 outputs:out
+            asset inputs:texture = @/work/gshad/moonshine_test/rats_data/camera/perspective/clipping/misc/rgb_checker.tx@
+            token inputs:gamma = "on"
+            bool inputs:wrap_around = false
+        }
+}
+
+def Material "surfacing_box"
+{
+        color4f outputs:moonray:surface.connect = <baseMtl.outputs:surface>
+
+        def Shader "baseMtl"
+        {
+            uniform token info:id = "BaseMaterial"
+            color4f outputs:surface
+        }
+}

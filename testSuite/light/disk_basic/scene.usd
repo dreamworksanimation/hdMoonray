@@ -1,0 +1,101 @@
+#usda 1.0
+
+def Camera "camera"
+{
+    matrix4d xformOp:transform = ( (0.557022, 0, -0.830498, 0),
+                                   (0.0708238, 0.996357, 0.0475021, 0),
+                                   (0.827472, -0.0852787, 0.554993, 0),
+                                   (10.6483, 1.03694, -0.332209, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+
+    float focalLength = 300;
+    float horizontalAperture = 240;
+    float verticalAperture = 240
+    float2 clippingRange = (0.01, 10000)
+}
+
+def "gronkle" ( payload =  @/work/rd/raas/hydra/rats/data/gronkle.usdc@)
+{
+    matrix4d xformOp:transform:a = ( (0.0216271, 0, -0.020791, 0),
+                                   (0, 0.03, 0, 0),
+                                   (0.020791, 0, 0.0216271, 0),
+                                   (0, 0, -7, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:a","xformOp:transform"]
+    rel material:binding = </surfacing_gronkle>
+}
+
+
+def "floor" ( payload = @/work/rd/raas/hydra/rats/data/plane_xz_unit.usd@ )
+{
+    matrix4d xformOp:transform = ( (20, 0, 0, 0),
+                                   ( 0, 20, 0, 0),
+                                   ( 0, 0, 20, 0),
+                                   ( 0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    rel material:binding = </surfacing_floor>
+}
+
+def "wall" ( payload = @/work/rd/raas/hydra/rats/data/plane_xz_unit.usd@ )
+{
+    matrix4d xformOp:transform = ( (20, 0, 0, 0),
+                                   (0, 0, 1, 0),
+                                   (0, -10, 0, 0),
+                                   (0, 5, -10, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    rel material:binding = </surfacing_floor>
+}
+
+def Material "surfacing_floor"
+{
+        color4f outputs:moonray:surface.connect = <baseMtl.outputs:surface>
+
+        def Shader "baseMtl"
+        {
+            uniform token info:id = "BaseMaterial"
+            color4f outputs:surface
+            color3f inputs:diffuse_color = (1, 1, 1)
+            bool inputs:diffuse = true
+            float inputs:diffuse_factor = 1
+            float inputs:directional_diffuse_roughness = 0.547723
+            float inputs:specular_roughness = 0.316228
+        }
+}
+
+def Material "surfacing_gronkle"
+{
+        color4f outputs:moonray:surface.connect = <baseMtl.outputs:surface>
+
+        def Shader "baseMtl"
+        {
+            uniform token info:id = "BaseMaterial"
+            color4f outputs:surface
+            color3f inputs:diffuse_color = (0.2, 0.2, 0.2)
+            bool inputs:diffuse = true
+            float inputs:diffuse_factor = 1
+            color3f inputs:directional_diffuse_color = (1, 0.5, 0.5)
+            bool inputs:directional_diffuse = true
+            float inputs:directional_diffuse_factor = 0.4
+            float inputs:directional_diffuse_roughness = 0.77459666924148
+            color3f inputs:specular_color = (1, 1, 1)
+            bool inputs:specular = true
+            float inputs:specular_factor = 0.1
+            float inputs:specular_roughness = 0.14142135623731
+         }
+}
+
+def DiskLight "disk"
+{
+    uniform token moonray:class = "DiskLight"
+    matrix4d xformOp:transform = ( (-0.0291956, 0, 0.999573, 0),
+                                   (0.999573, -4.37114e-08, 0.0291956, 0),
+                                   (4.36928e-08, 1, 1.27618e-09, 0),
+                                   (0, 4, -8, 1) )
+    token moonray:visible_in_camera = "force on"
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    color3f color = (1,1,1)
+    color3f inputs:color = (1,1,1)
+    float intensity = 1
+    float inputs:intensity = 1
+    float radius = 2
+    float inputs:radius = 2
+}

@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Scott Cegielski">
+    <description>
+    Tests camera transform motion blur
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -camera camera -sampling_camera camera -time 5</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail ${error_threshold} --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>

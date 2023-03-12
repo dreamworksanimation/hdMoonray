@@ -1,0 +1,21 @@
+name: Trigger CI/RaTS run
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'flowpipeline.yaml'
+      - 'LICENSE'
+      - 'tsc/**'
+
+jobs:
+  trigger_CI_RaTS_plan:
+    runs-on: [self-hosted]
+    steps:
+      - name: Run schedule
+        run: |
+          /opt/electriccloud/electriccommander/bin/ectool runProcedure --projectName 'Moonbase' --scheduleName 'HPBP Hydra RaTS CI'

@@ -1,0 +1,10 @@
+{
+    "HdMoonrayRendererPlugin" : {
+        "valid" : true,
+        "menulabel" : "Moonray (Alpha)",
+        "needsselection" : true,
+        "depthstyle": "linear",
+        "defaultpurposes" : [ "render" ],
+        "complexitymultiplier" : 1.173
+    }
+}

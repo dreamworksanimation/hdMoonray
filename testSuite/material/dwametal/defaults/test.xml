@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Rob Wilson">
+    <description>
+    Hydra version of dwametal/defaults test
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -size 600 500 -set 'sceneVariable:pixel_samples' 2 -set 'sceneVariable:light_samples' 2 -set 'sceneVariable:bsdf_samples' 3 -set 'sceneVariable:max_depth' 3</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail 0.02 --failpercent .02 --warnpercent .01 --hardfail 0.3 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>

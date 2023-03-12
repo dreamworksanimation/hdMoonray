@@ -1,0 +1,59 @@
+<testsuite>
+  <testcase owner="Rob Wilson">
+    <description>
+    Renders 3 frames with a moving camera
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result100} ${args} -time 100 -res ${res} -camera camera -size 500 500 -refine-level 3 -set 'sceneVariable:max_depth' 0 -set doubleSided 0</args>
+      </command>
+       <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result150} ${args} -time 150 -res ${res} -camera camera -size 500 500 -refine-level 3 -set 'sceneVariable:max_depth' 0 -set doubleSided 0</args>
+      </command>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/scene.usd -out ${result200} ${args} -time 200 -res ${res} -camera camera -size 500 500 -refine-level 3 -set 'sceneVariable:max_depth' 0 -set doubleSided 0</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result100} ${shot_tmp_dir}/${canonical100} -a --warn ${error_threshold} --fail 0.02 --diff --absdiff -o ${shot_tmp_dir}/${diff100}</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result150} ${shot_tmp_dir}/${canonical150} -a --warn ${error_threshold} --fail 0.02 --diff --absdiff -o ${shot_tmp_dir}/${diff150}</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result200} ${shot_tmp_dir}/${canonical200} -a --warn ${error_threshold} --fail 0.02 --diff --absdiff -o ${shot_tmp_dir}/${diff200}</args>
+      </command>
+    </commands>
+  </testcase>
+  <canonicals>
+    <canonical>
+      <canonicalvariable>canonical100</canonicalvariable>
+      <canonicalname>canonical100.exr</canonicalname>
+      <resultvariable>result100</resultvariable>
+      <resultname>result100.exr</resultname>
+      <diffvariable>diff100</diffvariable>
+      <diffname>diff100.exr</diffname>
+    </canonical>
+    <canonical>
+      <canonicalvariable>canonical150</canonicalvariable>
+      <canonicalname>canonical150.exr</canonicalname>
+      <resultvariable>result150</resultvariable>
+      <resultname>result150.exr</resultname>
+      <diffvariable>diff150</diffvariable>
+      <diffname>diff150.exr</diffname>
+    </canonical>
+    <canonical>
+      <canonicalvariable>canonical200</canonicalvariable>
+      <canonicalname>canonical200.exr</canonicalname>
+      <resultvariable>result200</resultvariable>
+      <resultname>result200.exr</resultname>
+      <diffvariable>diff200</diffvariable>
+      <diffname>diff200.exr</diffname>
+    </canonical>
+  </canonicals>
+</testsuite>
