@@ -262,23 +262,21 @@ pipeline-configurations:
       update_git: false
       update_jira: false
     finalize:
-      email_enabled: false
+      email_enabled: true
       email_recipients_failure:
       - _submitter_
       - _contributor_
       email_recipients_success:
       - _submitter_
       - _contributor_
-      chat_enabled: true
-      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      chat_enabled: false
       zulip_enabled: false
     initialize:
       email_enabled: true
       email_recipients:
       - _submitter_
       - _contributor_
-      chat_enabled: true
-      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      chat_enabled: false
       zulip_enabled: false
 
 # -- Customize Your Pre-Release, aka, Test Maps, Here --------------------------
@@ -325,16 +323,14 @@ pipeline-configurations:
       email_recipients_success:
       - _submitter_
       - _contributor_
-      chat_enabled: true
-      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      chat_enabled: false
       zulip_enabled: false
     initialize:
       email_enabled: true
       email_recipients:
       - _submitter_
       - _contributor_
-      chat_enabled: true
-      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      chat_enabled: false
       zulip_enabled: false
 
 # -- Customize Your Release Here -----------------------------------------------
@@ -376,16 +372,14 @@ pipeline-configurations:
       email_recipients_success:
       - _submitter_
       - _contributor_
-      chat_enabled: true
-      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      chat_enabled: false
       zulip_enabled: false
     initialize:
       email_enabled: true
       email_recipients:
       - _submitter_
       - _contributor_
-      chat_enabled: true
-      chat_room_webhook_url: https://chat.googleapis.com/v1/spaces/AAAAhg7dAzc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=oxEaqKBjj1BtYk9eFgyQTcM5k4XtuXpRyrUUA5iBobc%3D
+      chat_enabled: false
       zulip_enabled: false
 
 # -- Package Build Configuration -------------------------------------------
