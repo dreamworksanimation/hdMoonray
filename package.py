@@ -13,7 +13,7 @@ if 'early' not in locals() or not callable(early):
 
 @early()
 def version():
-    _version = '2.4'
+    _version = '2.5'
     from rezbuild import earlybind
     return earlybind.version(this, _version)
 
@@ -58,7 +58,7 @@ requires = [
     'moonshine-10.4',
     'mcrt_computation-11.4',
     'arras4_core-4.10',
-    'mcrt_messages-10.2',
+    'mcrt_messages-10.3',
     'mcrt_dataio-11.4',
     'mkl',
     'openimageio',
