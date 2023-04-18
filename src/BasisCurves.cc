@@ -16,7 +16,7 @@ constexpr int CURVE_TYPE_LINEAR = 0;
 constexpr int CURVE_TYPE_BEZIER = 1;
 constexpr int CURVE_TYPE_BSPLINE = 2;
 
-const pxr::TfToken curve_subtypeToken("moonray:curve_subtype");
+const pxr::TfToken curves_subtypeToken("moonray:curves_subtype");
 const pxr::TfToken roundToken("round");
 const pxr::TfToken tessellation_rateToken("moonray:tessellation_rate");
 }
@@ -140,7 +140,7 @@ BasisCurves::Sync(pxr::HdSceneDelegate *sceneDelegate,
                 round = false;
                 tessellation_rate = 1;
             } else {
-                pxr::VtValue v = get(curve_subtypeToken, sceneDelegate);
+                pxr::VtValue v = get(curves_subtypeToken, sceneDelegate);
                 if (not v.IsEmpty()) {
                     round = v.Get<pxr::TfToken>() == roundToken;
                 } else {
@@ -153,7 +153,7 @@ BasisCurves::Sync(pxr::HdSceneDelegate *sceneDelegate,
                     tessellation_rate = 4;
                 }
             }
-            geometry()->set("curve_subtype", round ? 1 : 0);
+            geometry()->set("curves_subtype", round ? 1 : 0);
             geometry()->set("tessellation_rate", tessellation_rate);
         }
 

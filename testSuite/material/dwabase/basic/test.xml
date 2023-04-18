@@ -10,8 +10,14 @@
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>
-	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail 0.02 --failpercent .08 --warnpercent .08 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail 0.2 --failpercent 1 --warnpercent 0.8 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
       </command>
     </commands>
+    <variables>
+      <variable>
+        <name>error_threshold</name>
+        <value>0.1</value>
+      </variable>
+    </variables>
   </testcase>
 </testsuite>

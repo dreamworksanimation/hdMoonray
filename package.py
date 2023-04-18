@@ -36,14 +36,14 @@ else:
     build_system_pbr = 'bart_scons-10'
 
 variants = [
-    ['refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-optdebug', 'python-2.7'],
-    ['refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-debug', 'python-2.7'],
-    ['refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug'],
-    ['refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug'],
-    ['refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug'],
-    ['refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug'],
-    ['refplat-vfx2022.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug'],
-    ['refplat-vfx2022.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug']
+    ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-optdebug'],
+    ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-debug'],
+    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug'],
+    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug'],
+    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug'],
+    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug'],
+    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug'],
+    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug']
 ]
 
 sconsTargets = {
@@ -66,19 +66,19 @@ requires = [
 
 private_build_requires = [
     build_system_pbr,
-    'gcc',
-    'os-CentOS-7',
+    'gcc-6.3.x|9.3.x',
+    'python',
     'cppunit'
 ]
 
 tests = {
     # "rats-debug": {
     #     "command": "rats -a --rco=2 --nohtml --rac --var res 14 --ofwc hd_render",
-    #     "requires": ["rats", "opt_level-debug", "usd_core_dwa_plugin", "python-2.7"]
+    #     "requires": ["rats", "opt_level-debug", "usd_core_dwa_plugin"]
     #     },
     "rats-opt-debug": {
         "command": "rats -a --rco=2 --nohtml --rac --maxConcurrentTests=10",
-        "requires": ["rats", "opt_level-optdebug", "usd_core_dwa_plugin", "python-2.7", "usd_imaging-0.20.8", "moonshine_dwa"]
+        "requires": ["rats", "opt_level-optdebug", "usd_core_dwa_plugin", "usd_imaging-0.20.8", "moonshine_dwa"]
         }
     }
 

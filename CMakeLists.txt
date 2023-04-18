@@ -121,3 +121,7 @@ install(
         ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION}
 )
 
+install(
+    DIRECTORY testSuite
+    DESTINATION .
+    USE_SOURCE_PERMISSIONS)

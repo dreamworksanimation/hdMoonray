@@ -232,7 +232,7 @@ pipeline-configurations:
       merge_target_type: branch
     build:
       enabled: true
-      rez_args: -b scons
+      rez_args: -b cmake
       resource: EL7_RaTS_build_fast
       post_cmd:
       postp: /opt/electriccloud/electriccommander/bin/postp
