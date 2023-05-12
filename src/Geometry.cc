@@ -254,7 +254,7 @@ Geometry::consumeMoonrayPrimvar(
     }
     return false;
 }
-    
+
 
 scene_rdl2::rdl2::Geometry*
 Geometry::syncCreateGeometry(
@@ -476,13 +476,17 @@ Geometry::updatePrimvars(DirtyPrimvars& dirtyPrimvars, RenderDelegate& renderDel
             userData->setStringData(name.GetString(), scene_rdl2::rdl2::StringVector{v});
         } else if (value.IsHolding<pxr::VtUIntArray>()) {
             // scene_rdl2 does not support unsigned, cast to int
+            // HDM-266 moonray does not support attribute type Int for face varying attribute, cast to float
             const pxr::VtUIntArray& v = value.UncheckedGet<pxr::VtUIntArray>();
-            const int* p = reinterpret_cast<const int*>(&v[0]);
-            userData->setIntData(name.GetString(), scene_rdl2::rdl2::IntVector(p, p + v.size()));
+            const float* p = reinterpret_cast<const float*>(&v[0]);
+            userData->setFloatData(name.GetString(), scene_rdl2::rdl2::FloatVector(p, p + v.size()));
+
         } else if (value.IsHolding<pxr::VtIntArray>()) {
             const pxr::VtIntArray& v = value.UncheckedGet<pxr::VtIntArray>();
-            const int* p = &v[0];
-            userData->setIntData(name.GetString(), scene_rdl2::rdl2::IntVector(p, p + v.size()));
+            // HDM-266 moonray does not support attribute type Int for face varying attribute, cast to float
+            const float* p = reinterpret_cast<const float*>(&v[0]);
+            userData->setFloatData(name.GetString(), scene_rdl2::rdl2::FloatVector(p, p + v.size()));
+
         } else if (value.IsHolding<int>()) {
             int v = value.UncheckedGet<int>();
             userData->setIntData(name.GetString(), scene_rdl2::rdl2::IntVector{v});
