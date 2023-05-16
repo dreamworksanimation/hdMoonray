@@ -50,7 +50,6 @@ RenderOptions::RenderOptions(int argc, char *argv[]):
     mInputSceneFile(sInputSceneFile),
     mOutputExrFile(sOutputExrFile),
     mCamera(sCamera),
-    mSamplingCamera(sSamplingCamera),
     mWidth(sWidth),
     mHeight(sHeight),
     mRes(sRes),
@@ -102,11 +101,6 @@ RenderOptions::RenderOptions(int argc, char *argv[]):
     validFlags.push_back("-camera");
     if (args.getFlagValues("-camera", 1, values) >= 0) {
         mCamera = values[0];
-    }
-
-    validFlags.push_back("-sampling_camera");
-    if (args.getFlagValues("-sampling_camera", 1, values) >= 0) {
-        mSamplingCamera = values[0];
     }
 
     validFlags.push_back("-delta_in");

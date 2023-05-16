@@ -256,13 +256,6 @@ main(int argc, char *argv[])
                                   purposes,
                                   aov, aovDesc);
     } else {
-        // Set the sampling camera for motion blur
-        const std::string samplingCam = options.getSamplingCamera().empty() ?
-                                        options.getCamera() :
-                                        options.getSamplingCamera();
-        const pxr::SdfPath p = usdSceneDelegateId.AppendPath(pxr::SdfPath(samplingCam));
-        usdSceneDelegate.SetCameraForSampling(p);
-
         // Verify that the camera exists in hydra, then populate the app scene delegate
         // using this camera.
         const pxr::SdfPath hdCameraId = usdSceneDelegateId.AppendPath(pxr::SdfPath(options.getCamera()));
@@ -275,6 +268,9 @@ main(int argc, char *argv[])
                                   collection,
                                   purposes,
                                   aov, aovDesc);
+
+        // Set the sampling camera for motion blur
+        usdSceneDelegate.SetCameraForSampling(hdCameraId);
     }
 
     // Render

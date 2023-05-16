@@ -48,7 +48,6 @@ public:
 
     const std::string getCamera() const { return mCamera; }
 
-    const std::string getSamplingCamera() const { return mSamplingCamera; }
 
     unsigned int getWidth() const { return mWidth; }
     unsigned int getHeight() const { return mHeight; }
@@ -119,8 +118,6 @@ private:
     std::string mOutputExrFile;
 
     std::string mCamera;
-
-    std::string mSamplingCamera;
 
     unsigned int mWidth;
     unsigned int mHeight;
