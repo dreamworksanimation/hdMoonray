@@ -6,7 +6,7 @@
     <commands>
       <command>
         <executable>hd_render</executable>
-        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -camera camera -sampling_camera camera -time 5</args>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -camera camera -time 5</args>
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>
