@@ -139,7 +139,7 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
             pxr::HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) {
             pxr::HdMeshTopology topology(GetMeshTopology(sceneDelegate));
 
-            if (pxr::HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) { // 
+            if (pxr::HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) { //
                 const pxr::VtIntArray& faceVertexCounts = topology.GetFaceVertexCounts();
                 geometry()->set("face_vertex_count",
                                 scene_rdl2::rdl2::IntVector(faceVertexCounts.begin(), faceVertexCounts.end()));
@@ -149,6 +149,8 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
                                 scene_rdl2::rdl2::IntVector(faceVertexIndices.begin(), faceVertexIndices.end()));
 
                 mFlip = topology.GetOrientation() != pxr::PxOsdOpenSubdivTokens->rightHanded;
+                if (topology.GetOrientation() != pxr::PxOsdOpenSubdivTokens->rightHanded)
+                    geometry()->set("orientation", 1);
                 // geometry()->set("reverse_normals", flip); // workaround for MOONRAY-3512
                 // there is also GetCullStyle() and desc.cullStyle but these are always 0, and it may be correct
                 // to ignore them as they are used for multiple-pass rendering.
@@ -175,7 +177,6 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
                 geometry()->set("part_face_count_list", partFaceCountList);
                 geometry()->set("part_face_indices", partFaceIndices);
                 geometry()->set("part_list", partList);
-                geometry()->set("reverse_normals", bool(mFlip ^ isMirror())); // workaround for MOONRAY-3512
             }
 
             if (_GetReprDesc(reprToken)[0].flatShadingEnabled) {
@@ -316,9 +317,6 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
                     const pxr::VtVec3fArray& v = value.Get<pxr::VtVec3fArray>();
                     const scene_rdl2::rdl2::Vec3f* p = reinterpret_cast<const scene_rdl2::rdl2::Vec3f*>(&v[0]);
                     scene_rdl2::rdl2::Vec3fVector out(p, p + v.size());
-                    if (mFlip ^ isMirror()) { // workaround for MOONRAY-3512
-                        for (scene_rdl2::rdl2::Vec3f& v : out) v = -v;
-                    }
                     geometry()->set("normal_list", out);
                     value = pxr::VtValue(); // remove it from UserData primvars
 
