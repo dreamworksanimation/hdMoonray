@@ -28,12 +28,12 @@ authors = [
 help = ('For assistance, '
         "please contact the folio's owner at: moonbase-dev@dreamworks.com")
 
-if 'cmake' in sys.argv:
-    build_system = 'cmake'
-    build_system_pbr = 'cmake_modules'
-else:
+if 'scons' in sys.argv:
     build_system = 'scons'
     build_system_pbr = 'bart_scons-10'
+else:
+    build_system = 'cmake'
+    build_system_pbr = 'cmake_modules'
 
 variants = [
     ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-optdebug', 'python-3.7'],
