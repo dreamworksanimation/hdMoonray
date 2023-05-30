@@ -1,0 +1,163 @@
+#usda 1.0
+(
+    endTimeCode = 179
+    metersPerUnit = 1
+    startTimeCode = 179
+    upAxis = "Y"
+)
+
+def Camera "camera"
+{
+    float2 clippingRange = (0.01, 10000)
+    float focalLength = 300
+    float horizontalAperture = 240
+    float verticalAperture = 240
+    matrix4d xformOp:transform = ( (-0.72649, 0, -0.687176, 0), (-0.0649215, 0.995527, 0.0686357, 0), (0.684103, 0.0944757, -0.723241, 0), (0.635976, 1.9145, -9.51043, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def "gronkle" (
+    payload = @/work/rd/raas/hydra/rats/data/gronkle.usdc@
+)
+{
+    matrix4d xformOp:transform:a = ( (0.0216271, 0, -0.020791, 0), (0, 0.03, 0, 0), (0.020791, 0, 0.0216271, 0), (0, 0, -7, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:a", "xformOp:transform"]
+}
+
+def Mesh "floor"
+{
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+    color3f[] primvars:displayColor = [(1, 1, 1)] (
+        interpolation = "uniform"
+    )
+    float2[] primvars:uv = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+        interpolation = "faceVarying"
+    )
+    matrix4d xformOp:transform = ( (20, 0, 0, 0), (0, 20, 0, 0), (0, 0, 20, 0), (0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def Mesh "wall"
+{
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+    color3f[] primvars:displayColor = [(1, 1, 1)] (
+        interpolation = "uniform"
+    )
+    float2[] primvars:uv = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+        interpolation = "faceVarying"
+    )
+    matrix4d xformOp:transform = ( (20, 0, 0, 0), (0, 0, 1, 0), (0, -10, 0, 0), (0, 5, -10, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def SphereLight "sphere"
+{
+    color3f color = (1, 0.9, 0.6)
+    color3f inputs:color = (1, 0.9, 0.6)
+    float inputs:intensity = 3
+    float inputs:radius = 0.3
+    float intensity = 3
+    custom string moonray:label = "sphere"
+    token moonray:visible_in_camera = "force on"
+    float radius = 0.3
+    matrix4d xformOp:transform = ( (1, 0, -0, 0), (0, 1, 0, 0), (0, -0, 1, 0), (-1, 1.8, -8, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def Scope "Render"
+{
+    def Scope "Products"
+    {
+        def Scope "Vars"
+        {
+            def RenderVar "custom_P"
+            {
+                token dataType = "color3f"
+                custom string driver:parameters:aov:channel_prefix = ""
+                custom int driver:parameters:aov:clearValue = 0
+                custom token driver:parameters:aov:format = "color3f"
+                custom bool driver:parameters:aov:multiSampled = 0
+                custom string driver:parameters:aov:name = "custom_P"
+                custom string parameters:moonray:file_name = "/tmp/scene.exr"
+                custom token parameters:moonray:result = "state variable"
+                custom token parameters:moonray:state_variable = "P"
+                string sourceName = ""
+                token sourceType = "raw"
+            }
+
+            def RenderVar "glossy"
+            {
+                token dataType = "color3f"
+                custom string driver:parameters:aov:channel_prefix = ""
+                custom int driver:parameters:aov:clearValue = 0
+                custom token driver:parameters:aov:format = "color3f"
+                custom bool driver:parameters:aov:multiSampled = 0
+                custom string driver:parameters:aov:name = "glossy"
+                custom string parameters:moonray:channel_name = "glossy"
+                custom token parameters:moonray:compression = "dwab"
+                custom string parameters:moonray:file_part = "glossy"
+                custom string parameters:moonray:lpe = "C<T[GSs]>*<R[GSs]>[VRT]*[LOB]"
+                custom token parameters:moonray:result = "light aov"
+                string sourceName = ""
+                token sourceType = "raw"
+            }
+
+            def RenderVar "difsss"
+            {
+                token dataType = "color3f"
+                custom string driver:parameters:aov:channel_prefix = ""
+                custom int driver:parameters:aov:clearValue = 0
+                custom token driver:parameters:aov:format = "color3f"
+                custom bool driver:parameters:aov:multiSampled = 0
+                custom string driver:parameters:aov:name = "difsss"
+                custom string parameters:moonray:channel_name = "difsss"
+                custom token parameters:moonray:compression = "dwab"
+                custom string parameters:moonray:file_part = "difsss"
+                custom string parameters:moonray:lpe = "C<T[GSs]>*<.D>[VRT]*[LOB]"
+                custom token parameters:moonray:result = "light aov"
+                string sourceName = ""
+                token sourceType = "raw"
+            }
+        }
+
+        def RenderProduct "aov_test"
+        {
+            rel orderedVars = [
+                </Render/Products/Vars/difsss>,
+                </Render/Products/Vars/custom_P>,
+                </Render/Products/Vars/glossy>,
+            ]
+            token productName = "/tmp/moonray_test_aov.exr"
+            token productType = "raster"
+        }
+    }
+
+    def RenderSettings "rendersettings"
+    {
+        token aspectRatioConformPolicy = "expandAperture"
+        rel camera = </camera>
+        float4 dataWindowNDC = (0, 0, 1, 1)
+        token[] includedPurposes = ["default"]
+        bool instantaneousShutter = 0
+        token[] materialBindingPurposes = ["full", "allPurpose"]
+        float pixelAspectRatio = 1
+        rel products = </Render/Products/aov_test>
+        int2 resolution = (500, 500)
+        custom bool sceneVariable:enable_dof = 0
+        custom int sceneVariable:max_adaptive_samples = 1024
+        custom int sceneVariable:max_depth = 0
+        custom int sceneVariable:max_diffuse_depth = 1
+        custom int sceneVariable:max_glossy_depth = 2
+        custom int sceneVariable:max_hair_depth = 2
+        custom int sceneVariable:min_adaptive_samples = 4
+        custom int sceneVariable:pixel_samples = 2
+        custom int sceneVariable:light_samples = 1
+        custom int sceneVariable:bsdf_samples = 1
+    }
+}

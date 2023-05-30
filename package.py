@@ -81,7 +81,7 @@ tests = {
     #     },
     "rats-opt-debug": {
         "command": "rats -a --rco=2 --nohtml --rac --maxConcurrentTests=10",
-        "requires": ["rats", "opt_level-optdebug", "usd_core_dwa_plugin", "usd_imaging-0.20.8", "moonshine_dwa"]
+        "requires": ["rats", "opt_level-optdebug", "usd_core_dwa_plugin", "usd_imaging", "moonshine_dwa", "houdini_dwa-19", "python-2.7", "xml-2.9"]
         }
     }
 

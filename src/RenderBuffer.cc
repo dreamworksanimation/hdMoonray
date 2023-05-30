@@ -4,7 +4,9 @@
 #include "RenderBuffer.h"
 #include "RenderDelegate.h"
 #include "Camera.h"
-
+#include "ValueConverter.h"
+#include <scene_rdl2/scene/rdl2/SceneContext.h>
+#include <scene_rdl2/scene/rdl2/SceneVariables.h>
 #include <scene_rdl2/scene/rdl2/RenderOutput.h>
 #include "pxr/base/work/loops.h"
 
@@ -160,7 +162,7 @@ RenderBuffer::Sync(pxr::HdSceneDelegate* sceneDelegate,
                    pxr::HdRenderParam* renderParam,
                    pxr::HdDirtyBits* dirtyBits)
 {
-#   ifdef DEBUG_MSG    
+#   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::Sync()\n";
 #   endif
 
@@ -176,7 +178,7 @@ RenderBuffer::Sync(pxr::HdSceneDelegate* sceneDelegate,
 bool
 RenderBuffer::Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat format, bool multiSampled)
 {
-#   ifdef DEBUG_MSG    
+#   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::Allocate()\n";
 #   endif
 
@@ -214,13 +216,14 @@ RenderBuffer::Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat format, boo
 void
 RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* camera)
 {
-#   ifdef DEBUG_MSG    
+#   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::bind()\n";
 #   endif
 
     mAovName = aovBinding.aovName;
     mNear = camera->getNear();
     mFar = camera->getFar();
+    pxr::HdAovSettingsMap aovSettings = aovBinding.aovSettings;
 
     if (aovBinding.clearValue.IsHolding<pxr::GfVec4f>()) {
         pxr::GfVec4f v = aovBinding.clearValue.Get<pxr::GfVec4f>();
@@ -250,7 +253,6 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
             ro.setActive(true);
 
             mDepth = false;
-
             auto desc = lookup(mAovName);
             if (desc) {
                 if (desc->hdFormat == pxr::HdFormatInt32) {
@@ -299,9 +301,23 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
                     ro.setResult(ro.RESULT_MATERIAL_AOV);
                     ro.setMaterialAov(suffix.GetString());
                 } else {
-                    Logger::error(GetId(), ": unknown aovName ", mAovName);
-                    ro.setActive(false);
-                    mFormat = pxr::HdFormatInvalid;
+                    Logger::info("custom aov ", mAovName);
+                    const SceneClass& sceneClass = mRenderOutput->getSceneClass();
+                    bool valid = false;
+                    for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
+                        const std::string& attrName = (*it)->getName();
+                        pxr::TfToken key = pxr::TfToken("parameters:moonray:" + attrName);
+                        pxr::VtValue val = aovSettings[key];
+                        if (not val.IsEmpty()) {
+                            valid = true;
+                            ValueConverter::setAttribute(mRenderOutput, *it, val);
+                        }
+                    }
+                    if (!valid){
+                        Logger::error(GetId(), ": invalid aov ", mAovName);
+                        ro.setActive(false);
+                        mFormat = pxr::HdFormatInvalid;
+                    }
                 }
             }
             ro.setFileName("/tmp/scene.exr"); // MOONRAY-3389
@@ -332,7 +348,7 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
 bool
 RenderBuffer::IsConverged() const
 {
-#   ifdef DEBUG_MSG    
+#   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::IsConverged()\n";
 #   endif
 
@@ -342,7 +358,7 @@ RenderBuffer::IsConverged() const
 void
 RenderBuffer::Resolve()
 {
-#   ifdef DEBUG_MSG    
+#   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::Resolve()\n";
 #   endif
 
@@ -467,7 +483,7 @@ RenderBuffer::Resolve()
 void
 RenderBuffer::Finalize(pxr::HdRenderParam* renderParam)
 {
-#   ifdef DEBUG_MSG    
+#   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::Finalize()\n";
 #   endif
 
@@ -491,7 +507,7 @@ RenderBuffer::Finalize(pxr::HdRenderParam* renderParam)
 void
 RenderBuffer::_Deallocate()
 {
-#   ifdef DEBUG_MSG    
+#   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::_Deallocate()\n";
 #   endif
 
@@ -506,4 +522,3 @@ RenderBuffer::_Deallocate()
 }
 
 }
-

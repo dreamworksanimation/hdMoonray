@@ -1,0 +1,17 @@
+<testsuite>
+  <testcase owner="Cherry Chen">
+    <description>
+    Hydra RenderVar/AOV test
+    </description>
+    <commands>
+      <command>
+        <executable>husk</executable>
+        <args> -s /Render/rendersettings --make-output-path -o ${result} ${args} -R HdMoonrayRendererPlugin --purpose geometry,render --complexity veryhigh --disable-delegate-products --check-licenses Houdini-Escape --skip-licenses Houdini-Master -V 9  ${shot_dir}/scene.usd
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail ${error_threshold} --failpercent .01 --hardfail 0.02 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+  </testcase>
+</testsuite>
