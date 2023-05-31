@@ -6,7 +6,7 @@
     <commands>
       <command>
         <executable>husk</executable>
-        <args> -s /Render/rendersettings --make-output-path -o ${result} ${args} -R HdMoonrayRendererPlugin --purpose geometry,render --complexity veryhigh --disable-delegate-products --check-licenses Houdini-Escape --skip-licenses Houdini-Master -V 9  ${shot_dir}/scene.usd </args>
+        <args> -s /Render/rendersettings --make-output-path -o ${result} ${args} -R HdMoonrayRendererPlugin --purpose geometry,render --complexity veryhigh --disable-delegate-products -V 9  ${shot_dir}/scene.usd </args>
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>
