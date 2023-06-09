@@ -74,6 +74,9 @@ private:
     // -1 if no images have been received at all
     float mProgress{-1};
 
+    // elapsed render time
+    float mElapsedSeconds{0};
+
     // have we sent the first message to the current session?
     bool mFirstMessageSent{false};
 

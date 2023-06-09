@@ -167,6 +167,9 @@ ArrasRenderer::messageHandler(const arras4::api::Message& msg)
         // After the first received image, it should remain >= 0.0
         mProgress = mFbReceiver->getProgress();
 
+        // update elapsed seconds
+        mElapsedSeconds = mFbReceiver->getElapsedSecFromStart();
+
         // Determine whether the received frame is a result of the latest RDLMessage update
         // we sent out. (Latency means it is possible to receive a frame from an older RDLMessage;
         // we don't want to incorrectly think that this completes the most recent update)
@@ -293,7 +296,7 @@ ArrasRenderer::getProgress() const
 float
 ArrasRenderer::getElapsedSeconds() const
 {
-    return mFbReceiver->getElapsedSecFromStart();
+    return mElapsedSeconds;
 }
 
 // warning: multithreaded: Almost all the methods appear to be done by the same thread,
