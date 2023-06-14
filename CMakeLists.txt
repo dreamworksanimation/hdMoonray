@@ -49,6 +49,9 @@ if("${PROJECT_NAME}" STREQUAL "${CMAKE_PROJECT_NAME}")
     find_package(SceneRdl2 REQUIRED)
 endif()
 
+find_package(OpenImageIO REQUIRED)
+find_package(JPEG REQUIRED)
+
 # ================================================
 # Set the RPATH for binaries in the install tree
 # ================================================
