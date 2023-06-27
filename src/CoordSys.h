@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <tbb/tbb_machine.h> // fix for icc-19/tbb bug
 #include <pxr/imaging/hd/coordSys.h>
 
 namespace scene_rdl2 {namespace rdl2 { class SceneObject; } }
