@@ -25,7 +25,7 @@ public:
         delete renderDelegate;
     }
 
-    bool IsSupported() const override {
+    bool IsSupported(bool gpuEnabled) const override {
         return true;
     }
 
