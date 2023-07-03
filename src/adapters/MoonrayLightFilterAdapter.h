@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <tbb/tbb_machine.h> // This must be included before any pxr headers
-
 #include "pxr/pxr.h"
 
 #include "pxr/usdImaging/usdImaging/lightFilterAdapter.h"
