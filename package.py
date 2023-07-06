@@ -48,6 +48,12 @@ variants = [
     ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-debug', 'python-2.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-2.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-2.7'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug', 'python-3.9'],
+    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug', 'python-3.9'],
 ]
 
 sconsTargets = {
@@ -57,15 +63,15 @@ sconsTargets = {
 }
 
 requires = [
-    'moonray-14.3',
-    'moonshine_dwa-11.3',
-    'moonshine-11.3',
-    'mcrt_computation-12.3',
+    'moonray-14.4',
+    'moonshine_dwa-11.4',
+    'moonshine-11.4',
+    'mcrt_computation-12.4',
     'arras4_core-4.10',
     'mcrt_messages-11.3',
-    'mcrt_dataio-12.3',
+    'mcrt_dataio-12.4',
     'mkl',
-    'openimageio',
+    'openimageio-2.3.20.0.x',
 ]
 
 private_build_requires = [
