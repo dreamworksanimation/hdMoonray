@@ -29,7 +29,7 @@ target_link_libraries(${target}
 
         TBB::tbb
         Python::Python
-        Boost::python
+        Boost::${BOOST_PYTHON_COMPONENT_NAME}
         atomic
         ${MKL}
 )

@@ -22,6 +22,12 @@ endif()
 option(${PROJECT_NAME_UPPER}_BUILD_TESTING
     "Whether or not to build the unittests" YES)
 
+if (NOT DEFINED BOOST_PYTHON_COMPONENT_NAME)
+    # may need to be, e.g. python36, python39
+    set(BOOST_PYTHON_COMPONENT_NAME python)
+endif()
+
+
 # ================================================
 # Find dependencies
 # ================================================
@@ -40,7 +46,7 @@ endif()
 # so we need to pull the in explicitly
 find_package(TBB REQUIRED)
 set(BUILD_SHARED_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS python)
+find_package(Boost REQUIRED COMPONENTS "${BOOST_PYTHON_COMPONENT_NAME}")
 if("${PROJECT_NAME}" STREQUAL "${CMAKE_PROJECT_NAME}")
     find_package(ArrasCore REQUIRED)
     find_package(McrtDataio REQUIRED)
