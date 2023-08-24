@@ -9,8 +9,6 @@ function(${PROJECT_NAME}_cxx_compile_options target)
                     -fabi-version=${ABI_VERSION} # corrects the promotion behavior of C++11 scoped enums and the mangling of template argument packs.
                 >
                 -fexceptions                    # Enable exception handling.
-                -ffast-math                     # Sets the options -fno-math-errno, -funsafe-math-optimizations, -ffinite-math-only,
-                                                #     -fno-rounding-math, -fno-signaling-nans, -fcx-limited-range, -fexcess-precision=fast.
                 -fno-omit-frame-pointer         # TODO: add a note
                 -fno-strict-aliasing            # TODO: add a note
                 -fno-var-tracking-assignments   # Turn off variable tracking
