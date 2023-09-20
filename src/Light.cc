@@ -78,7 +78,7 @@ Light::rdlClassName(const pxr::SdfPath& id,
         // See if the moonray::class does not match the Lux type:
         bool error;
         if (classToken == spotLightToken) {
-            error = (mType != pxr::HdPrimTypeTokens->diskLight);
+            error = (mType != pxr::HdPrimTypeTokens->diskLight && mType != pxr::HdPrimTypeTokens->sphereLight);
         } else {
             error = (classToken != luxRdlClass);
         }
@@ -180,7 +180,7 @@ colorTemperatureToRGB(float kelvin)
 {
     float t = scene_rdl2::math::clamp(kelvin, 1000.0f, 40000.0f) / 100.0f;
     float r, g, b;
-    
+
     if (t <= 66.0f) {
         r = 1.0f;
         g = 0.39008157876901960784f * log(t) - 0.6318414437886274509f;
@@ -188,7 +188,7 @@ colorTemperatureToRGB(float kelvin)
         r = 1.29293618606274509804f * pow(t - 60.0f, -0.1332047592f);
         g = 1.12989086089529411765f * pow(t - 60.0f, -0.0755148492f);
     }
-    
+
     if (t >= 66.0f)
         b = 1.0f;
     else if(t <= 19.0f)
@@ -467,4 +467,3 @@ Light::Finalize(pxr::HdRenderParam *renderParam)
 }
 
 }
-
