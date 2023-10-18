@@ -426,6 +426,27 @@ Geometry::updatePrimvars(DirtyPrimvars& dirtyPrimvars, RenderDelegate& renderDel
         }
         UpdateGuard guard(userData);
 
+        // Set explicit attribute rate
+        switch (i.second.interpolation) {
+        case pxr::HdInterpolation::HdInterpolationConstant:
+            userData->setRate(scene_rdl2::rdl2::UserData::Rate::CONSTANT);
+            break;
+        case pxr::HdInterpolation::HdInterpolationUniform:
+            userData->setRate(scene_rdl2::rdl2::UserData::Rate::UNIFORM);
+            break;
+        case pxr::HdInterpolation::HdInterpolationVarying:
+            userData->setRate(scene_rdl2::rdl2::UserData::Rate::VARYING);
+            break;
+        case pxr::HdInterpolation::HdInterpolationVertex:
+            userData->setRate(scene_rdl2::rdl2::UserData::Rate::VERTEX);
+            break;
+        case pxr::HdInterpolation::HdInterpolationFaceVarying:
+            userData->setRate(scene_rdl2::rdl2::UserData::Rate::FACE_VARYING);
+            break;
+        default:
+            userData->setRate(scene_rdl2::rdl2::UserData::Rate::AUTO);
+        }
+
         // there are lots of types, just get the ones encountered so far:
         if (value.IsHolding<pxr::VtFloatArray>()) {
             const pxr::VtFloatArray& v = value.UncheckedGet<pxr::VtFloatArray>();
