@@ -18,6 +18,10 @@
         <name>error_max</name>
         <value>0.02</value>
       </variable>
+      <variable>
+        <name>error_threshold</name>
+        <value>0.02</value>
+      </variable>
     </variables>
   </testcase>
 </testsuite>
