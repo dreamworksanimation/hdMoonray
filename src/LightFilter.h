@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <tbb/tbb_machine.h> // fix for icc-19/tbb bug
 #include <pxr/imaging/hd/sprim.h>
 #include <pxr/imaging/hd/material.h>
 #include <scene_rdl2/scene/rdl2/LightFilter.h>
