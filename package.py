@@ -13,7 +13,7 @@ if 'early' not in locals() or not callable(early):
 
 @early()
 def version():
-    _version = '4.6'
+    _version = '4.7'
     from rezbuild import earlybind
     return earlybind.version(this, _version)
 
@@ -63,13 +63,13 @@ sconsTargets = {
 }
 
 requires = [
-    'moonray-15.6',
-    'moonshine_dwa-12.6',
-    'moonshine-12.6',
-    'mcrt_computation-13.6',
+    'moonray-15.7',
+    'moonshine_dwa-12.7',
+    'moonshine-12.7',
+    'mcrt_computation-13.7',
     'arras4_core-4.10',
     'mcrt_messages-12.0',
-    'mcrt_dataio-13.5',
+    'mcrt_dataio-13.6',
     'mkl',
     'openimageio-2.3.20.0.x',
 ]
