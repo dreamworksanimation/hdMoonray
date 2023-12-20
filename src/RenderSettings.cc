@@ -36,6 +36,12 @@ TF_DEFINE_PRIVATE_TOKENS(Tokens,
     (denoiseNormalGuiding)
     (decodeNormals)
     (enableMotionBlur)
+    (pruneWillow)
+    (pruneFurDeform)
+    (pruneCurveDeform)
+    (pruneVolume)
+    (pruneWrapDeform)
+    (forcePolygon)
 );
 
 std::map<pxr::TfToken, pxr::VtValue> defaultMap;
@@ -100,7 +106,14 @@ RenderSettings::getDescriptors()
         { "Denoise Albedo Guiding", Tokens->denoiseAlbedoGuiding, pxr::VtValue(getenvBool("HDMOONRAY_DENOISE_ALBEDO_GUIDING")) },
         { "Denoise Normal Guiding", Tokens->denoiseNormalGuiding, pxr::VtValue(getenvBool("HDMOONRAY_DENOISE_NORMAL_GUIDING")) },
         { "Decode Normals",      Tokens->decodeNormals, pxr::VtValue(false) },
-        { "Enable Motion Blur",      Tokens->enableMotionBlur, pxr::VtValue(true) }
+        { "Enable Motion Blur",      Tokens->enableMotionBlur, pxr::VtValue(true)},
+        { "Prune Willow",      Tokens->pruneWillow, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_WILLOW")) },
+        { "Prune FurDeform",      Tokens->pruneFurDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_FURDEFORM")) },
+        { "Prune Volumes",      Tokens->pruneVolume, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_VOLUME")) },
+        { "Prune WrapDeform",      Tokens->pruneWrapDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_WRAPDEFORM")) },
+        { "Prune CurveDeform",      Tokens->pruneCurveDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_CURVEDEFORM")) },
+        { "Force Polygon",      Tokens->forcePolygon, pxr::VtValue(getenvBool("HDMOONRAY_FORCE_POLYGON")) },
+
     };
     if (defaultMap.empty()) {
         for (auto&& i : mDescriptors)
@@ -172,6 +185,12 @@ void RenderSettings::apply()
     mDelegate.setDoubleSided(get<bool>(Tokens->doubleSided));
     mDelegate.setDecodeNormals(get<bool>(Tokens->decodeNormals));
     mDelegate.setEnableMotionBlur(get<bool>(Tokens->enableMotionBlur));
+    mDelegate.setPruneWillow(get<bool>(Tokens->pruneWillow));
+    mDelegate.setPruneFurDeform(get<bool>(Tokens->pruneFurDeform));
+    mDelegate.setPruneCurveDeform(get<bool>(Tokens->pruneCurveDeform));
+    mDelegate.setPruneWrapDeform(get<bool>(Tokens->pruneWrapDeform));
+    mDelegate.setPruneVolume(get<bool>(Tokens->pruneVolume));
+    mDelegate.setForcePolygon(get<bool>(Tokens->forcePolygon));
 }
 
 RendererImplType
@@ -203,7 +222,7 @@ RenderSettings::getArrasHostCount() const
     return  get<int>(Tokens->remoteHosts);
 }
 
-int 
+int
 RenderSettings::getArrasLocalReservedCores() const
 {
     return  get<int>(Tokens->localReservedCores);
@@ -262,6 +281,5 @@ RenderSettings::getEnableMotionBlur() const
 {
     return  get<bool>(Tokens->enableMotionBlur);
 }
-
 
 }

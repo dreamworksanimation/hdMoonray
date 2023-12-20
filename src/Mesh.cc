@@ -104,6 +104,20 @@ Mesh::_InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits)
     *dirtyBits |= pxr::HdChangeTracker::DirtyRepr;
 }
 
+bool
+Mesh::isSubdiv(RenderDelegate& renderDelegate)
+{
+    if (renderDelegate.getForcePolygon()){
+        return false;
+    } else {
+        // avoid the is_subd value previously set by flat shading or forcePolygon
+        if (geometry()->get<int>("subd_scheme")){
+            return true;
+        }
+        return geometry()->get<bool>("is_subd");
+    }
+}
+
 void
 Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
            pxr::HdRenderParam   *renderParam,
@@ -136,7 +150,8 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
         // so this code will be called on such changes.
         if (pxr::HdChangeTracker::IsDisplayStyleDirty(*dirtyBits, id) ||
             pxr::HdChangeTracker::IsReprDirty(*dirtyBits, id) ||
-            pxr::HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) {
+            pxr::HdChangeTracker::IsTopologyDirty(*dirtyBits, id) ||
+            pxr::HdChangeTracker::IsSubdivTagsDirty(*dirtyBits, id)) {
             pxr::HdMeshTopology topology(GetMeshTopology(sceneDelegate));
 
             if (pxr::HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) { //
@@ -188,7 +203,7 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
                 SubdivType subdiv;
                 pxr::TfToken subdScheme = topology.GetScheme();
                 // Check if "is_subd" has already been set to false by a primvar
-                const bool isSubd = geometry()->get<bool>("is_subd");
+                const bool isSubd = isSubdiv(renderDelegate);
                 if (!isSubd || subdScheme == pxr::PxOsdOpenSubdivTokens->none)
                     subdiv = NONE;
                 else if (subdScheme == pxr::PxOsdOpenSubdivTokens->bilinear)
@@ -203,7 +218,6 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
 
                 if (subdiv != NONE && refineLevel > 0) {
                     geometry()->set("is_subd", true);
-
                     geometry()->set("subd_scheme", subdiv==CATCLARK ? SUBD_SCHEME_CATCLARK : SUBD_SCHEME_BILINEAR);
 
                     if (not hasPrimvar(mesh_resolutionToken)) {

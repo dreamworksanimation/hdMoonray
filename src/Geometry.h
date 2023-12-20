@@ -67,6 +67,8 @@ public:
     void setCommonAttributes( // call after beginUpdate
         pxr::HdSceneDelegate*, RenderDelegate&,
         pxr::HdDirtyBits*, DirtyPrimvars&);
+
+    void setPruned(bool v) {mPruned = v;}
     bool isMirror() const { return mMirror; } // set by setCommonAttributes
 
     void updatePrimvars(DirtyPrimvars&, RenderDelegate&);
@@ -104,6 +106,7 @@ private:
     bool mAssigned = false; // whether object has been assigned to a layer
     unsigned mVisibleFlags = 0; // bitmap of all the Moonray visibility
     unsigned mVisibleTurnedOffByPrimvar = 0;
+    unsigned mPruned = 0; // display option for pruning procedural geometries.
     bool getBool(const pxr::TfToken& name, const pxr::VtValue&, bool dflt) const;
     bool consumeMoonrayPrimvar(pxr::HdSceneDelegate*, const pxr::HdPrimvarDescriptor&);
 
@@ -112,4 +115,3 @@ private:
 };
 
 }
-

@@ -34,16 +34,17 @@ protected:
 
     // Expand dirty bits to what Sync() actually needs
     pxr::HdDirtyBits _PropagateDirtyBits(pxr::HdDirtyBits bits) const override;
+    bool isSubdiv(RenderDelegate& renderDelegate);
+
 
 private:
     // cached values that are combined to produce some settings
     enum SubdivType {NONE = 0, CATCLARK, BILINEAR};
     bool mFlip = false; // leftHanded orientation
-
+    bool mSubd = true; // RdlMeshGeometry default is_subd value
     // This class does not support copying.
     Mesh(const Mesh&)             = delete;
     Mesh &operator =(const Mesh&) = delete;
 };
 
 }
-

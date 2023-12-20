@@ -54,6 +54,12 @@ Volume::Sync(pxr::HdSceneDelegate* sceneDelegate,
     // std::cout << id << " Sync dirtyBits=" << std::hex << *dirtyBits << std::endl;
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
+    if (renderDelegate.getPruneVolume()){
+        setPruned(true);
+    }else{
+        setPruned(false);
+    }
+
     if (pxr::HdChangeTracker::IsVisibilityDirty(*dirtyBits, id))
         _UpdateVisibility(sceneDelegate, dirtyBits);
     Geometry::DirtyPrimvars dirtyPrimvars(getDirtyPrimvars(sceneDelegate, renderDelegate, dirtyBits));
@@ -115,6 +121,7 @@ Volume::Sync(pxr::HdSceneDelegate* sceneDelegate,
     *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
 }
 
+
 void
 OpenVdbAsset::Sync(pxr::HdSceneDelegate *sceneDelegate,
                    pxr::HdRenderParam   *renderParam,
@@ -136,4 +143,3 @@ OpenVdbAsset::Sync(pxr::HdSceneDelegate *sceneDelegate,
 }
 
 }
-

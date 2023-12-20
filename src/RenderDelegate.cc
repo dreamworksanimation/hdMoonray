@@ -259,9 +259,15 @@ RenderDelegate::CreateRprim(pxr::TfToken const& typeId,
     } else  if (typeId == pxr::HdPrimTypeTokens->points) {
         return new Points(rprimId INSTANCERID(iid));
     } else  if (typeId == pxr::HdPrimTypeTokens->volume) {
-        return new Volume(rprimId INSTANCERID(iid));
+        auto p = new Volume(rprimId INSTANCERID(iid));
+        if (not rprimId.IsEmpty())
+            mVolumes.insert(p);
+        return p;
     } else  if (typeId == proceduralToken) {
-        return new Procedural(rprimId INSTANCERID(iid));
+        auto p = new Procedural(rprimId INSTANCERID(iid));
+        if (not rprimId.IsEmpty())
+            mProcedurals.insert(p);
+        return p;
     } else {
         Logger::warn(rprimId, ": unknown Rprim type ", typeId);
         return nullptr;
@@ -275,6 +281,9 @@ RenderDelegate::DestroyRprim(pxr::HdRprim *rPrim)
     // if (rPrim) std::cout << rPrim->GetId(); else std::cout << "nullptr";
     // std::cout << std::endl;
     setStartTime();
+    mProcedurals.erase(rPrim);
+    mVolumes.erase(rPrim);
+
     delete rPrim;
 }
 
@@ -592,7 +601,7 @@ RenderDelegate::updateAssignmentFromCategories(
     scene_rdl2::rdl2::LayerAssignment& assignment,
     const pxr::VtArray<pxr::TfToken>& categories)
 {
-    
+
     // Lock is not needed here as it appears Hydra has already called Sync() on all lights and filters
     const auto& mCategoryObjects = this->mCategoryObjects; // prevent non-const set operations
 
@@ -728,6 +737,61 @@ void RenderDelegate::setDisableLighting(bool v)
     }
 }
 
+void RenderDelegate::setPruneWillow(bool v)
+{
+    if (v != mPruneWillow) {
+        mPruneWillow = v;
+        for (auto& p : mProcedurals)
+            mRenderIndex->GetChangeTracker().MarkRprimDirty(
+                        p->GetId(),
+                        pxr::HdChangeTracker::DirtyVisibility);
+    }
+}
+
+void RenderDelegate::setPruneFurDeform(bool v)
+{
+    if (v != mPruneFurDeform) {
+        mPruneFurDeform = v;
+        for (auto& p : mProcedurals)
+            mRenderIndex->GetChangeTracker().MarkRprimDirty(
+                        p->GetId(),
+                        pxr::HdChangeTracker::DirtyVisibility);
+    }
+}
+
+void RenderDelegate::setPruneCurveDeform(bool v)
+{
+    if (v != mPruneCurveDeform) {
+        mPruneCurveDeform = v;
+        for (auto& p : mProcedurals)
+            mRenderIndex->GetChangeTracker().MarkRprimDirty(
+                        p->GetId(),
+                        pxr::HdChangeTracker::DirtyVisibility);
+    }
+}
+
+void RenderDelegate::setPruneVolume(bool v)
+{
+    if (v != mPruneVolume) {
+        mPruneVolume = v;
+        for (auto& p : mVolumes)
+            mRenderIndex->GetChangeTracker().MarkRprimDirty(
+                        p->GetId(),
+                        pxr::HdChangeTracker::DirtyVisibility);
+    }
+}
+
+void RenderDelegate::setPruneWrapDeform(bool v)
+{
+    if (v != mPruneWrapDeform) {
+        mPruneWrapDeform = v;
+        for (auto& p : mProcedurals)
+            mRenderIndex->GetChangeTracker().MarkRprimDirty(
+                        p->GetId(),
+                        pxr::HdChangeTracker::DirtyVisibility);
+    }
+}
+
 void RenderDelegate::setDecodeNormals(bool v)
 {
     mDecodeNormalsChanged = false;
@@ -746,10 +810,17 @@ void RenderDelegate::setDoubleSided(bool v)
     }
 }
 
+void RenderDelegate::setForcePolygon(bool v)
+{
+    if (v != mForcePolygon) {
+        mForcePolygon = v;
+        markAllRprimsDirty(pxr::HdChangeTracker::DirtySubdivTags);
+    }
+}
+
 void RenderDelegate::markAllRprimsDirty(pxr::HdDirtyBits bits)
 {
     if (mRenderIndex) mRenderIndex->GetChangeTracker().MarkAllRprimsDirty(bits);
 }
 
 }
-

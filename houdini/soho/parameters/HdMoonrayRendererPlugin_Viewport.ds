@@ -207,6 +207,68 @@
     }
 
     parm {
+        name        "pruneWillow"
+        label       "Prune Willow"
+        type        toggle
+        size        1
+        help        "Prunes willow geometries"
+        default     { 0 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+
+    parm {
+        name        "pruneFurDeform"
+        label       "Prune FurDeform"
+        type        toggle
+        size        1
+        help        "Prunes FurDeform geometries"
+        default     { 0 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "pruneCurveDeform"
+        label       "Prune CurveDeform"
+        type        toggle
+        size        1
+        help        "Prunes CurveDeform geometries"
+        default     { 0 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+
+    parm {
+        name        "pruneVolume"
+        label       "Prune Volume"
+        type        toggle
+        size        1
+        help        "Prunes volumes"
+        default     { 0 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "pruneWrapDeform"
+        label       "Prune WrapDeform geometries"
+        type        toggle
+        size        1
+        help        "Prunes volumes"
+        default     { 0 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "forcePolygon"
+        label       "Force Polygon"
+        type        toggle
+        size        1
+        help        "Forces geometry to render as Polygons. Disables subdivision surfaces"
+        default     { 0 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
         name        "decodeNormals"
         label       "Decode Normals"
         type        toggle

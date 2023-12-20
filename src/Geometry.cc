@@ -330,16 +330,21 @@ Geometry::setCommonAttributes(
     pxr::HdDirtyBits* dirtyBits,
     DirtyPrimvars& dirtyPrimvars)
 {
-    if (mVisibleDirty && (mVisibleFlags || mAssigned)) {
+    const pxr::SdfPath& id = rprim.GetId();
+
+    if ((mVisibleDirty && (mVisibleFlags || mAssigned)) || pxr::HdChangeTracker::IsVisibilityDirty(*dirtyBits, id))
+    {
         unsigned bit = 1;
         for (const auto& i : visibleAttrs) {
-            mGeometry->set(i.moonrayKey, (mVisibleFlags & bit) != 0);
+            bool visiblity = (mVisibleFlags & bit) != 0;
+            // respect the visibility tag set on the usd stage.
+            visiblity = visiblity && !mPruned;
+            mGeometry->set(i.moonrayKey, visiblity);
             bit <<= 1;
         }
         mVisibleDirty = false;
     }
 
-    const pxr::SdfPath& id = rprim.GetId();
     if (pxr::HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
         pxr::HdTimeSampleArray<pxr::GfMatrix4d, 4> sampledXforms;
         sceneDelegate->SampleTransform(id, &sampledXforms);

@@ -273,6 +273,22 @@ public:
     bool getEnableMotionBlur() const { return mEnableMotionBlur; }
     void setEnableMotionBlur(bool v) { mEnableMotionBlur = v; }
 
+    bool getPruneWillow() const {return mPruneWillow;}
+    bool getPruneVolume() const {return mPruneVolume;}
+    bool getPruneFurDeform() const {return mPruneFurDeform;}
+    bool getPruneCurveDeform() const {return mPruneCurveDeform;}
+    bool getPruneWrapDeform() const {return mPruneWrapDeform;}
+    bool getForcePolygon() const {return mForcePolygon;}
+
+    void setPruneWillow(bool v);
+    void setPruneVolume(bool v);
+    void setPruneCurveDeform(bool v);
+    void setPruneWrapDeform(bool v);
+    void setPruneFurDeform(bool v);
+    void setForcePolygon(bool v);
+
+    //bool pruneProceduralChanged() const {return mPruneProceduralChanged;}
+
     const RenderSettings& renderSettings() const { return mRenderSettings; }
 
     void markAllRprimsDirty(pxr::HdDirtyBits bits);
@@ -301,6 +317,12 @@ private:
     bool mDecodeNormals = false;
     bool mDecodeNormalsChanged = false;
     bool mEnableMotionBlur = false;
+    bool mPruneWillow = false;
+    bool mPruneFurDeform = false;
+    bool mPruneVolume = false;
+    bool mPruneWrapDeform = false;
+    bool mPruneCurveDeform = false;
+    bool mForcePolygon = false;
 
     void initializeSceneContext(); // part of constructor
     scene_rdl2::rdl2::SceneContext* mSceneContext;
@@ -330,6 +352,8 @@ private:
     pxr::HdRenderIndex *mRenderIndex = nullptr; // stored by CreateRenderPass
 
     std::set<pxr::HdSprim*> mLights;
+    std::set<pxr::HdRprim*> mProcedurals;
+    std::set<pxr::HdRprim*> mVolumes;
     void setDefaultLight(bool);
 
     pxr::UsdImagingDelegate* mUsdImagingDelegate = nullptr;
@@ -354,4 +378,3 @@ private:
 };
 
 }
-
