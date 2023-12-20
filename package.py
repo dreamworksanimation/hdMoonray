@@ -54,12 +54,15 @@ variants = [
     ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.7'],
     ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'opt_level-optdebug', 'python-3.9'],
     ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.9'],
+    ['os-rocky-9', 'refplat-vfx2023.0', 'usd_imaging-0.22.5.x.3', 'opt_level-optdebug', 'python-3.10'],
+    ['os-rocky-9', 'refplat-vfx2023.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.10'],
 ]
 
 sconsTargets = {
     'refplat-vfx2020.3': ['@install'] + unittestflags + ratsflags,
     'refplat-vfx2021.0': ['@install'] + unittestflags + ratsflags,
     'refplat-vfx2022.0': ['@install'] + unittestflags + ratsflags,
+    'refplat-vfx2023.0': ['@install'] + unittestflags + ratsflags,
 }
 
 requires = [
@@ -76,7 +79,7 @@ requires = [
 
 private_build_requires = [
     build_system_pbr,
-    'gcc-6.3.x|9.3.x',
+    'gcc-6.3.x|9.3.x|11.x',
     'cppunit'
 ]
 
