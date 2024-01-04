@@ -41,7 +41,7 @@ public:
     bool denoiseNormalGuiding() const;
     bool getDecodeNormals() const;
     bool getEnableMotionBlur() const;
-
+    std::string getExecutionMode() const;
     bool mIsHoudini = false;
 
     // utility function for settings stored in environment variables:

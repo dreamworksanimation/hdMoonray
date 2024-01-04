@@ -27,6 +27,7 @@ public:
     void setLogLevel(int level) { mLogLevel = level; }
     void setHostCount(int count);
     void setMaxFps(float val);
+    void setExecMode(std::string val);
     void setLocalReservedCores(int val);
     int getHostCount() const { return mLocalMode ? 1 : mHostCount; }
     int getMaxConnectRetries() { return mMaxConnectRetries; }
@@ -45,6 +46,7 @@ private:
     bool mReconnectTrigger = false;
     bool mReconnectRequired = false;
     int mMaxConnectRetries = 2;
+    std::string mExecMode = "auto";
 
     mcrt_dataio::ClientReceiverFb::DenoiseMode mDenoiseMode = mcrt_dataio::ClientReceiverFb::DenoiseMode::DISABLE;
 

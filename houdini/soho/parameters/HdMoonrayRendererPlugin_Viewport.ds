@@ -279,6 +279,22 @@
     }
 
     parm {
+            name        "executionMode"
+            label       "Execution Mode"
+            type        string
+            size        1
+            default     { "auto" }
+            menu        {
+                        "auto"       "auto"
+                        "vectorized"    "vectorized"
+                        "xpu"    "xpu"
+                        "scalar"    "scalar"
+                        }
+            parmtag     { "uiscope" "viewport" }
+        }
+
+
+    parm {
         name        "useRemoteHosts"
         label       "Use Remote Hosts"
         type        toggle

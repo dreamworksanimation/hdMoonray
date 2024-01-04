@@ -6,6 +6,7 @@
 
 #include <scene_rdl2/common/fb_util/VariablePixelBuffer.h>
 #include <scene_rdl2/scene/rdl2/RenderOutput.h>
+#include <moonray/rendering/mcrt_common/ExecutionMode.h>
 #include <moonray/rendering/rndr/RenderContext.h>
 #include <moonray/rendering/rndr/RenderOutputDriver.h>
 #include <moonray/rendering/rndr/RenderProgressEstimation.h>
@@ -32,7 +33,6 @@ RndrRenderer::RndrRenderer()
     mRenderOptions->setRenderMode(moonray::rndr::RenderMode::PROGRESSIVE); // BATCH, PROGRESS_CHECKPOINT
     //mRenderOptions->setFps(1.0f);
     //mRenderOptions->setDesiredExecutionMode(scene_rdl2::mcrt_common::ExecutionMode::AUTO);
-
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [this](){ moonray::rndr::initGlobalDriver(*mRenderOptions); });
 
@@ -160,7 +160,7 @@ RndrRenderer::resolve(scene_rdl2::rdl2::RenderOutput* ro, PixelData& pd)
     if (n == oldN) {
         return false; // render image is not updated.
     }
-    
+
     mResized = false;
 
     if (isBeauty(ro)) {
@@ -230,9 +230,9 @@ RndrRenderer::applySettings(const RenderSettings& settings)
 #   ifdef DEBUG_MSG
     std::cerr << ">> RndrRenderer.cc applySettings()\n";
 #   endif // end DEBUG_MSG
-
     static bool oldRestartToggle = false;
     static bool oldReloadTexturesToggle = false;
+    setExecMode(settings.getExecutionMode());
     if (settings.getRestartToggle() != oldRestartToggle || settings.getReloadTexturesToggle() != oldReloadTexturesToggle) {
         oldRestartToggle = settings.getRestartToggle();
         oldReloadTexturesToggle = settings.getReloadTexturesToggle();
@@ -275,10 +275,35 @@ RndrRenderer::getElapsedSeconds() const
 #   ifdef DEBUG_MSG
     std::cerr << ">> RndrRenderer.cc getElapsedSeconds()\n";
 #   endif // end DEBUG_MSG
-    
+
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
     std::chrono::duration<float> d(now - startTime);
     return d.count();
+}
+
+
+void
+RndrRenderer::setExecMode(std::string mode)
+{   
+    if (mExecMode == mode) return;
+    if (mode ==  "auto"){
+        mRenderOptions->setDesiredExecutionMode(moonray::mcrt_common::ExecutionMode::AUTO);
+        mExecMode = mode;
+    }
+    else if (mode == "vectorized"){
+        mRenderOptions->setDesiredExecutionMode(moonray::mcrt_common::ExecutionMode::VECTORIZED);
+        mExecMode = mode;
+    }
+    else if (mode == "scalar"){
+        mRenderOptions->setDesiredExecutionMode(moonray::mcrt_common::ExecutionMode::SCALAR);
+        mExecMode = mode;
+    }
+    else if (mode == "xpu"){
+        mRenderOptions->setDesiredExecutionMode(moonray::mcrt_common::ExecutionMode::XPU);
+        mExecMode = mode;
+    } else {
+        std::cerr<< "Invalid Execution Mode " <<std::endl;
+    }
 }
 
 // This is not thread safe, caller must hold mMutex
@@ -420,4 +445,3 @@ RndrRenderer::isFrameComplete() const
 }
 
 }
-

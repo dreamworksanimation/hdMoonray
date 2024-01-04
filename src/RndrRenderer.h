@@ -41,6 +41,8 @@ public:
     void deallocate(scene_rdl2::rdl2::RenderOutput*, PixelData&) override;
 
     void applySettings(const RenderSettings&) override;
+    void setExecMode(std::string mode);
+
 private:
     std::unique_ptr<moonray::rndr::RenderOptions> mRenderOptions;
     std::unique_ptr<moonray::rndr::RenderContext> mRenderContext;
@@ -51,7 +53,8 @@ private:
     bool mFailure = false;
     bool mResized = true;
     mutable std::mutex mMutex;
-
+    std::string mExecMode = "auto";
+    
     int renderOutputIndex(scene_rdl2::rdl2::RenderOutput*) const;
     scene_rdl2::fb_util::RenderBuffer renderBuffer;
     scene_rdl2::fb_util::HeatMapBuffer heatMapBuffer;
@@ -63,4 +66,3 @@ private:
 };
 
 }
-

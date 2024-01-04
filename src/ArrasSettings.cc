@@ -173,7 +173,10 @@ ArrasSettings::getSessionDefinition()
         if (def.has("mcrt")) def["mcrt"]["requirements"]["resources"]["reservedCores"] = mLocalReservedCores;
     }
     setupPackaging(mLocalMode,def);
-    if (def.has("mcrt")) def["mcrt"]["fps"] = mMaxFps;
+    if (def.has("mcrt")) {
+        def["mcrt"]["fps"] = mMaxFps;
+        def["mcrt"]["exec_mode"] = mExecMode;
+    }
     if (def.has("merge")) def["merge"]["fps"] = mMaxFps;
     if (def.has("dispatch")) def["dispatch"]["fps"] = mMaxFps;
     return def;
@@ -223,6 +226,17 @@ ArrasSettings::setMaxFps(float val)
 }
 
 void
+ArrasSettings::setExecMode(std::string val)
+{
+    if (val != mExecMode){
+        if (val == "vectorized" || val == "auto" || val == "xpu" || val == "scalar") {
+            mExecMode = val;
+            mReconnectRequired = true;
+        }
+    }
+}
+
+void
 ArrasSettings::reconnectTrigger(bool flag)
 {
     if (flag != mReconnectTrigger) {
@@ -257,10 +271,11 @@ ArrasSettings::applySettings(const RenderSettings& settings)
     setHostCount(settings.getArrasHostCount());
     setLocalReservedCores(settings.getArrasLocalReservedCores());
     setMaxFps(settings.getArrasMaxFps());
+    setExecMode(settings.getExecutionMode());
     reconnectTrigger(settings.getRestartToggle());
     setMaxConnectRetries(settings.getMaxConnectRetries());
-    setDenoiseMode(settings.enableDenoise(), 
-                   settings.denoiseAlbedoGuiding(), 
+    setDenoiseMode(settings.enableDenoise(),
+                   settings.denoiseAlbedoGuiding(),
                    settings.denoiseNormalGuiding());
 }
 

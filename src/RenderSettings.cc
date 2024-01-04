@@ -42,6 +42,7 @@ TF_DEFINE_PRIVATE_TOKENS(Tokens,
     (pruneVolume)
     (pruneWrapDeform)
     (forcePolygon)
+    (executionMode)
 );
 
 std::map<pxr::TfToken, pxr::VtValue> defaultMap;
@@ -113,11 +114,14 @@ RenderSettings::getDescriptors()
         { "Prune WrapDeform",      Tokens->pruneWrapDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_WRAPDEFORM")) },
         { "Prune CurveDeform",      Tokens->pruneCurveDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_CURVEDEFORM")) },
         { "Force Polygon",      Tokens->forcePolygon, pxr::VtValue(getenvBool("HDMOONRAY_FORCE_POLYGON")) },
+        { "Enable Motion Blur",      Tokens->enableMotionBlur, pxr::VtValue(true) },
+        { "Execution Mode",      Tokens->executionMode, pxr::VtValue(getenvString("HDMOONRAY_EXEC_MODE", "auto")) },
 
     };
     if (defaultMap.empty()) {
-        for (auto&& i : mDescriptors)
+        for (auto&& i : mDescriptors) {
             defaultMap[i.key] = i.defaultValue;
+        }
     }
     return mDescriptors;
 }
@@ -232,6 +236,21 @@ float
 RenderSettings::getArrasMaxFps() const
 {
     return  get<float>(Tokens->maxFps);
+}
+
+std::string
+RenderSettings::getExecutionMode() const
+{
+    // RenderSettings::getDescriptors() initializes the default value for executionMode
+    // as it intializes the defaultMap.
+    // This is called before getDescriptors()
+    // so the val can be empty and we need to provide a default value
+    pxr::VtValue val = mDelegate.GetRenderSetting(Tokens->executionMode);
+    if (not val.IsEmpty()) {
+        return val.Get<std::string>();
+    }else{
+        return "auto";
+    }
 }
 
 bool
