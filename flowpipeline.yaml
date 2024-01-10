@@ -448,11 +448,13 @@ package-configurations:
 
   rez-2:
     build_context:
-    - buildtools
+    - buildtools-2
+    - python-3.7
     environment: {}
     packages_path:
     - /rel/rez/dwa
     - /rel/rez/third_party
+    - /rel/rez/pypi
     - /rel/lang/python/packages
     release_packages_path: /rel/rez/dwa
     symlink_directory: null
@@ -462,13 +464,15 @@ package-configurations:
 
   rez-2-CI-RaTS:
     build_context:
-    - buildtools
+    - buildtools-2
+    - python-3.7
     environment:
       BROKEN_CUSTOM_ARGS_RATS: 1
       BROKEN_CUSTOM_ARGS_UNITTESTS: 1
     packages_path:
     - /rel/rez/dwa
     - /rel/rez/third_party
+    - /rel/rez/pypi
     - /rel/lang/python/packages
     release_packages_path: /rel/rez/dwa
     symlink_directory: null
