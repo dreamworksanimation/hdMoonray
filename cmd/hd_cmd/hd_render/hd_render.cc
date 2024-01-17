@@ -175,7 +175,7 @@ main(int argc, char *argv[])
     // Fill out the hydra "purpose".  We always include the default purpose.  We support 3
     // other purposes: "render", "proxy", and "guide"
     pxr::TfTokenVector purposes = { pxr::UsdGeomTokens->default_ };
-    for (const std::string p : options.getPurposes()) {
+    for (const std::string& p : options.getPurposes()) {
         const pxr::TfToken tp = pxr::TfToken(p);
         if (tp == pxr::UsdGeomTokens->render ||
             tp == pxr::UsdGeomTokens->proxy ||

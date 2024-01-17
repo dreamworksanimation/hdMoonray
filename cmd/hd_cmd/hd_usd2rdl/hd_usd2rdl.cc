@@ -121,7 +121,7 @@ main(int argc, char *argv[])
     renderSettings.setRenderSetting("rdlaOutput",options.getOutputRdlFile());
 
     pxr::TfTokenVector purposes = { pxr::UsdGeomTokens->default_ };
-    for (const std::string p : options.getPurposes()) {
+    for (const std::string& p : options.getPurposes()) {
         const pxr::TfToken tp = pxr::TfToken(p);
         if (tp == pxr::UsdGeomTokens->render ||
             tp == pxr::UsdGeomTokens->proxy ||
