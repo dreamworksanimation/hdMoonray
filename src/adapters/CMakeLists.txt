@@ -16,6 +16,7 @@ target_sources(${component}
     PRIVATE
         GeometryLightAdapter.cc
         MoonrayLightFilterAdapter.cc
+        ProceduralAdapter.cc
 )
 
 target_include_directories(${component}
