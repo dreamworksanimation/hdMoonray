@@ -12,11 +12,16 @@ add_library(${PROJECT_NAME}::${component} ALIAS ${component})
 # no "lib" prefix on the plugin lib
 set_target_properties(${component} PROPERTIES PREFIX "")
 
+# Custom DWA source file
+if ("$ENV{STUDIO}" STREQUAL "GLD")
+    set(DwaSpecificSources ProceduralAdapter.cc)
+endif()
+
 target_sources(${component}
     PRIVATE
         GeometryLightAdapter.cc
         MoonrayLightFilterAdapter.cc
-        ProceduralAdapter.cc
+        ${DwaSpecificSources}
 )
 
 target_include_directories(${component}
