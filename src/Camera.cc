@@ -11,6 +11,7 @@
 #include "Geometry.h"
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
+#include "HdmLog.h"
 
 #include <pxr/imaging/hd/sceneDelegate.h>
 #include "pxr/base/gf/frustum.h"
@@ -58,7 +59,9 @@ Camera::Sync(pxr::HdSceneDelegate* sceneDelegate,
              pxr::HdRenderParam*   renderParam,
              pxr::HdDirtyBits*     dirtyBits)
 {
-    // std::cout << GetId() << ": Sync" << std::endl;
+    const pxr::SdfPath &id = GetId();
+    hdmLogSyncStart("Camera", id, dirtyBits);
+
     mSceneDelegate = sceneDelegate; // save for use by setAsPrimaryCamera() and RenderPass
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
     renderDelegate.setStartTime();
@@ -97,6 +100,8 @@ Camera::Sync(pxr::HdSceneDelegate* sceneDelegate,
     } else if (mCamera) {
         updateCamera(sceneDelegate, renderDelegate, bits);
     }
+
+    hdmLogSyncEnd(id);
 }
 
 scene_rdl2::rdl2::Camera*

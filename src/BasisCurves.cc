@@ -3,6 +3,7 @@
 
 #include "BasisCurves.h"
 #include "RenderDelegate.h"
+#include "HdmLog.h"
 
 #include <pxr/base/gf/vec2f.h>
 
@@ -77,7 +78,8 @@ BasisCurves::Sync(pxr::HdSceneDelegate *sceneDelegate,
                   pxr::TfToken const   &reprToken)
 {
     const pxr::SdfPath& id = GetId();
-    // std::cout << id << " Sync dirtyBits=" << std::hex << *dirtyBits << std::endl;
+    hdmLogSyncStart("BasisCurves", id, dirtyBits);
+    
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
     renderDelegate.setStartTime();
 
@@ -198,6 +200,7 @@ BasisCurves::Sync(pxr::HdSceneDelegate *sceneDelegate,
     assign(sceneDelegate, renderDelegate, dirtyBits);
 
     *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
+    hdmLogSyncEnd(id);
 }
 
 }

@@ -6,6 +6,8 @@
 #include "Geometry.h"
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
+#include "HdmLog.h"
+
 #include <pxr/imaging/hd/sceneDelegate.h>
 #include <pxr/base/gf/matrix4d.h>
 
@@ -376,7 +378,8 @@ Light::Sync(pxr::HdSceneDelegate *sceneDelegate,
             pxr::HdDirtyBits     *dirtyBits)
 {
     pxr::SdfPath id = GetId();
-    // std::cout << id << ": Sync" << std::endl;
+    hdmLogSyncStart("Light", id, dirtyBits);
+    
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
     renderDelegate.setStartTime();
 
@@ -451,6 +454,7 @@ Light::Sync(pxr::HdSceneDelegate *sceneDelegate,
     }
 
     *dirtyBits = DirtyBits::Clean;
+    hdmLogSyncEnd(id);
 }
 
 void

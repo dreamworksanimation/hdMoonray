@@ -4,6 +4,7 @@
 #include "Procedural.h"
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
+#include "HdmLog.h"
 
 #include <scene_rdl2/scene/rdl2/Geometry.h>
 
@@ -80,7 +81,8 @@ Procedural::Sync(pxr::HdSceneDelegate* sceneDelegate,
              const pxr::TfToken&   reprToken)
 {
     const pxr::SdfPath& id = GetId();
-    // std::cout << id << " Sync dirtyBits=" << std::hex << *dirtyBits << std::endl;
+    hdmLogSyncStart("Procedural", id, dirtyBits);
+
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
     renderDelegate.setStartTime();
     setPruneFlag(renderDelegate, sceneDelegate);
@@ -129,6 +131,7 @@ Procedural::Sync(pxr::HdSceneDelegate* sceneDelegate,
            not strncmp(geometry()->getSceneClass().getName().c_str(), "OpenVdb", 7));
 
     *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
+    hdmLogSyncEnd(id);
 }
 
 const pxr::TfTokenVector&

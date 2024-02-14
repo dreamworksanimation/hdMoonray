@@ -3,6 +3,7 @@
 
 #include "ArrasRenderer.h"
 #include "RenderSettings.h"
+#include "HdmLog.h"
 
 #include <scene_rdl2/scene/rdl2/RenderOutput.h>
 #include <scene_rdl2/scene/rdl2/BinaryWriter.h>
@@ -87,6 +88,7 @@ ArrasRenderer::initArras()
 bool
 ArrasRenderer::connect()
 {
+    hdmLogArras("connect");
     if (mSettings.getReconnectRequired()) {
         mFailedConnects = 0;
     } else if (mFailedConnects > mSettings.getMaxConnectRetries()) {
@@ -112,6 +114,7 @@ ArrasRenderer::connect()
             if (mFailedConnects > 0) err += " (retry " + std::to_string(mFailedConnects) + ")";
             Logger::error(err);
             mFailedConnects++;
+            hdmLogArras("endConnectErr");
             return false;
         }
     } catch (const arras4::sdk::SDKException& e) {
@@ -120,6 +123,7 @@ ArrasRenderer::connect()
         err += ": " + std::string(e.what());
         Logger::error(err);
         mFailedConnects++;
+        hdmLogArras("endConnectErr");
         return false;
     }
 
@@ -138,7 +142,7 @@ ArrasRenderer::connect()
     mFirstMessageSent = false;
     mUpdateActive = true; // make sure endUpdate() sends a message
     mConnected = true;
-
+    hdmLogArras("endConnect");
     Logger::info("Moonray delegate created an Arras session with ID ",sessionId);
     return true;
 }
@@ -146,6 +150,7 @@ ArrasRenderer::connect()
 void
 ArrasRenderer::messageHandler(const arras4::api::Message& msg)
 {
+    hdmLogArras("messageHandler");
     std::lock_guard<std::mutex> guard(mMutex);
 
     if (msg.classId() == mcrt::ProgressiveFrame::ID) {
@@ -189,6 +194,7 @@ ArrasRenderer::messageHandler(const arras4::api::Message& msg)
         creditMsg->value() = 1;
         mSDK->sendMessage(creditMsg);
     }
+    hdmLogArras("endMessageHandler");
 }
 
 void
@@ -323,6 +329,7 @@ ArrasRenderer::endUpdate()
 
         if (!mConnected || !mSDK->isEngineReady()) return;
 
+        hdmLogArras("sendUpdate");
         Logger::info("Restarting Arras render");
 
         // send any changes in the scene context as an RDLMessage
@@ -338,6 +345,7 @@ ArrasRenderer::endUpdate()
             // sending an empty message restarts the render, so don't
             // do it unnecessarily
             mUpdateActive = false;
+            hdmLogArras("endSendUpdateEmpty");
             return;
         }
         rdlMsg->mForceReload = false;
@@ -353,7 +361,7 @@ ArrasRenderer::endUpdate()
         mFrameComplete = false;   // we don't have a complete render of the last update...
 
         mUpdateActive = false;
-
+        hdmLogArras("endSendUpdate");
     } // drop the lock before doing commit
 
     // commit all changes on the context to prep

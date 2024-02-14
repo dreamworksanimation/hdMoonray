@@ -5,6 +5,7 @@
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
 #include "CoordSys.h"
+#include "HdmLog.h"
 
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/base/gf/vec2d.h>
@@ -190,7 +191,8 @@ Material::Sync(pxr::HdSceneDelegate *sceneDelegate,
     auto& renderDelegate(RenderDelegate::get(renderParam));
     renderDelegate.setStartTime();
     const pxr::SdfPath& id = GetId();
-    // std::cout << id << " Sync dirty=" << std::hex << *dirtyBits << std::endl;
+    hdmLogSyncStart("Material", id, dirtyBits);
+    
     if (*dirtyBits & AllDirty) {
         mResource = sceneDelegate->GetMaterialResource(id);
         mMaterialDirty = mDisplacementDirty = mVolumeShaderDirty = true;
@@ -200,6 +202,7 @@ Material::Sync(pxr::HdSceneDelegate *sceneDelegate,
         if (mVolumeShader) getVolumeShader(renderDelegate, sceneDelegate, mGeom);
     }
     *dirtyBits &= ~AllDirty;
+    hdmLogSyncEnd(id);
 }
 
 bool Material::isEnabled() const

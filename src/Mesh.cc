@@ -5,6 +5,8 @@
 #include "RenderDelegate.h"
 #include "Material.h"
 
+#include "HdmLog.h"
+
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/imaging/hd/meshUtil.h>
 #include <pxr/imaging/pxOsd/tokens.h>
@@ -124,8 +126,10 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
            pxr::HdDirtyBits     *dirtyBits,
            pxr::TfToken const   &reprToken)
 {
+    
     const pxr::SdfPath& id = GetId();
-    // std::cout << id << " Sync dirty=" << std::hex << *dirtyBits << std::endl;
+    hdmLogSyncStart("Mesh", id, dirtyBits);
+    
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
     renderDelegate.setStartTime();
 
@@ -370,6 +374,7 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
     // sync() call when they are turned on. Possibly you could leave some on if you cannot
     // update due to them until another dirty bit is also turned on.
     *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
+    hdmLogSyncEnd(id);
 }
 
 }

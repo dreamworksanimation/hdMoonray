@@ -3,6 +3,7 @@
 
 #include "Volume.h"
 #include "RenderDelegate.h"
+#include "HdmLog.h"
 
 #include "pxr/usd/sdf/types.h" // for SdfAssetPath
 
@@ -51,7 +52,8 @@ Volume::Sync(pxr::HdSceneDelegate* sceneDelegate,
              const pxr::TfToken&   reprToken)
 {
     const pxr::SdfPath& id = GetId();
-    // std::cout << id << " Sync dirtyBits=" << std::hex << *dirtyBits << std::endl;
+    hdmLogSyncStart("Volume", id, dirtyBits);
+    
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
     if (renderDelegate.getPruneVolume()){
@@ -119,6 +121,7 @@ Volume::Sync(pxr::HdSceneDelegate* sceneDelegate,
     assign(sceneDelegate, renderDelegate, dirtyBits, true);
 
     *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
+    hdmLogSyncEnd(id);
 }
 
 

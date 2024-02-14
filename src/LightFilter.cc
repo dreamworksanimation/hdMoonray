@@ -5,6 +5,8 @@
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
 #include "Material.h"
+#include "HdmLog.h"
+
 #include <pxr/imaging/hd/sceneDelegate.h>
 #include <pxr/base/gf/matrix4d.h>
 #include <pxr/usd/usdLux/tokens.h>
@@ -143,6 +145,7 @@ LightFilter::Sync(pxr::HdSceneDelegate *sceneDelegate,
                   pxr::HdDirtyBits     *dirtyBits)
 {
     pxr::SdfPath id = GetId();
+    hdmLogSyncStart("LightFilter", id, dirtyBits);
 
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
     renderDelegate.setStartTime();
@@ -155,6 +158,7 @@ LightFilter::Sync(pxr::HdSceneDelegate *sceneDelegate,
     }
 
     *dirtyBits = pxr::HdChangeTracker::Clean;
+    hdmLogSyncEnd(id);
 }
 
 void

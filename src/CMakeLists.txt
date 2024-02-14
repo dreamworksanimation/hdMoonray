@@ -22,6 +22,7 @@ target_sources(${component}
         Camera.cc
         CoordSys.cc
         Geometry.cc
+        HdmLog.cc
         Instancer.cc
         Light.cc
         LightFilter.cc

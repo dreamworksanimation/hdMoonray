@@ -5,6 +5,8 @@
 #include "RenderDelegate.h"
 #include "Camera.h"
 #include "ValueConverter.h"
+#include "HdmLog.h"
+
 #include <scene_rdl2/scene/rdl2/SceneContext.h>
 #include <scene_rdl2/scene/rdl2/SceneVariables.h>
 #include <scene_rdl2/scene/rdl2/RenderOutput.h>
@@ -162,14 +164,13 @@ RenderBuffer::Sync(pxr::HdSceneDelegate* sceneDelegate,
                    pxr::HdRenderParam* renderParam,
                    pxr::HdDirtyBits* dirtyBits)
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RenderBuffer.cc RenderBuffer::Sync()\n";
-#   endif
-
-    // std::cout << "RenderBuffer::Sync " << GetId() << std::endl;
+    const pxr::SdfPath& id = GetId();
+    hdmLogSyncStart("RenderBuffer", id, dirtyBits);
+   
     mRenderDelegate = &RenderDelegate::get(renderParam);
     mRenderDelegate->setStartTime();
     pxr::HdRenderBuffer::Sync(sceneDelegate, renderParam, dirtyBits); // this calls Allocate()
+    hdmLogSyncEnd(id);
 }
 
 // This is unfortunatly called before bind(), and thus mRenderOutput output may be unset.
@@ -182,9 +183,12 @@ RenderBuffer::Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat format, boo
     std::cerr << ">> RenderBuffer.cc RenderBuffer::Allocate()\n";
 #   endif
 
+    hdmLogRenderBuffer("Allocate",GetId());
+
     // std::cout << "RenderBuffer::Allocate " << GetId() << ' ' << dimensions << ' ' << format << std::endl;
     if (dimensions[2] != 1) {
         Logger::error(GetId(), ": dimensions ", dimensions, " unsupported");
+        hdmLogRenderBuffer("EndAllocateErr",GetId());
         return false;
     }
 
@@ -203,12 +207,15 @@ RenderBuffer::Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat format, boo
             request.mChannels = 4; break;
         default:
             Logger::error(GetId(), ": unknown format ", format);
+            hdmLogRenderBuffer("EndAllocateErr",GetId());
             return false;
     }
     request.mWidth = dimensions[0];
     request.mHeight = dimensions[1];
 
-    return mRenderDelegate->getRendererApplySettings().allocate(mRenderOutput, pd, request);
+    bool ret = mRenderDelegate->getRendererApplySettings().allocate(mRenderOutput, pd, request);
+    hdmLogRenderBuffer("EndAllocate",GetId());
+    return ret;
 }
 
 // Called by RenderPass. Only at this point do we have all the information needed to correctly
@@ -219,7 +226,8 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
 #   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::bind()\n";
 #   endif
-
+    hdmLogRenderBuffer("Bind", GetId());
+    
     mAovName = aovBinding.aovName;
     mNear = camera->getNear();
     mFar = camera->getFar();
@@ -233,7 +241,10 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
         }
     }
 
-    if (bound()) return; // Hydra does not reuse render buffers for different aovs, so assume it is unchanged
+    if (bound()) {
+        hdmLogRenderBuffer("EndBindBound", GetId());
+        return; // Hydra does not reuse render buffers for different aovs, so assume it is unchanged
+    }
     mBound = true;
 
     if (mAovName == pxr::HdAovTokens->color) {
@@ -343,6 +354,7 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
             }
         }
     }
+    hdmLogRenderBuffer("EndBind", GetId());
 }
 
 bool
@@ -362,8 +374,10 @@ RenderBuffer::Resolve()
     std::cerr << ">> RenderBuffer.cc RenderBuffer::Resolve()\n";
 #   endif
 
+    hdmLogRenderBuffer("Resolve", GetId());
     // std::cout << "Resolve " << GetId() << std::endl;
     if (not bound()) {
+        hdmLogRenderBuffer("EndResolveUnbound", GetId());
         // Houdini does this, so don't print a message:
         //Logger::error(GetId(), ": buffer is not bound");
         return;
@@ -372,8 +386,10 @@ RenderBuffer::Resolve()
     // See if the old image is ok
     // Return what we already have (which might be the initial buffer set by Allocate)
     Renderer& renderer = mRenderDelegate->renderer();
-    if (not renderer.resolve(mRenderOutput, pd))
+    if (not renderer.resolve(mRenderOutput, pd)) {
+        hdmLogRenderBuffer("EndResolveUnchanged", GetId());
         return;
+    }
 
     // std::cout << GetId() << ' ' << pd.mChannels << " x " << pd.mWidth << " x " << pd.mHeight << " data=" << pd.mData << std::endl;
 
@@ -478,6 +494,7 @@ RenderBuffer::Resolve()
         Logger::error(GetId(), ": unknown channel count ", pd.mChannels);
         break;
     }
+    hdmLogRenderBuffer("EndResolve", GetId());
 }
 
 void
@@ -486,7 +503,7 @@ RenderBuffer::Finalize(pxr::HdRenderParam* renderParam)
 #   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::Finalize()\n";
 #   endif
-
+    hdmLogRenderBuffer("Finalize", GetId());
     // std::cout << "RenderBuffer::Finalize " << GetId() << std::endl;
     if (mRenderOutput) {
         RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
@@ -501,6 +518,7 @@ RenderBuffer::Finalize(pxr::HdRenderParam* renderParam)
         }
     }
     HdRenderBuffer::Finalize(renderParam);
+    hdmLogRenderBuffer("EndFinalize", GetId());
 }
 
 // Called *after* Finalize()
@@ -510,7 +528,7 @@ RenderBuffer::_Deallocate()
 #   ifdef DEBUG_MSG
     std::cerr << ">> RenderBuffer.cc RenderBuffer::_Deallocate()\n";
 #   endif
-
+    hdmLogRenderBuffer("_Deallocate", GetId());
     // std::cout << "RenderBuffer::Deallocate " << GetId() << std::endl;
     if (pd.mData) {
         mRenderDelegate->renderer().deallocate(mRenderOutput, pd);
@@ -519,6 +537,7 @@ RenderBuffer::_Deallocate()
         intBuffer.clear();
         pd.mData = nullptr;
     }
+    hdmLogRenderBuffer("End_Deallocate", GetId());
 }
 
 }

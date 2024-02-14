@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "Geometry.h"
 #include "RenderDelegate.h"
+#include "HdmLog.h"
 
 #include <pxr/imaging/hd/sceneDelegate.h>
 #include <scene_rdl2/scene/rdl2/Geometry.h>
@@ -48,9 +49,13 @@ CoordSys::Sync(pxr::HdSceneDelegate* sceneDelegate,
                pxr::HdRenderParam*   renderParam,
                pxr::HdDirtyBits*     dirtyBits)
 {
+    const pxr::SdfPath &id = GetId();
+    hdmLogSyncStart("Camera", id, dirtyBits);
+
     RenderDelegate::get(renderParam).setStartTime();
     // HdCoordSys::Sync(sceneDelegate, renderParam, dirtyBits); // this does not exist!
     *dirtyBits = 0;
+    hdmLogSyncEnd(id);
 }
 
 scene_rdl2::rdl2::SceneObject*
