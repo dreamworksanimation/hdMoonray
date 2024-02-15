@@ -192,7 +192,12 @@ ArrasRenderer::messageHandler(const arras4::api::Message& msg)
         // acknowledge received frame with a credit message
         mcrt::CreditUpdate::Ptr creditMsg = std::make_shared<mcrt::CreditUpdate>();
         creditMsg->value() = 1;
-        mSDK->sendMessage(creditMsg);
+        try {
+            mSDK->sendMessage(creditMsg);
+        } catch (std::exception& ex) {
+            Logger::error("Credit message send failed: ",ex.what());
+            hdmLogArras("creditSendFailed");
+        }
     }
     hdmLogArras("endMessageHandler");
 }
@@ -355,8 +360,12 @@ ArrasRenderer::endUpdate()
         rdlMsg->mSyncId = ++mLatestUpdateFrameId;
 
         // Send the render data to the computation
-        mSDK->sendMessage(rdlMsg);
-
+        try {
+            mSDK->sendMessage(rdlMsg);
+        } catch (std::exception& ex) {
+            Logger::error("RDL message send failed: ",ex.what());
+            hdmLogArras("sendUpdateFailed");
+        }
         mFirstMessageSent = true; // we've now sent the first message
         mFrameComplete = false;   // we don't have a complete render of the last update...
 
