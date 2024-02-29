@@ -23,8 +23,8 @@ private:
 };
 
 HdmLogInfo::HdmLogInfo() 
-    : mLogStream(nullptr)
-    , mOwnsStream(false)
+    : mOwnsStream(false)
+    , mLogStream(nullptr)
 {
     char* ev = std::getenv(HDM_LOG_ENV_VAR);
     if (ev == nullptr) return;

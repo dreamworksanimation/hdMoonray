@@ -348,7 +348,7 @@ pipeline-configurations:
       merge_target_type: branch
     build:
       enabled: true
-      rez_args: -b scons
+      rez_args: -b cmake
       resource:
         os-rocky-9: EL9
         os-CentOS-7: EL7_RaTS_build_fast
