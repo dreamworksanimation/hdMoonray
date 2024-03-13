@@ -74,7 +74,7 @@ requires = [
     'moonshine-12.17',
     'mcrt_computation-13.17',
     'arras4_core-4.10',
-    'mcrt_messages-12.2',
+    'mcrt_messages-12.3',
     'mcrt_dataio-13.14',
     'mkl',
     'openimageio-2.3.20.0.x',
