@@ -3,3 +3,4 @@
 
 
 add_subdirectory(hd_cmd)
+add_subdirectory(usd_mipmap_images)

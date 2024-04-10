@@ -1,0 +1,5 @@
+Import('env')
+
+bin = env.DWAInstallPythonBin('usd_mipmap_images')
+env.Alias('@install', bin)
+
