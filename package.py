@@ -69,13 +69,13 @@ sconsTargets = {
 }
 
 requires = [
-    'moonray-15.20',
-    'moonshine_dwa-12.21',
-    'moonshine-12.20',
-    'mcrt_computation-13.20',
+    'moonray-16.0',
+    'moonshine_dwa-13.0',
+    'moonshine-13.0',
+    'mcrt_computation-14.0',
     'arras4_core-4.10',
-    'mcrt_messages-12.4',
-    'mcrt_dataio-13.15',
+    'mcrt_messages-13.0',
+    'mcrt_dataio-14.0',
     'mkl',
     'openimageio-2.3.20.0.x',
 ]
