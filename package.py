@@ -16,7 +16,7 @@ if 'early' not in locals() or not callable(early):
 
 @early()
 def version():
-    _version = '4.21'
+    _version = '5.0'
     from rezbuild import earlybind
     return earlybind.version(this, _version)
 
