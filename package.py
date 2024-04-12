@@ -39,16 +39,12 @@ else:
     build_system_pbr = 'cmake_modules'
 
 variants = [
-    ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-optdebug', 'python-3.7'],
-    ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-debug', 'python-3.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-3.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug', 'python-3.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug', 'python-3.7'],
     ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'opt_level-optdebug', 'python-3.9'],
     ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.9'],
-    ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-optdebug', 'python-2.7'],
-    ['os-CentOS-7', 'refplat-vfx2020.3', 'usd_imaging-0.20.8.x.2', 'opt_level-debug', 'python-2.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-2.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-2.7'],
     ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
@@ -62,7 +58,6 @@ variants = [
 ]
 
 sconsTargets = {
-    'refplat-vfx2020.3': ['@install'] + unittestflags + ratsflags,
     'refplat-vfx2021.0': ['@install'] + unittestflags + ratsflags,
     'refplat-vfx2022.0': ['@install'] + unittestflags + ratsflags,
     'refplat-vfx2023.0': ['@install'] + unittestflags + ratsflags,
