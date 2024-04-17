@@ -47,6 +47,11 @@ target_include_directories(${component}
         $<INSTALL_INTERFACE:include>
 )
 
+set(atomicLib "")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(atomicLib atomic)
+endif()
+
 target_link_libraries(${component}
     PUBLIC
         ArrasCore::arras4_log
@@ -64,7 +69,7 @@ target_link_libraries(${component}
         hd   # pxr imaging
         usdImaging
         Python::Module
-        atomic
+        ${atomicLib}
 )
 
 # If at Dreamworks add a SConscript stub file so others can use this library.

@@ -15,8 +15,10 @@ function(${PROJECT_NAME}_cxx_compile_definitions target)
             >
 
         PUBLIC
-            __AVX__
+            ${GLOBAL_COMPILE_DEFINITIONS}
+            ${GLOBAL_CPP_FLAGS}
             GL_GLEXT_PROTOTYPES=1                   # This define makes function symbols to be available as extern declarations.
             TBB_SUPPRESS_DEPRECATED_MESSAGES        # Suppress 'deprecated' messages from TBB
+            _LIBCPP_ENABLE_CXX17_REMOVED_FEATURES=1 # Need std::auto_ptr , std::random_shuffle and std::unary_function
     )
 endfunction()

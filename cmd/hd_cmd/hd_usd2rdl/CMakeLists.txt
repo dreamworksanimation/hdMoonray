@@ -14,6 +14,11 @@ target_sources(${target}
         SceneDelegate.cc
 )
 
+set(atomicLib "")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(atomicLib atomic)
+endif()
+
 target_link_libraries(${target}
     PRIVATE
         SceneRdl2::scene_rdl2
@@ -29,7 +34,7 @@ target_link_libraries(${target}
         TBB::tbb
         Python::Python
         Boost::${BOOST_PYTHON_COMPONENT_NAME}
-        atomic
+        ${atomicLib}
         ${MKL}
 )
 
