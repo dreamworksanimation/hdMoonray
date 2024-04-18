@@ -217,6 +217,8 @@ public:
     scene_rdl2::rdl2::Material* errorMaterial();
     // Default volume shader
     scene_rdl2::rdl2::VolumeShader* defaultVolumeShader();
+    // light set used for geometry with no lights assigned
+    scene_rdl2::rdl2::LightSet* emptyLightSet();
 
     // Add geometry to layer, assigns material/lights.
     int assign(scene_rdl2::rdl2::Geometry* geometry,
@@ -333,6 +335,8 @@ private:
     scene_rdl2::rdl2::Material* mErrorMaterial = nullptr;
     scene_rdl2::rdl2::VolumeShader* mDefaultVolumeShader = nullptr;
     scene_rdl2::rdl2::Light* mDefaultLight = nullptr;
+    scene_rdl2::rdl2::LightSet* mEmptyLightSet = nullptr;
+
     unsigned mNumLights = 0;
     std::mutex layerMutex; // protects defaultLayer
 
