@@ -36,7 +36,7 @@ if 'scons' in sys.argv:
     build_system_pbr = 'bart_scons-10'
 else:
     build_system = 'cmake'
-    build_system_pbr = 'cmake_modules'
+    build_system_pbr = 'cmake_modules-1.0'
 
 variants = [
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
