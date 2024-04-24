@@ -60,10 +60,8 @@ endif()
 find_package(OpenImageIO REQUIRED)
 find_package(JPEG REQUIRED)
 
-# ================================================
 # Set the RPATH for binaries in the install tree
-# ================================================
-set(CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/../lib64)
+set(CMAKE_INSTALL_RPATH ${GLOBAL_INSTALL_RPATH})
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # if OPT_LEVEL is set use its value to override the CMAKE_BUILD_TYPE because the
