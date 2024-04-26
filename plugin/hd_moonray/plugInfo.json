@@ -1,0 +1,20 @@
+{
+    "Plugins": [
+        {
+            "Info": {
+                "Types": {
+                    "HdMoonrayRendererPlugin": {
+                        "bases": [
+                            "HdRendererPlugin"
+                        ],
+                        "displayName": "Moonray",
+                        "priority": 99
+                    }
+                }
+            },
+            "Name": "hd_moonray",
+            "Type": "library",
+            "LibraryPath": "../../hd_moonray.so"
+        }
+    ]
+}

@@ -15,7 +15,6 @@
             "machineId": 0,
             "requirements": {
                 "computationAPI": "4.x",
-                "packaging_system": "current-environment",
                 "resources": {
                     "maxCores": "*",
                     "minCores": 1.0,

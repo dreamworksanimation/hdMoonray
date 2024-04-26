@@ -93,11 +93,11 @@ tests = {
     }
 
 def commands():
-    prependenv('PXR_PLUGIN_PATH', '{root}/plugin')
-    prependenv('PXR_PLUGIN_PATH', '{root}/adapters')
+    prependenv('PXR_PLUGIN_PATH', '{root}/plugin/pxr')
     prependenv('PATH', '{root}/bin')
-    prependenv('ARRAS_SESSION_PATH', '{root}/sessions')
-    prependenv('HOUDINI_PATH', '{root}/houdini')
+    prependenv('LD_LIBRARY_PATH', '{root}/lib64')
+    prependenv('ARRAS_SESSION_PATH', '{root}/sessions/dwa')
+    prependenv('HOUDINI_PATH', '{root}/plugin/houdini')
     prependenv('HDMOONRAY_DOUBLESIDED', '1')
     setenv('RATS_CANONICAL_PATH', '/work/rd/raas/hydra/rats/canonicals/')
     setenv('RATS_TESTSUITE_PATH', '{root}/testSuite')

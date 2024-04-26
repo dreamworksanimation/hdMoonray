@@ -2,5 +2,5 @@ Import('env')
 from os import environ
 
 env.DWAInstallFiles('sessions',
-                    env.DWAGlob('*.sessiondef')
+                    env.DWAGlob('dwa/*.sessiondef')
                     )

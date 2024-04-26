@@ -1,0 +1,4 @@
+Import('env')
+from os import environ
+
+env.DWAInstallFiles('plugin/houdini/soho/parameters', env.DWAGlob('HdMoonray*.ds'))

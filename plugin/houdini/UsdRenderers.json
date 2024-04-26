@@ -1,0 +1,18 @@
+{
+    "HdMoonrayRendererPlugin" : {
+        "valid" : true,
+        "menulabel" : "Moonray",
+        "needsselection" : true,
+        "depthstyle": "linear",
+        "defaultpurposes" : [ "render" ],
+        "complexitymultiplier" : 1.173
+    },
+    "HdMoonrayRendererDebugPlugin" : {
+        "valid" : true,
+        "menulabel" : "Moonray (Debug)",
+        "needsselection" : true,
+        "depthstyle": "linear",
+        "defaultpurposes" : [ "render" ],
+        "complexitymultiplier" : 1.173
+    }
+}

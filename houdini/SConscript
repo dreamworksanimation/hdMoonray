@@ -1,3 +1,0 @@
-Import('env')
-from os import environ
-env.DWAInstallFiles('houdini', env.DWAGlob('*.json'))

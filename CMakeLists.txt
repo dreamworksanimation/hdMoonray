@@ -93,10 +93,10 @@ include(SConscriptStub)
 # ================================================
 # Add project files
 # ================================================
-add_subdirectory(src)
+add_subdirectory(lib)
+add_subdirectory(plugin)
 add_subdirectory(cmd)
-add_subdirectory(houdini)
-add_subdirectory(opensource_files)
+add_subdirectory(sessions)
 
 # ================================================
 # Install

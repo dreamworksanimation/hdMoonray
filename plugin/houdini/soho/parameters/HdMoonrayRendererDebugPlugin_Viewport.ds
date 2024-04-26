@@ -1,0 +1,280 @@
+/// UI controls for the hdMoonray Render Delegate
+///
+/// Houdini will try to load UI decorations based on the name of the
+/// Hydra plugin (see plugInfo.json)
+///
+/// When values are changed by the user, the delegate is notified
+/// through the SetRenderSetting() virtual.  The "name" of the
+/// parameter is sent as the TfToken.
+
+#include "$HFS/houdini/soho/parameters/CommonMacros.ds"
+
+{
+    name    "Moonray (debug)"
+    label   "Moonray (debug)"
+    parmtag { spare_opfilter  "!!SHOP/PROPERTIES!!" }
+    parmtag { spare_classtags "render" }
+
+    parm {
+        name    "sceneVariable_sampling_mode"
+        label   "Sampling Mode"
+        type    integer
+        default { "0" }
+        help    "Controls which sampling scheme to use, defaults to uniform sampling."
+        menu {
+            "0" "uniform"
+            "2" "adaptive"
+        }
+        range   { 0 10 }
+        parmtag { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_pixel_samples"
+        label       "Pixel Samples"
+        type        integer
+        size        1
+        default     { 3 }
+        range       { 1! 16 }
+        help        "Number of pixel samples in uniform mode (squared)"
+        disablewhen "{ sceneVariable_sampling_mode != 0 }"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_min_adaptive_samples"
+        label       "Min Adaptive Samples"
+        type        integer
+        size        1
+        default     { 16 }
+        range       { 0! 128 }
+        help        "When adaptive sampling is turned on, it's possible that a tile may be mis-classified as having converged before it has actually converged. This manifests itself as square 8x8 artifacts in the final image. The higher this value, the less the chance of this happening."
+        disablewhen "{ sceneVariable_sampling_mode != 1 }"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_adaptive_samples"
+        label       "Max Adaptive Samples"
+        type        integer
+        size        1
+        default     { 4096 }
+        range       { 0! 10000  }
+        help        "When adaptive sampling is turned on, this represents the max number of samples we can throw at a pixel. It's best to err on the high side since adaptive sampling will cull out samples where they're not needed based on the target adaptive error, in which case we should rarely hit the max samples value."
+        disablewhen "{ sceneVariable_sampling_mode != 1 }"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_target_adaptive_error"
+        label       "Target Adaptive Error"
+        type        float
+        size        1
+        default     { 10 }
+        range       { 0! 128 }
+        help        "When adaptive sampling is turned on, this represents the desired quality of the output images. Lower values will give higher quality but take longer to render. Higher values will give lower quality but render quicker."
+        disablewhen "{ sceneVariable_sampling_mode != 1 }"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_sample_clamping_depth"
+        label       "Sample Clamping Depth"
+        type        integer
+        size        1
+        default     { 1 }
+        range       { 0! 50 }
+        help        "Clamp sample values only after given non-specular depth"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_sample_clamping_value"
+        label       "Sample Clamping Value"
+        type        float
+        size        1
+        default     { 10.0 }
+        range       { 0! 100 }
+        help        "Clamp sample values to a maximum (disabled if 0.0). Warning: Using this technique is biased"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_depth"
+        label       "Max Depth"
+        type        integer
+        size        1
+        default     { 5 }
+        range       { 0! 50 }
+        help        "Maximum ray depth"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_diffuse_depth"
+        label       "Max Diffuse Depth"
+        type        integer
+        size        1
+        default     { 1 }
+        range       { 0! 20 }
+        help        "Maximum ray depth for diffuse rays"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_glossy_depth"
+        label       "Max Glossy Depth"
+        type        integer
+        size        1
+        default     { 5 }
+        range       { 0! 20 }
+        help        "Maximum ray depth for glossy rays"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_mirror_depth"
+        label       "Max Mirror Depth"
+        type        integer
+        size        1
+        default     { 5 }
+        range       { 0! 20 }
+        help        "Maximum ray depth for mirror rays"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_hair_depth"
+        label       "Max Hair Depth"
+        type        integer
+        size        1
+        default     { 5 }
+        range       { 0! 20 }
+        help        "Maximum ray depth for hair rays"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_presence_depth"
+        label       "Max Presence Depth"
+        type        integer
+        size        1
+        default     { 16 }
+        range       { 0! 20 }
+        help        "Maximum ray depth for presence rays"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_max_volume_depth"
+        label       "Max Volume Depth"
+        type        integer
+        size        1
+        default     { 5 }
+        range       { 0! 20 }
+        help        "Maximum ray depth for volume rays"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_texture_cache_size"
+        label       "Texture Cache Size"
+        type        integer
+        size        1
+        default     { 4000 }
+        range       { 0! 20000 }
+        help        "size is in Mb and this is the maximum cache size"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "sceneVariable_enable_presence_shadows"
+        label       "Enable presence shadows"
+        type        toggle
+        size        1
+        default     { 1 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "enableMotionBlur"
+        label       "Enable Motion Blur"
+        type        toggle
+        size        1
+        help        "Turns motion blur on/off"
+        default     { 1 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "decodeNormals"
+        label       "Decode Normals"
+        type        toggle
+        size        1
+        help        "Forces decoding of normal maps multiplying the channels by 2.0 and then subtracting 1.0"
+        default     { 0 }
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "reloadTexturesToggle"
+        label       "Reload textures (toggle)"
+        type        toggle
+        size        1
+        default     { 0 }
+        help        "Change this to read texture image files again"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "debug"
+        label       "Show Debug Messages"
+        type        toggle
+        size        1
+        default     { 0 }
+        help        "Messages are printed to terminal"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "info"
+        label       "Show Info Messages"
+        type        toggle
+        size        1
+        default     { 0 }
+        help        "Messages are printed to terminal"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+
+    parm {
+        name        "rdlOutput"
+        label       "Rdl output"
+        type        string
+        help        "Write rdl of next render to a file. Can be .rdla, .rdlb, or use no extension to make rdla/b split files"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "disableLighting"
+        label       "Disable Lighting"
+        type        toggle
+        size        1
+        parmtag     { "spare_category" "Rendering" }
+        parmtag     { "uiscope" "viewport toolbar" }
+        parmtag     { "usdvaluetype" "bool" }
+        default     { 0 }
+        parmtag     { "uiicon" VIEW_lighting_none }
+    }
+
+    parm {
+        name        "doubleSided"
+        label       "DoubleSided"
+        type        toggle
+        size        1
+        default     { 1 }
+        help        "Force all geometry to be double-sided unless moonray:side_type is 1"
+        parmtag     { "uiscope" "viewport" }
+    }
+
+}

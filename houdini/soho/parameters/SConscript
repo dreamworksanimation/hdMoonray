@@ -1,4 +1,0 @@
-Import('env')
-from os import environ
-
-env.DWAInstallFiles('houdini/soho/parameters', env.DWAGlob('HdMoonray*.ds'))

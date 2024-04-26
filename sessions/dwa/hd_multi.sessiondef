@@ -13,7 +13,6 @@
             "dso": "libcomputation_progmcrt_dispatch.so",
             "fps": 12,
             "requirements": {
-                "packaging_system": "current-environment",
                 "computationAPI": "4.x"
             },
             "messages": {
@@ -48,7 +47,6 @@
             "initialCredit": 2,
             "requirements": {
                 "computationAPI": "4.x",
-                "packaging_system": "current-environment",
                 "resources": {
                     "maxCores": "*",
                     "minCores": 1.0,
@@ -81,7 +79,6 @@
             "initialCredit": 2,
             "sendCredit": true,
             "requirements": {
-                "packaging_system": "current-environment",
                 "computationAPI": "4.x"
             },
             "messages": {
