@@ -25,9 +25,8 @@ target_include_directories(${component}
         $<INSTALL_INTERFACE:include>
 )
 
-set(atomicLib "")
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(atomicLib atomic)
+if (NOT IsDarwinPlatform)
+    set(PlatformSpecificLibs atomic)
 endif()
 
 target_link_libraries(${component}
@@ -44,7 +43,7 @@ target_link_libraries(${component}
         hd   # pxr imaging
         usdImaging
         Python::Module
-        ${atomicLib}
+        ${PlatformSpecificLibs}
 )
 
 # If at Dreamworks add a SConscript stub file so others can use this library.

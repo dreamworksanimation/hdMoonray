@@ -15,9 +15,8 @@ target_sources(${target}
         SceneDelegate.cc
 )
 
-set(atomicLib "")
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(atomicLib atomic)
+if (NOT IsDarwinPlatform)
+    set(PlatformSpecificLibs atomic)
 endif()
 
 target_link_libraries(${target}
@@ -35,7 +34,7 @@ target_link_libraries(${target}
         TBB::tbb
         Python::Python
         Boost::${BOOST_PYTHON_COMPONENT_NAME}
-        ${atomicLib}
+        ${PlatformSpecificLibs}
         ${MKL}
 )
 
