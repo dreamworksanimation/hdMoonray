@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/bin/env python
 
 import argparse
 import glob
@@ -25,6 +25,8 @@ sigintCount=0
 # Cache the results to avoid unnecessary process launches.
 #
 mipmapCache = {}
+
+convertedNames = {}
 
 def isMipMapped(filename):
     command = "iinfo {}".format(filename)
@@ -128,6 +130,7 @@ def scan(first_file, no_export):
             #    old_path_glob = basename + '.exr'
 
             discovered_files = set()
+            files_were_converted = False
 
             # Check for files, filtering/collecting depending on what's found
             ext = ''
@@ -135,7 +138,12 @@ def scan(first_file, no_export):
                 #if printDebug:
                 #    print("old_asset_path = %s" % old_asset_path)
                 basename, ext = os.path.splitext(old_asset_path)
-                if ext not in ('.exr', '.jpg', '.png', '.tif'):
+                if ext not in ('.avif', '.bmp', '.cin',  '.dds',  '.dcm',  'dpx',
+                               '.env',  '.exr', '.fits', '.gif',  '.hdr',  '.heic',
+                               '.ico',  '.iff', '.jif',  '.jfif', '.jfi',  '.jpe',
+                               '.jpeg', '.jpg', '.jxl',  '.jp2',  '.j2k',  '.pic',
+                               '.pbm',  '.pfm', '.pgm',  '.png',  '.ppm',  '.psd',
+                               '.rla',  '.sm',  '.tga',  '.tif',  '.tiff', '.vsm'):
                     continue
 
                 # .exr and .tif can be mipmapped so check before converting
@@ -149,9 +157,13 @@ def scan(first_file, no_export):
                     all_convert_files.add(old_asset_path)
                 discovered_files.add(old_asset_path)
                 files_in_layer.add(old_asset_path)
+                if convertedNames.get(old_asset_path) != None:
+                    files_were_converted = True
 
-            # Only return an altered value if something has been discovered
-            if discovered_files:
+
+            # Only return an altered value if something has been discovered 
+            # and was successfully converted.
+            if files_were_converted:
                 if missing_udim_index:
                     return True, Sdf.AssetPath(value.replace('.<UDIM>%s' % ext, '.tx'))
                 else:
@@ -320,11 +332,11 @@ def check_permissions(files_set, filePermission):
 # using convertFile(). If the "--cleanup" option is specified each old file
 # will be deleted immediately after conversion to minimize peak disk usage.
 #
-def convertFile(old_path, delete_originals, verbose, stdout, stderr):
+def convertFile(old_path, delete_originals, force, verbose, stdout, stderr):
     global conversionAbort
 
     if conversionAbort:
-        return
+        return False
     basename, ext = os.path.splitext(old_path)
     if ext == ".jpg":
         # Skip if an exr version exists
@@ -333,14 +345,15 @@ def convertFile(old_path, delete_originals, verbose, stdout, stderr):
             return True
     new_path = "{}.tx".format(basename)
     if not os.path.exists(new_path):
-        command = "maketx --oiio {} -o {}".format(old_path, new_path)
+        command = 'maketx --oiio "{}" -o "{}"'.format(old_path, new_path)
         if verbose:
             logger.info("Running: {}".format(command))
 
         proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, err) = proc.communicate()
         if proc.returncode > 0:
-            conversionAbort = True
+            if not force:
+                conversionAbort = True
             logger.error("Error {} converting {} to {}".format(proc.returncode, old_path, new_path))
             logger.error(err.decode('utf-8'))
             logger.error(output.decode('utf-8'))
@@ -350,12 +363,16 @@ def convertFile(old_path, delete_originals, verbose, stdout, stderr):
                 logger.error("Removing {} since it might be corrupt file".format(new_path))
                 os.remove(new_path)
             logger.info("usd_mipmap_images: Aborting conversion")
-            return
+            return False
+
+    # record the fact that the file was successfully converted
+    convertedNames[old_path] = new_path
 
     if delete_originals:
         os.remove(old_path)
+    return True
 
-def convert(files_set, delete_originals=False, allow_warnings=False, max_threads=1, verbose=False):
+def convert(files_set, delete_originals=False, allow_warnings=False, max_threads=1, verbose=False, force=False):
     global conversionAbort
 
     """ 
@@ -381,7 +398,7 @@ def convert(files_set, delete_originals=False, allow_warnings=False, max_threads
         logger.info("Converting file {} of {} {}".format(i, num_files, os.path.basename(old_path)))
 
         thread = Thread(target=convertFile,
-                        args=(old_path, delete_originals, verbose, stdout, stderr))
+                        args=(old_path, delete_originals, force, verbose, stdout, stderr))
         thread.start()
         threads.append(thread)
 
@@ -438,6 +455,11 @@ class App(object):
             'input_file',
             type=str,
             help='Name of the root usd file to convert',
+        )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help='Proceed even if some of the images can\'t be converted'
         )
         parser.add_argument(
             '--cleanup',
@@ -510,7 +532,13 @@ class App(object):
 
         # only need write permission on the images if they will be removed
         permissions = os.R_OK | (os.W_OK if self.args['cleanup'] else 0)
-        imagePermissionsProblem = check_permissions(found_files,permissions)
+
+        # don't bother checking image permissions in force mode since we'll
+        # be converting whatever we can anyway
+        if self.args['force']:
+            imagePermissionsProblem = False
+        else:
+            imagePermissionsProblem = check_permissions(found_files,permissions)
 
         # only need write permission on USD files if they are being updated
         if self.args['no_export']:
@@ -556,7 +584,8 @@ class App(object):
                 self.args['cleanup'],
                 self.args['allow_warnings'],
                 self.args['max_threads'],
-                self.args['verbose'])
+                self.args['verbose'],
+                self.args['force'])
         logger.info("Conversion time: {0}".format(time.time() - start_time))
 
         if conversionAbort:
