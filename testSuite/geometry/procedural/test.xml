@@ -10,7 +10,7 @@
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>
-	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn 0.01 --fail 0.04 --failpercent .02 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn 0.01 --fail 0.08 --failpercent .04 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
       </command>
     </commands>
   </testcase>

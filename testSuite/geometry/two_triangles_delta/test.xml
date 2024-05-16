@@ -6,7 +6,7 @@
     <commands>
       <command>
         <executable>hd_render</executable>
-        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -delta_in ${shot_dir}/delta.usd -delta_out ${result0}</args>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -delta_in ${shot_dir}/delta.usd -delta_out ${result0} -set executionMode vectorized</args>
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>
