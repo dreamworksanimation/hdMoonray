@@ -27,8 +27,6 @@ public:
 protected:
     // Initialize one of the reprs, called before Sync()
     void _InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits) override;
-    void setPruneFlag(RenderDelegate& renderDelegate,
-                      pxr::HdSceneDelegate* sceneDelegate);
 
     // Expand dirty bits to what Sync() actually needs
     pxr::HdDirtyBits _PropagateDirtyBits(pxr::HdDirtyBits bits) const override { return bits; }
@@ -38,8 +36,6 @@ private:
     Procedural(const Procedural&)             = delete;
     Procedural &operator =(const Procedural&) = delete;
     bool hasPrimitiveAttributes = false;
-    unsigned mPruned = 0; // display option for pruning procedural geometries.
-
 };
 
 }

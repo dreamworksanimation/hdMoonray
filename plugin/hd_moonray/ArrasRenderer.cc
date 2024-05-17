@@ -46,11 +46,6 @@ ArrasRenderer::applySettings(const RenderSettings& settings)
 {
     mSettings.applySettings(settings);
     arras4::log::Logger::instance().setThreshold(mSettings.getLogLevel());
-    static bool oldReloadTexturesToggle = false;
-    if (settings.getReloadTexturesToggle() != oldReloadTexturesToggle) {
-        oldReloadTexturesToggle = settings.getReloadTexturesToggle();
-        invalidateAllTextureResources();
-    }
     if (mCurrentDenoiseMode != mSettings.getDenoiseMode()) {
         mCurrentDenoiseMode = mSettings.getDenoiseMode();
         if (mFbReceiver) {

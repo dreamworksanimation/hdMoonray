@@ -22,6 +22,7 @@ target_sources(${component}
         LightFilter.cc
         Material.cc
         Mesh.cc
+        NullRenderer.cc
         Points.cc
         Procedural.cc
         RenderBuffer.cc
@@ -44,6 +45,7 @@ set_property(TARGET ${component}
         LightFilter.h
         Material.h
         Mesh.h
+        NullRenderer.h
         PixelData.h
         Points.h
         Procedural.h
@@ -52,6 +54,7 @@ set_property(TARGET ${component}
         Renderer.h
         RenderPass.h
         RenderSettings.h
+        Utils.h
         ValueConverter.h
         Volume.h
 )

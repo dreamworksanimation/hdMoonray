@@ -19,35 +19,24 @@ class RenderDelegate;
 class RenderSettings
 {
 public:
-    static const pxr::HdRenderSettingDescriptorList& getDescriptors();
-
     RenderSettings(RenderDelegate& delegate) : mDelegate(delegate) {}
+    
+    void addDescriptors(pxr::HdRenderSettingDescriptorList& descriptorList) const;
 
     // if stored settings have changed since the last apply,
     // apply them to the scene. SceneContext must exist, and may be acquired
     void apply();
 
-    bool getArrasLocalMode() const;
-    int getArrasLogLevel() const;
-    int getArrasHostCount() const;
-    int getArrasLocalReservedCores() const;
-    bool getRestartToggle() const;
-    bool getReloadTexturesToggle() const;
-    float getArrasMaxFps() const;
-    int getMaxConnectRetries() const;
-    bool enableDenoise() const;
-    bool denoiseAlbedoGuiding() const;
-    bool denoiseNormalGuiding() const;
-    bool getDecodeNormals() const;
-    bool getEnableMotionBlur() const;
-    std::string getExecutionMode() const;
-    bool mIsHoudini = false;
+    // get a render setting
+    pxr::VtValue getRenderSetting(const pxr::TfToken& key) const;
+    template<typename T> T get(const pxr::TfToken& key) const {
+        return getRenderSetting(key).Get<T>();
+    }
 
-    // utility function for settings stored in environment variables:
-    static const char* getenvString(const char* name, const char* dflt = 0);
+    std::string getExecutionMode() const;
 
 private:
-    template<typename T> T get(const pxr::TfToken& key) const;
+
     RenderDelegate& mDelegate;
 };
 

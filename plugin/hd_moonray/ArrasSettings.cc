@@ -4,36 +4,53 @@
 #include "ArrasSettings.h"
 
 #include <hydramoonray/RenderSettings.h>
+#include <hydramoonray/Utils.h>
 
 #include <scene_rdl2/render/logging/logging.h>
 #include <sdk/sdk.h>
 
+#include <pxr/base/vt/value.h>
+
 #include <fstream>
 #include <vector>
 
+using namespace pxr;
+
 namespace {
 
+TF_DEFINE_PRIVATE_TOKENS(Tokens,
+   (useRemoteHosts)
+   (remoteHosts)
+   (localReservedCores)
+   (logLevel)
+   (maxFps)
+   (maxConnectRetries)
+   (enableDenoise)
+   (denoiseAlbedoGuiding)
+   (denoiseNormalGuiding)
+);
+
 using scene_rdl2::logging::Logger;
-using hdMoonray::RenderSettings;
+using namespace hdMoonray;
 
 std::string getMoonPackage()
 {
     // tries to identify the right version of either moonray or
     // moonshine to include in the computation rez environment
     // if client env contains moonshine, use the same version
-    const char* rezMoonshine = RenderSettings::getenvString("REZ_MOONSHINE_VERSION");
+    const char* rezMoonshine = getEnv("REZ_MOONSHINE_VERSION","");
     if (*rezMoonshine) {
 	return std::string("moonshine-") + rezMoonshine;
     }
     // if client env contains moonbase_proxies, use a matched version
     // of moonshine
-    const char* rezMoonbase = RenderSettings::getenvString("REZ_MOONBASE_PROXIES_VERSION");
+    const char* rezMoonbase = getEnv("REZ_MOONBASE_PROXIES_VERSION","");
     if (*rezMoonbase) {
 	return std::string("moonshine-") + rezMoonbase;
     }
     // if client env contains moonray, use a matched version of
     // moonray
-    const char* rezMoonray = RenderSettings::getenvString("REZ_MOONRAY_VERSION");
+    const char* rezMoonray = getEnv("REZ_MOONRAY_VERSION","");
     if (*rezMoonray) {
 	return std::string("moonray-") + rezMoonray;
     }
@@ -47,7 +64,7 @@ const std::string& getRezRxt()
     static std::string rxt("UNINIT");
     if (rxt == "UNINIT") {
         rxt.clear();
-        const char* rxtfile = RenderSettings::getenvString("REZ_RXT_FILE");
+        const char* rxtfile = getEnv("REZ_RXT_FILE","");
         if (!*rxtfile) return rxt;
         std::ifstream ifs(rxtfile, std::ios::in | std::ios::binary | std::ios::ate);
         if (ifs.fail()) {
@@ -86,9 +103,9 @@ void setupPackaging(bool local,
     // can avoid the cost of a REZ resolve (which can be quite slow...)
     // -- need to check if our env contains the packages needed by
     //    the computation
-    if (*RenderSettings::getenvString("REZ_MCRT_COMPUTATION_VERSION") &&
-        *RenderSettings::getenvString("REZ_ARRAS4_CORE_VERSION") &&
-        *RenderSettings::getenvString("REZ_MOONRAY_VERSION")) {
+    if (*getEnv("REZ_MCRT_COMPUTATION_VERSION","") &&
+        *getEnv("REZ_ARRAS4_CORE_VERSION","") &&
+        *getEnv("REZ_MOONRAY_VERSION","")) {
             // yes we can
             if (local) {
                 // On the same machine, Arras can directly reuse the local environment
@@ -130,10 +147,24 @@ ArrasSettings::ArrasSettings()
     mMultiHostTemplDef =  arras4::client::SessionDefinition::load("hd_multi");
 }
 
-arras4::log::Logger::Level
-ArrasSettings::getLogLevel()
+void 
+ArrasSettings::addDescriptors(HdRenderSettingDescriptorList& descriptorList) const
 {
-    return static_cast<arras4::log::Logger::Level>(mLogLevel);
+    static const int hosts = getEnv("HDMOONRAY_HOSTS", 0);
+    static HdRenderSettingDescriptorList descriptors = {
+        { "Use Remote Hosts",        Tokens->useRemoteHosts,       VtValue(hosts > 0) },
+        { "Remote Hosts",            Tokens->remoteHosts,          VtValue(hosts > 0 ? hosts : 5) },
+        { "Local Reserved Cores",    Tokens->localReservedCores,   VtValue(getEnv("HDMOONRAY_LOCAL_RESERVED_CORES",1))},
+        { "Log Level(1-5)",          Tokens->logLevel,             VtValue(getEnv("HDMOONRAY_LOGLEVEL", 1)) },
+        { "Max FPS",                 Tokens->maxFps,               VtValue(getEnv("HDMOONRAY_MAX_FPS", 12.0f)) },
+        { "Maximum connect retries", Tokens->maxConnectRetries,    VtValue(getEnv("HDMOONRAY_MAX_CONNECT_RETRIES",2)) },
+        { "Enable Denoising",        Tokens->enableDenoise,        VtValue(getEnv("HDMOONRAY_ENABLE_DENOISE",false)) },
+        { "Denoise Albedo Guiding",  Tokens->denoiseAlbedoGuiding, VtValue(getEnv("HDMOONRAY_DENOISE_ALBEDO_GUIDING", false)) },
+        { "Denoise Normal Guiding",  Tokens->denoiseNormalGuiding, VtValue(getEnv("HDMOONRAY_DENOISE_NORMAL_GUIDING", false)) }
+    };
+    for (const auto& desc : descriptors) {
+        descriptorList.push_back(desc);
+    }
 }
 
 std::string
@@ -142,7 +173,7 @@ ArrasSettings::getUrl(arras4::sdk::SDK& sdk)
     if (mLocalMode) {
         return "arras:local";
     }
-    std::string stack(RenderSettings::getenvString("HDMOONRAY_STACK", "prod"));
+    std::string stack(getEnv("HDMOONRAY_STACK", "prod"));
     std::string dc("gld");
     // $HDMOONRAY_STACK can be <env> (e.g. "prod") or <env>-<dc> (e.g. "stb-gld")
     // or url-<url>
@@ -186,8 +217,8 @@ ArrasSettings::getSessionDefinition()
 arras4::client::SessionOptions
 ArrasSettings::getSessionOptions()
 {
-    const char* v = std::getenv("HDMOONRAY_PRODUCTION");
-    return arras4::client::SessionOptions().setProduction(v ? v : "");
+    const char* v = getEnv("HDMOONRAY_PRODUCTION","");
+    return arras4::client::SessionOptions().setProduction(v);
 }
 
 void
@@ -238,15 +269,6 @@ ArrasSettings::setExecMode(std::string val)
 }
 
 void
-ArrasSettings::reconnectTrigger(bool flag)
-{
-    if (flag != mReconnectTrigger) {
-        mReconnectTrigger = flag;
-        mReconnectRequired = true;
-    }
-}
-
-void
 ArrasSettings::setDenoiseMode(bool enable, bool albedoGuiding, bool normalGuiding)
 {
     if (!enable) {
@@ -267,17 +289,16 @@ ArrasSettings::setDenoiseMode(bool enable, bool albedoGuiding, bool normalGuidin
 void
 ArrasSettings::applySettings(const RenderSettings& settings)
 {
-    setLocalMode(settings.getArrasLocalMode());
-    setLogLevel(settings.getArrasLogLevel());
-    setHostCount(settings.getArrasHostCount());
-    setLocalReservedCores(settings.getArrasLocalReservedCores());
-    setMaxFps(settings.getArrasMaxFps());
+    setLocalMode(!settings.get<bool>(Tokens->useRemoteHosts));
+    setLogLevel(settings.get<int>(Tokens->logLevel));
+    setHostCount(settings.get<int>(Tokens->remoteHosts));
+    setLocalReservedCores(settings.get<int>(Tokens->localReservedCores));
+    setMaxFps(settings.get<float>(Tokens->maxFps));
     setExecMode(settings.getExecutionMode());
-    reconnectTrigger(settings.getRestartToggle());
-    setMaxConnectRetries(settings.getMaxConnectRetries());
-    setDenoiseMode(settings.enableDenoise(),
-                   settings.denoiseAlbedoGuiding(),
-                   settings.denoiseNormalGuiding());
+    setMaxConnectRetries(settings.get<int>(Tokens->maxConnectRetries));
+    setDenoiseMode(settings.get<bool>(Tokens->enableDenoise),
+                   settings.get<bool>(Tokens->denoiseAlbedoGuiding),
+                   settings.get<bool>(Tokens->denoiseNormalGuiding));
 }
 
 }

@@ -23,6 +23,9 @@ public:
     ArrasRenderer();
     ~ArrasRenderer();
 
+    void addDescriptors(pxr::HdRenderSettingDescriptorList& descriptorList) const override
+        { mSettings.addDescriptors(descriptorList); }
+
     void beginUpdate() override;
     void endUpdate() override;
     bool isUpdateActive() const override { return mUpdateActive; }

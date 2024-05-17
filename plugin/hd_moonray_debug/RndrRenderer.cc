@@ -231,28 +231,12 @@ RndrRenderer::deallocate(scene_rdl2::rdl2::RenderOutput* ro, PixelData& pd)
 void
 RndrRenderer::applySettings(const RenderSettings& settings)
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RndrRenderer.cc applySettings()\n";
-#   endif // end DEBUG_MSG
-    static bool oldRestartToggle = false;
-    static bool oldReloadTexturesToggle = false;
     setExecMode(settings.getExecutionMode());
-    if (settings.getRestartToggle() != oldRestartToggle || settings.getReloadTexturesToggle() != oldReloadTexturesToggle) {
-        oldRestartToggle = settings.getRestartToggle();
-        oldReloadTexturesToggle = settings.getReloadTexturesToggle();
-        // replicate restarting as much as possible (fixme: should run renderprep again)
-        invalidateAllTextureResources();
-        mFailure = false;
-    }
 }
 
 void
 RndrRenderer::invalidateAllTextureResources()
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RndrRenderer.cc invalidateAllTextureResources()\n";
-#   endif // end DEBUG_MSG
-
     try {
         mRenderContext->invalidateAllTextureResources();
     } catch (const std::exception &e) {

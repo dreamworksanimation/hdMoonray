@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-const char * const sRenderer = "Moonray";
+pxr::TfToken sRendererId("HdMoonrayRendererDebugPlugin");
 const char * const sAov = "color";
 
 pxr::GfFrustum
@@ -62,31 +62,22 @@ main(int argc, char *argv[])
     }
 
     // Load the hydra renderer plugin and create the render delegate
-    pxr::TfToken rendererId;
-    pxr::HfPluginDescVector pluginDescriptors;
     pxr::HdRendererPluginRegistry &registry(pxr::HdRendererPluginRegistry::GetInstance());
-    registry.GetPluginDescs(&pluginDescriptors);
-    for (const pxr::HfPluginDesc &pluginDesc : pluginDescriptors) {
-        if (pluginDesc.displayName == sRenderer) {
-            rendererId = pluginDesc.id;
-        }
-    }
     
-    if (rendererId.IsEmpty()) {
-        std::cerr << "Unable to load " << sRenderer << " render plugin\n";
-        return -1;
-    }
-
     auto releasePlugin = [&](pxr::HdRendererPlugin *plugin) {
         registry.ReleasePlugin(plugin);
     };
 
     Py_Initialize(); // HDM-133: plugin loader assumes this has been done
+    pxr::HdRenderSettingsMap initialSettings;
+    initialSettings[pxr::TfToken("disableRender")] = true;
+    initialSettings[pxr::TfToken("rdlOutput")] = options.getOutputRdlFile();
+    
     std::unique_ptr<pxr::HdRendererPlugin, decltype(releasePlugin)>
-        rendererPlugin(registry.GetRendererPlugin(rendererId), releasePlugin);
+        rendererPlugin(registry.GetRendererPlugin(sRendererId), releasePlugin);
     MNRY_ASSERT_REQUIRE(rendererPlugin);
     std::unique_ptr<pxr::HdRenderDelegate>
-        renderDelegate(rendererPlugin->CreateRenderDelegate());
+        renderDelegate(rendererPlugin->CreateRenderDelegate(initialSettings));
     MNRY_ASSERT_REQUIRE(renderDelegate);
 
     std::unique_ptr<pxr::HdRenderIndex>

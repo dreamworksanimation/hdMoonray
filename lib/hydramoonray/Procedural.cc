@@ -58,26 +58,6 @@ Procedural::_InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits
     *dirtyBits |= pxr::HdChangeTracker::DirtyRepr;
 }
 
-void
-Procedural::setPruneFlag(RenderDelegate& renderDelegate,
-                         pxr::HdSceneDelegate* sceneDelegate){
-    if (renderDelegate.getPruneWillow() && className(sceneDelegate) == "WillowGeometry_v3"){
-        setPruned(true);
-    }
-    else if (renderDelegate.getPruneFurDeform() && className(sceneDelegate) == "FurDeformGeometry"){
-        setPruned(true);
-    }
-    else if (renderDelegate.getPruneCurveDeform() && className(sceneDelegate)== "CurveDeformGeometry"){
-        setPruned(true);
-    }
-    else if (renderDelegate.getPruneWrapDeform() && className(sceneDelegate) == "WrapDeformGeometry"){
-        setPruned(true);
-    }
-    else{
-        setPruned(false);
-    }
-}
-
 /// Update the data identified by dirtyBits. Must not query other data.
 void
 Procedural::Sync(pxr::HdSceneDelegate* sceneDelegate,
@@ -90,8 +70,8 @@ Procedural::Sync(pxr::HdSceneDelegate* sceneDelegate,
 
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
-    setPruneFlag(renderDelegate, sceneDelegate);
-
+    setPruned(renderDelegate.getPruneProcedural(className(sceneDelegate)));
+   
     if (pxr::HdChangeTracker::IsVisibilityDirty(*dirtyBits, id))
         _UpdateVisibility(sceneDelegate, dirtyBits);
     Geometry::DirtyPrimvars dirtyPrimvars(getDirtyPrimvars(sceneDelegate, renderDelegate, dirtyBits));

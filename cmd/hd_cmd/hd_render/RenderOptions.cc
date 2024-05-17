@@ -47,6 +47,7 @@ RenderOptions::RenderOptions(int argc, char *argv[]):
     // initialize defaults
     mHelpRequested(sHelpRequested),
     mRenderer(sRenderer),
+    mDisableRender(false),
     mInputSceneFile(sInputSceneFile),
     mOutputExrFile(sOutputExrFile),
     mCamera(sCamera),
@@ -85,13 +86,6 @@ RenderOptions::RenderOptions(int argc, char *argv[]):
         mMissingRequiredFlags.push_back("-in");
     }
 
-    validFlags.push_back("-out");
-    if (args.getFlagValues("-out", 1, values) >= 0) {
-        mOutputExrFile = values[0];
-    } else {
-        mMissingRequiredFlags.push_back("-out");
-    }
-
     // optional flags
     validFlags.push_back("-aov");
     if (args.getFlagValues("-aov", 1, values) >= 0) {
@@ -127,6 +121,21 @@ RenderOptions::RenderOptions(int argc, char *argv[]):
         } else {
             mRenderer = "";  // will cause a list of renderers to be printed
         }
+    }
+
+    validFlags.push_back("-translate-only");
+    if (args.getFlagValues("-translate-only",-1,values) >= 0) {
+        mDisableRender = true;
+        if (values.size() == 1) {
+            mRdlOutput = values[0];
+        }
+    }
+ 
+    validFlags.push_back("-out");
+    if (args.getFlagValues("-out", 1, values) >= 0) {
+        mOutputExrFile = values[0];
+    } else if (!mDisableRender) {
+        mMissingRequiredFlags.push_back("-out");
     }
 
     validFlags.push_back("-purpose");
@@ -216,7 +225,8 @@ RenderOptions::usage(const char *argv0) const
                        "    Input USD scene data.\n"
                        "\n"
                        "-out scene.exr\n"
-                       "    Output image name and type.\n"
+                       "    Output image name and type. Required unless\n" 
+                       "    --translate-only is specified.\n"
                        "\n"
                        "Optional:\n"
                        "-aov color\n"
@@ -281,6 +291,13 @@ RenderOptions::usage(const char *argv0) const
                        "    step. Supported step names are: load_plugin, open_stage, populate, render,\n"
                        "    open_delta_stage and delta_render. Writes log to the specified file, or to\n"
                        "    /tmp/trace_<STEPNAME> if no file is specified. Can appear multiple times\n"
+                       "\n"
+                       "-translate-only [<FILE>]\n"
+                       "     Translate the scene to RDL, but do not render it. <FILE> is an (optional)\n"
+                       "     RDL file to write the scene to. If <FILE> has a .rdla or .rdlb extension,\n"
+                       "     the corresponding format is used. Otherwise the output is split between\n"
+                       "     .rdla and .rdlb files, with large vector attributes written to .rdlb.\n"
+                       "\n"
                        );
 }
 

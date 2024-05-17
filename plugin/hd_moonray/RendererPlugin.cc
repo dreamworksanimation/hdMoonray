@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "ArrasRenderer.h"
+#include <hydramoonray/NullRenderer.h>
 #include <hydramoonray/RenderDelegate.h>
 #include <pxr/imaging/hd/rendererPlugin.h>
 #include <pxr/imaging/hd/rendererPluginRegistry.h>
@@ -19,6 +20,12 @@ public:
     }
 
     pxr::HdRenderDelegate *CreateRenderDelegate(pxr::HdRenderSettingsMap const& settings) override {
+        auto it = settings.find(pxr::TfToken("disableRender"));
+        if (it != settings.end()) {
+            if (it->second.Get<bool>()) {
+                return new hdMoonray::RenderDelegate(new hdMoonray::NullRenderer(),settings);
+            }
+        }
         return new hdMoonray::RenderDelegate(new hdMoonray::ArrasRenderer(),settings);
     }
 

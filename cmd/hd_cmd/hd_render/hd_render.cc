@@ -99,7 +99,8 @@ main(int argc, char *argv[])
     for (const pxr::HfPluginDesc &pluginDesc : pluginDescriptors) {
         // skip "GL" since we don't have OpenGL setup
         if (pluginDesc.displayName == "GL") continue;
-        if (pluginDesc.displayName == options.getRenderer()) {
+        if (pluginDesc.displayName == options.getRenderer() ||
+            pluginDesc.id == pxr::TfToken(options.getRenderer())) {
             rendererId = pluginDesc.id;
         }
     }
@@ -123,11 +124,18 @@ main(int argc, char *argv[])
 
     beginTrace(options,"load_plugin");
     Py_Initialize(); // HDM-133: plugin loader assumes this has been done
+    pxr::HdRenderSettingsMap initialSettings;
+    if (options.getDisableRender()) {
+        initialSettings[pxr::TfToken("disableRender")] = true;
+    }
+    if (!options.getRdlOutput().empty()) {
+        initialSettings[pxr::TfToken("rdlOutput")] = options.getRdlOutput();
+    }
     std::unique_ptr<pxr::HdRendererPlugin, decltype(releasePlugin)>
         rendererPlugin(registry.GetRendererPlugin(rendererId), releasePlugin);
     MNRY_ASSERT_REQUIRE(rendererPlugin);
     std::unique_ptr<pxr::HdRenderDelegate>
-        renderDelegate(rendererPlugin->CreateRenderDelegate());
+        renderDelegate(rendererPlugin->CreateRenderDelegate(initialSettings));
     MNRY_ASSERT_REQUIRE(renderDelegate);
     endTrace(options,"load_plugin");
 
@@ -281,62 +289,32 @@ main(int argc, char *argv[])
 
     beginTrace(options,"render");
 
-#ifdef DEBUG_MSG
-    std::cerr << ">> hd_render.cc start loop {\n";
-    for (unsigned i = 0; ; ++i) {
-        if (!i) std::cerr << ">> hd_render.cc before Execute() {\n";
-        engine.Execute(renderIndex.get(), &tasks);
-        if (!i) std::cerr << ">> hd_render.cc } after Execute()\n";
-        std::cerr << ">> hd_render.cc before isConverged() {\n";
-        bool flag = renderTask->IsConverged();
-        std::cerr << ">> hd_render.cc } after isConverged() flag:" << (flag ? "true" : "false") << '\n';
-
-        if (flag) break;
-    }
-    std::cerr << ">> hd_render.cc } end loop\n";
-#else // else DEBUG_MSG
     do {
         engine.Execute(renderIndex.get(), &tasks);
     } while (!renderTask->IsConverged());
-#endif // end !DEBUG_MSG
 
     endTrace(options,"render");
 
-#ifdef DEBUG_MSG
-    std::cerr << ">> hd_render.cc before getBprim()\n";
-#endif // end DEBUG_MSG
-    // Get the buffer primitive from the render index
+    // Image output
+    
     pxr::HdRenderBuffer *renderBuffer = dynamic_cast<pxr::HdRenderBuffer *>
-        (renderIndex->GetBprim(pxr::HdPrimTypeTokens->renderBuffer, appSceneDelegate.getRenderBufferId()));
-#ifdef DEBUG_MSG
-    std::cerr << ">> hd_render.cc after getBprim()\n";
-#endif // end DEBUG_MSG
-    hd_render::OutputFile outputFile(renderBuffer);
-#ifdef DEBUG_MSG
-    std::cerr << ">> hd_render.cc after outputFile() constructor\n";
-#endif // end DEBUG_MSG
+            (renderIndex->GetBprim(pxr::HdPrimTypeTokens->renderBuffer, appSceneDelegate.getRenderBufferId()));
 
-    if (outputFile.write(options.getOutputExrFile())) {
-        std::cerr << "Failed to write " << options.getOutputExrFile() << '\n';
-        return -1;
+    hd_render::OutputFile outputFile(renderBuffer);
+    if (!options.getDisableRender()) {
+        if (outputFile.write(options.getOutputExrFile())) {
+            std::cerr << "Failed to write " << options.getOutputExrFile() << '\n';
+            return -1;
+        }
+        std::cout << "Wrote " << options.getOutputExrFile() << '\n';
     }
-    std::cout << "Wrote " << options.getOutputExrFile() << '\n';
 
     // Now handle deltas, if requested.  If the delta usd file is non-empty
     // or the delta set options are non-empty, then the output delta file
     // must be non-empty, and we should process the requested delta.
-    const bool doDelta = !options.getDeltaOutputExrFile().empty() &&
-        (!options.getDeltaInputSceneFile().empty() || !options.getDeltaRenderSettings().empty());
-    if (options.getDeltaOutputExrFile().empty() &&
-        (!options.getDeltaInputSceneFile().empty() || !options.getDeltaRenderSettings().empty())) {
-        std::cerr << "-delta_out is required to render a delta image.\n";
-        return -1;
-    }
-    if (!options.getDeltaOutputExrFile().empty() &&
-        (options.getDeltaInputSceneFile().empty() && options.getDeltaRenderSettings().empty())) {
-        std::cerr << "No delta information specified (use -delta_in and/or -delta_set)\n";
-        return -1;
-    }
+    const bool doDelta = !options.getDeltaInputSceneFile().empty() 
+                        || !options.getDeltaRenderSettings().empty();
+    
     if (doDelta) {
         // First handle render settings
         for (hd_render::RenderOptions::RenderSetting setting : options.getDeltaRenderSettings()) {
@@ -364,31 +342,19 @@ main(int argc, char *argv[])
 
         // Render
         beginTrace(options,"delta_render");
-#       ifdef DEBUG_MSG
-        std::cerr << ">> hd_render.cc delta start loop {\n";
-        for (unsigned i = 0; ; ++i) {
-            if (!i) std::cerr << ">> hd_render.cc before Execute() {\n";
-            engine.Execute(renderIndex.get(), &tasks);            
-            if (!i) std::cerr << ">> hd_render.cc } after Execute()\n";
-            std::cerr << ">> hd_render.cc before IsConverged() {\n";
-            bool flag = renderTask->IsConverged();
-            std::cerr << ">> hd_render.cc } after IsConverged()\n";
-            if (flag) break;
-        }
-        std::cerr << ">> hd_render.cc } delta end loop\n";
-#       else // else DEBUG_MSG        
         do {
             engine.Execute(renderIndex.get(), &tasks);
         } while (!renderTask->IsConverged());
-#       endif // end !DEBUG_MSG
         endTrace(options,"delta_render");
 
-        // Write the delta output image
-        if (outputFile.write(options.getDeltaOutputExrFile())) {
-            std::cerr << "Failed to write " << options.getDeltaOutputExrFile() << '\n';
-            return -1;
+        if (!options.getDisableRender() && !options.getDeltaOutputExrFile().empty()) {
+        
+            if (outputFile.write(options.getDeltaOutputExrFile())) {
+                std::cerr << "Failed to write " << options.getDeltaOutputExrFile() << '\n';
+                return -1;
+            }
+            std::cout << "Wrote " << options.getDeltaOutputExrFile() << '\n';
         }
-        std::cout << "Wrote " << options.getDeltaOutputExrFile() << '\n';
     }
 
     if (options.isTimingEnabled()) {

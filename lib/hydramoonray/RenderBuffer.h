@@ -33,8 +33,8 @@ public:
     bool Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat, bool multiSampled) override;
 
     /// Accessors
-    unsigned GetWidth() const override { return pd.mWidth; }
-    unsigned GetHeight() const override { return pd.mHeight; }
+    unsigned GetWidth() const override { return mPixelData.mWidth; }
+    unsigned GetHeight() const override { return mPixelData.mHeight; }
     unsigned GetDepth() const override { return 1; }
     pxr::HdFormat GetFormat() const override { return mFormat; }
     // aovResolveTask does not call Resolve() unless this is true:
@@ -48,7 +48,7 @@ public:
 
     /// Map the buffer for reading/writing. This is for locking, but not used by
     /// Moonray, where Resolve() is the only thing that changes the buffer
-    void* Map() override { mMappers++; return pd.mData; }
+    void* Map() override { mMappers++; return mPixelData.mData; }
     void Unmap() override { mMappers--; }
     bool IsMapped() const override { return mMappers.load() != 0; }
 
@@ -59,7 +59,7 @@ public:
 private:
     void _Deallocate() override;
 
-    PixelData pd;
+    PixelData mPixelData;
     pxr::HdFormat mFormat = pxr::HdFormatInvalid;
 
     RenderDelegate* mRenderDelegate = nullptr;

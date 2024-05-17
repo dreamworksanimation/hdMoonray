@@ -327,26 +327,6 @@
     }
 
     parm {
-        name        "restartToggle"
-        label       "Restart (toggle)"
-        type        toggle
-        size        1
-        default     { 0 }
-        help        "Change this to restart the renderer"
-        parmtag     { "uiscope" "viewport" }
-    }
-
-    parm {
-        name        "reloadTexturesToggle"
-        label       "Reload textures (toggle)"
-        type        toggle
-        size        1
-        default     { 0 }
-        help        "Change this to read texture image files again"
-        parmtag     { "uiscope" "viewport" }
-    }
-
-    parm {
         name        "debug"
         label       "Show Debug Messages"
         type        toggle

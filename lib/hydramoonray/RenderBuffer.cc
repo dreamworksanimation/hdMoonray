@@ -21,8 +21,6 @@
 #define UNUSED
 #endif
 
-//#define DEBUG_MSG
-
 namespace {
 
 UNUSED
@@ -55,6 +53,7 @@ struct RODesc {
     RODesc(pxr::HdFormat f, RO::Result r): hdFormat(f), result(r) {}
     RODesc(pxr::HdFormat f, RO::StateVariable v): hdFormat(f), result(RO::RESULT_STATE_VARIABLE), stateVariable(v) {}
 };
+
 const RODesc*
 lookup(pxr::TfToken const& name) {
     static std::map<pxr::TfToken, RODesc> map = {
@@ -178,13 +177,8 @@ RenderBuffer::Sync(pxr::HdSceneDelegate* sceneDelegate,
 bool
 RenderBuffer::Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat format, bool multiSampled)
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RenderBuffer.cc RenderBuffer::Allocate()\n";
-#   endif
-
     hdmLogRenderBuffer("Allocate",GetId());
 
-    // std::cout << "RenderBuffer::Allocate " << GetId() << ' ' << dimensions << ' ' << format << std::endl;
     if (dimensions[2] != 1) {
         Logger::error(GetId(), ": dimensions ", dimensions, " unsupported");
         hdmLogRenderBuffer("EndAllocateErr",GetId());
@@ -212,7 +206,7 @@ RenderBuffer::Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat format, boo
     request.mWidth = dimensions[0];
     request.mHeight = dimensions[1];
 
-    bool ret = mRenderDelegate->getRendererApplySettings().allocate(mRenderOutput, pd, request);
+    bool ret = mRenderDelegate->getRendererApplySettings().allocate(mRenderOutput, mPixelData, request);
     hdmLogRenderBuffer("EndAllocate",GetId());
     return ret;
 }
@@ -222,9 +216,6 @@ RenderBuffer::Allocate(const pxr::GfVec3i& dimensions, pxr::HdFormat format, boo
 void
 RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* camera)
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RenderBuffer.cc RenderBuffer::bind()\n";
-#   endif
     hdmLogRenderBuffer("Bind", GetId());
     
     mAovName = aovBinding.aovName;
@@ -236,7 +227,7 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
         pxr::GfVec4f v = aovBinding.clearValue.Get<pxr::GfVec4f>();
         if (v != clearValue) {
             clearValue = v;
-            pd.filmActivity = ~0; // make it recomposite even if render has finished
+            mPixelData.filmActivity = ~0; // make it recomposite even if render has finished
         }
     }
 
@@ -251,16 +242,23 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
         mRenderOutput = nullptr;
 
     } else {
-        // std::cout << "RenderBuffer::bind " << GetId() << std::endl;
 
         if (not mRenderOutput) {
-            scene_rdl2::rdl2::SceneObject* object = mRenderDelegate->createSceneObject("RenderOutput", GetId());
+            // use a name that will be consistent from run to run, to make it easier to compare
+            // rdl files for testing
+            const pxr::SdfPath ROId = pxr::SdfPath::AbsoluteRootPath()
+                .AppendChild(pxr::TfToken("_outputs"))
+                .AppendChild(mAovName);
+            scene_rdl2::rdl2::SceneObject* object = mRenderDelegate->createSceneObject("RenderOutput", ROId);
             if (not object) return;
             mRenderOutput = object->asA<scene_rdl2::rdl2::RenderOutput>();
         }
         auto& ro(*mRenderOutput);
-        {   UpdateGuard guard(ro);
+        {   
+            UpdateGuard guard(ro);
             ro.setActive(true);
+            // to do : change to "" when MOONRAY-5301 is fixed
+            ro.setFileName("/tmp/scene.exr");
 
             mDepth = false;
             auto desc = lookup(mAovName);
@@ -310,27 +308,19 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
                 } else if (prefix == pxr::HdAovTokens->shader) {
                     ro.setResult(ro.RESULT_MATERIAL_AOV);
                     ro.setMaterialAov(suffix.GetString());
-                } else {
-                    Logger::info("custom aov ", mAovName);
-                    const SceneClass& sceneClass = mRenderOutput->getSceneClass();
-                    bool valid = false;
-                    for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
-                        const std::string& attrName = (*it)->getName();
-                        pxr::TfToken key = pxr::TfToken("parameters:moonray:" + attrName);
-                        pxr::VtValue val = aovSettings[key];
-                        if (not val.IsEmpty()) {
-                            valid = true;
-                            ValueConverter::setAttribute(mRenderOutput, *it, val);
-                        }
-                    }
-                    if (!valid){
-                        Logger::error(GetId(), ": invalid aov ", mAovName);
-                        ro.setActive(false);
-                        mFormat = pxr::HdFormatInvalid;
-                    }
+                } 
+            }
+            
+            // Add any custom moonray settings
+            const SceneClass& sceneClass = mRenderOutput->getSceneClass();
+            for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
+                const std::string& attrName = (*it)->getName();
+                pxr::TfToken key = pxr::TfToken("parameters:moonray:" + attrName);
+                pxr::VtValue val = aovSettings[key];
+                if (not val.IsEmpty()) {
+                    ValueConverter::setAttribute(mRenderOutput, *it, val);
                 }
             }
-            ro.setFileName("/tmp/scene.exr"); // MOONRAY-3389
         }
 
         if (mAovName == pxr::HdAovTokens->instanceId) {
@@ -342,13 +332,13 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
                 if (not object) return;
                 mMoreOutputs[i] = object->asA<scene_rdl2::rdl2::RenderOutput>();
                 auto& ro(*mMoreOutputs[i]);
-                {   UpdateGuard guard(ro);
+                {   
+                    UpdateGuard guard(ro);
                     ro.setActive(true);
                     ro.setResult(RO::RESULT_PRIMITIVE_ATTRIBUTE);
                     ro.setPrimitiveAttribute(mAovName.GetString() + letter);
                     ro.setPrimitiveAttributeType(RO::PRIMITIVE_ATTRIBUTE_TYPE_FLOAT);
                     ro.setMathFilter(RO::MATH_FILTER_CLOSEST);
-                    ro.setFileName("/tmp/scene.exr"); // MOONRAY-3389
                 }
             }
         }
@@ -359,40 +349,29 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
 bool
 RenderBuffer::IsConverged() const
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RenderBuffer.cc RenderBuffer::IsConverged()\n";
-#   endif
-
     return true;
 }
 
 void
 RenderBuffer::Resolve()
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RenderBuffer.cc RenderBuffer::Resolve()\n";
-#   endif
-
     hdmLogRenderBuffer("Resolve", GetId());
-    // std::cout << "Resolve " << GetId() << std::endl;
+
     if (not bound()) {
         hdmLogRenderBuffer("EndResolveUnbound", GetId());
-        // Houdini does this, so don't print a message:
-        //Logger::error(GetId(), ": buffer is not bound");
+        // Houdini does this, so don't treat as an error
         return;
     }
 
     // See if the old image is ok
     // Return what we already have (which might be the initial buffer set by Allocate)
     Renderer& renderer = mRenderDelegate->renderer();
-    if (not renderer.resolve(mRenderOutput, pd)) {
+    if (not renderer.resolve(mRenderOutput, mPixelData)) {
         hdmLogRenderBuffer("EndResolveUnchanged", GetId());
         return;
     }
 
-    // std::cout << GetId() << ' ' << pd.mChannels << " x " << pd.mWidth << " x " << pd.mHeight << " data=" << pd.mData << std::endl;
-
-    switch (pd.mChannels) {
+    switch (mPixelData.mChannels) {
     case 1:
         if (isDepth()) {
             // Houdini is able to accept the linear depth buffer (see ../houdini/UsdRenderers.json)
@@ -401,8 +380,8 @@ RenderBuffer::Resolve()
             const float n = mNear;
             const float f = mFar;
             const float A = ((f+n)/(f-n) + 1)/2;
-            const size_t count = pd.mWidth * pd.mHeight;
-            float* buffer = reinterpret_cast<float*>(pd.mData);
+            const size_t count = mPixelData.mWidth * mPixelData.mHeight;
+            float* buffer = reinterpret_cast<float*>(mPixelData.mData);
             pxr::WorkParallelForN(count, [buffer, n, A](size_t begin, size_t end) {
                     for (size_t i = begin; i < end; ++i) {
                         float z = buffer[i];
@@ -411,14 +390,14 @@ RenderBuffer::Resolve()
                 });
         } else if (mFormat == pxr::HdFormatInt32) {
             // Convert float to int, for ids.
-            const size_t count = pd.mWidth * pd.mHeight;
-            const float* inbuffer = reinterpret_cast<const float*>(pd.mData);
+            const size_t count = mPixelData.mWidth * mPixelData.mHeight;
+            const float* inbuffer = reinterpret_cast<const float*>(mPixelData.mData);
             int32_t* outbuffer;
             if (mMoreOutputs[0]) {
                 intBuffer.resize(count);
                 outbuffer = intBuffer.data();
             } else { // write over float data with ints
-                outbuffer = reinterpret_cast<int*>(pd.mData);
+                outbuffer = reinterpret_cast<int*>(mPixelData.mData);
             }
             const float emptyValue = // usdview expects -1 in primId for empty areas
                 mAovName == pxr::HdAovTokens->primId ? -1.0f : 0.0f;
@@ -433,8 +412,8 @@ RenderBuffer::Resolve()
             if (mMoreOutputs[0]) {
                 // add other channels for higher-level instancers
                 for (size_t i = 0; i < INSTANCE_NESTING; ++i) {
-                    renderer.resolve(mMoreOutputs[i], pd);
-                    inbuffer = reinterpret_cast<const float*>(pd.mData);
+                    renderer.resolve(mMoreOutputs[i], mPixelData);
+                    inbuffer = reinterpret_cast<const float*>(mPixelData.mData);
                     pxr::WorkParallelForN(count, [inbuffer, outbuffer](size_t begin, size_t end) {
                             for (size_t i = begin; i < end; ++i) {
                                 if (std::isfinite(inbuffer[i]))
@@ -443,7 +422,7 @@ RenderBuffer::Resolve()
                         });
                 }
             }
-            pd.mData = outbuffer;
+            mPixelData.mData = outbuffer;
         } else {
             mFormat = pxr::HdFormatFloat32;
         }
@@ -456,12 +435,12 @@ RenderBuffer::Resolve()
         break;
     case 4:
         mFormat = pxr::HdFormatFloat32Vec4;
-#if PXR_VERSION >= 2008
-        // these versions require alpha compositing over background color to be done by delegate
+
+        // alpha compositing over background color must be done by delegate
         if (clearValue[3] > 0.0f) {
-            const size_t count = pd.mWidth * pd.mHeight;
+            const size_t count = mPixelData.mWidth * mPixelData.mHeight;
             typedef float v4sf __attribute__ ((vector_size (16)));
-            v4sf* buffer = reinterpret_cast<v4sf*>(pd.mData);
+            v4sf* buffer = reinterpret_cast<v4sf*>(mPixelData.mData);
             if (clearValue[0] || clearValue[1] || clearValue[2] || clearValue[3] < 1.0f) {
                 const v4sf& cv = reinterpret_cast<const v4sf&>(clearValue[0]);
                 pxr::WorkParallelForN(count, [buffer, cv](size_t begin, size_t end) {
@@ -487,10 +466,10 @@ RenderBuffer::Resolve()
                 });
             }
         }
-#endif
+
         break;
     default:
-        Logger::error(GetId(), ": unknown channel count ", pd.mChannels);
+        Logger::error(GetId(), ": unknown channel count ", mPixelData.mChannels);
         break;
     }
     hdmLogRenderBuffer("EndResolve", GetId());
@@ -499,14 +478,13 @@ RenderBuffer::Resolve()
 void
 RenderBuffer::Finalize(pxr::HdRenderParam* renderParam)
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RenderBuffer.cc RenderBuffer::Finalize()\n";
-#   endif
+
     hdmLogRenderBuffer("Finalize", GetId());
-    // std::cout << "RenderBuffer::Finalize " << GetId() << std::endl;
+
     if (mRenderOutput) {
         RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
-        {   UpdateGuard guard(renderDelegate, mRenderOutput);
+        {   
+            UpdateGuard guard(renderDelegate, mRenderOutput);
             mRenderOutput->setActive(false);
         }
         if (mMoreOutputs[0]) {
@@ -524,17 +502,14 @@ RenderBuffer::Finalize(pxr::HdRenderParam* renderParam)
 void
 RenderBuffer::_Deallocate()
 {
-#   ifdef DEBUG_MSG
-    std::cerr << ">> RenderBuffer.cc RenderBuffer::_Deallocate()\n";
-#   endif
     hdmLogRenderBuffer("_Deallocate", GetId());
-    // std::cout << "RenderBuffer::Deallocate " << GetId() << std::endl;
-    if (pd.mData) {
-        mRenderDelegate->renderer().deallocate(mRenderOutput, pd);
-        pd.vec.clear();
-        pd.vpb.cleanUp();
+
+    if (mPixelData.mData) {
+        mRenderDelegate->renderer().deallocate(mRenderOutput, mPixelData);
+        mPixelData.vec.clear();
+        mPixelData.vpb.cleanUp();
         intBuffer.clear();
-        pd.mData = nullptr;
+        mPixelData.mData = nullptr;
     }
     hdmLogRenderBuffer("End_Deallocate", GetId());
 }

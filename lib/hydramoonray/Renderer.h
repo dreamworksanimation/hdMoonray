@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <pxr/imaging/hd/renderDelegate.h>
+
 #include <scene_rdl2/scene/rdl2/SceneContext.h>
 #include <scene_rdl2/scene/rdl2/Utils.h>
 
@@ -21,6 +23,8 @@ class Renderer
 public:
     Renderer() {};
     virtual ~Renderer() {};
+
+    virtual void addDescriptors(pxr::HdRenderSettingDescriptorList& descriptorList) const {}
 
     /// Pointer to sceneContext. You must call beginUpdate() if you want to modify it
     scene_rdl2::rdl2::SceneContext& getSceneContext() const { return *mSceneContext; }

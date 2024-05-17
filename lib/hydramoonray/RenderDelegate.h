@@ -56,7 +56,7 @@ public:
     /// not be exhaustive, but can be used for populating application settings
     /// UI.
     pxr::HdRenderSettingDescriptorList GetRenderSettingDescriptors() const override
-    { return RenderSettings::getDescriptors(); }
+    { return mRenderSettingDescriptors; }
 
 #if PXR_VERSION >= 2108
     /// Commands supported by this render delegate.
@@ -271,31 +271,26 @@ public:
     void addLight();
     void removeLight();
 
-    bool isHoudini() const { return mRenderSettings.mIsHoudini; }
+    bool isHoudini() const { return mIsHoudini; }
     bool getDisableLighting() const { return mDisableLighting; }
     void setDisableLighting(bool v);
     bool isDoubleSided() const { return mDoubleSided; }
     void setDoubleSided(bool v);
+    bool getDecodeNormals() const { return mDecodeNormals; }
     bool getDecodeNormalsChanged() const { return mDecodeNormalsChanged; }
     void setDecodeNormals(bool v);
     bool getEnableMotionBlur() const { return mEnableMotionBlur; }
     void setEnableMotionBlur(bool v) { mEnableMotionBlur = v; }
-
-    bool getPruneWillow() const {return mPruneWillow;}
-    bool getPruneVolume() const {return mPruneVolume;}
-    bool getPruneFurDeform() const {return mPruneFurDeform;}
-    bool getPruneCurveDeform() const {return mPruneCurveDeform;}
-    bool getPruneWrapDeform() const {return mPruneWrapDeform;}
     bool getForcePolygon() const {return mForcePolygon;}
 
-    void setPruneWillow(bool v);
+    bool getPruneProcedural(const std::string& rdlName) const 
+        { return mPrunedProcedurals.count(rdlName) > 0; }
+    void setPruneProcedural(const std::string& rdlName, bool prune);
+    bool getPruneVolume() const {return mPruneVolume;}
     void setPruneVolume(bool v);
-    void setPruneCurveDeform(bool v);
-    void setPruneWrapDeform(bool v);
-    void setPruneFurDeform(bool v);
     void setForcePolygon(bool v);
-
-    //bool pruneProceduralChanged() const {return mPruneProceduralChanged;}
+    void setIsHoudini(bool v) { mIsHoudini = v; }
+    
 
     const RenderSettings& renderSettings() const { return mRenderSettings; }
 
@@ -313,23 +308,24 @@ private:
         RenderDelegate* This; // possibly this should be const
     } renderParam;
 
-    void _constructor(Renderer* renderer);
+    void _constructor();
 
     Renderer* mRenderer = nullptr; 
     RenderSettings mRenderSettings;
     unsigned mPreviousRenderSettings = 0;
+    pxr::HdRenderSettingDescriptorList mRenderSettingDescriptors;
     
     bool mDisableLighting = false;
     bool mDoubleSided = true;
     bool mDecodeNormals = false;
     bool mDecodeNormalsChanged = false;
     bool mEnableMotionBlur = false;
-    bool mPruneWillow = false;
-    bool mPruneFurDeform = false;
-    bool mPruneVolume = false;
-    bool mPruneWrapDeform = false;
-    bool mPruneCurveDeform = false;
     bool mForcePolygon = false;
+    std::set<std::string> mPrunedProcedurals; // stores RDL2 name
+    bool mPruneVolume = false;
+
+    // true when settings contains "houdini:interactive"
+    bool mIsHoudini = false;
 
     void initializeSceneContext(); // part of constructor
     scene_rdl2::rdl2::Camera* mPrimaryCamera = nullptr;

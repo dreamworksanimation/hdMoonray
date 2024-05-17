@@ -349,7 +349,7 @@ Material::updateTerminal(pxr::TfToken terminalName,
                 UpdateGuard guard(input);
 
                 // Decode normal maps
-                if (renderDelegate.renderSettings().getDecodeNormals() &&
+                if (renderDelegate.getDecodeNormals() &&
                     rel.outputName.GetString().find("normal") != std::string::npos) {
 
                     input->set(input->getSceneClass().getAttributeKey<Rgb>("scale"), Rgb(2.0f));

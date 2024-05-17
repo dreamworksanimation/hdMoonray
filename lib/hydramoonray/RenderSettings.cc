@@ -4,6 +4,7 @@
 #include "RenderSettings.h"
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
+#include "Utils.h"
 
 #include <scene_rdl2/scene/rdl2/SceneContext.h>
 #include <scene_rdl2/scene/rdl2/SceneVariables.h>
@@ -12,26 +13,16 @@
 // If adding or changing the descriptors, the file
 // ../houdini/soho/parameters/HdMoonrayRendererPlugin_Viewport.ds must be updated to match
 
+using namespace pxr;
 namespace {
-using pxr::TfToken;
-using pxr::TfStaticData;
+
 TF_DEFINE_PRIVATE_TOKENS(Tokens,
-    (useRemoteHosts)
-    (remoteHosts)
-    (localReservedCores)
-    (maxFps)
-    (restartToggle)
-    (reloadTexturesToggle)
-    (maxConnectRetries)
     (debug)
     (info)
     (logLevel)
     (rdlOutput)
     (disableLighting)
     (doubleSided)
-    (enableDenoise)
-    (denoiseAlbedoGuiding)
-    (denoiseNormalGuiding)
     (decodeNormals)
     (enableMotionBlur)
     (pruneWillow)
@@ -43,89 +34,40 @@ TF_DEFINE_PRIVATE_TOKENS(Tokens,
     (executionMode)
 );
 
-std::map<pxr::TfToken, pxr::VtValue> defaultMap;
-
-bool getenvBool(const char* name, bool dflt = false)
-{
-    const char* v = std::getenv(name);
-    if (not v) return dflt;
-    return *v && *v != '0' && *v != 'f' && *v != 'F';
-}
-
-#if 0
-float getenvFloat(const char* name, float dflt)
-{
-    const char* v = std::getenv(name);
-    if (not v) return dflt;
-    return float(strtod(v,0));
-}
-#endif
-
-int getenvInt(const char* name, int dflt)
-{
-    const char* v = std::getenv(name);
-    if (not v) return dflt;
-    return int(strtol(v,0,0));
-}
-
 }
 
 namespace hdMoonray {
 
 using scene_rdl2::logging::Logger;
 
-const char*
-RenderSettings::getenvString(const char* name, const char* dflt)
+void 
+RenderSettings::addDescriptors(HdRenderSettingDescriptorList& descriptorList) const
 {
-    const char* v = std::getenv(name);
-    return v ? v : dflt ? dflt : "";
-}
-
-const pxr::HdRenderSettingDescriptorList&
-RenderSettings::getDescriptors()
-{
-    static const int hosts = getenvInt("HDMOONRAY_HOSTS", 0);
-    static pxr::HdRenderSettingDescriptorList mDescriptors = {
-        { "Use Remote Hosts",     Tokens->useRemoteHosts,   pxr::VtValue(hosts > 0) },
-        { "Remote Hosts",         Tokens->remoteHosts,      pxr::VtValue(hosts > 0 ? hosts : 5) },
-        { "Local Reserved Cores", Tokens->localReservedCores, pxr::VtValue(getenvInt("HDMOONRAY_LOCAL_RESERVED_CORES",1))},
-        { "Max FPS",              Tokens->maxFps,           pxr::VtValue(12.0f) },
-        { "Restart (toggle)",     Tokens->restartToggle,    pxr::VtValue(false) },
-        { "Reload textures (toggle)",Tokens->reloadTexturesToggle,  pxr::VtValue(false) },
-        { "Maximum connect retries", Tokens->maxConnectRetries, pxr::VtValue(getenvInt("HDMOONRAY_MAX_CONNECT_RETRIES",2)) },
-        { "Show Debug Messages",  Tokens->debug,            pxr::VtValue(getenvBool("HDMOONRAY_DEBUG")) },
-        { "Show Info Messages",   Tokens->info,             pxr::VtValue(getenvBool("HDMOONRAY_INFO")) },
-        { "Log Level(1-5)",       Tokens->logLevel,         pxr::VtValue(getenvInt("HDMOONRAY_LOGLEVEL", 1)) },
-        { "Rdla output",          Tokens->rdlOutput,       pxr::VtValue(getenvString("HDMOONRAY_RDLA_OUTPUT")) },
-        { "Disable Lighting",     Tokens->disableLighting,  pxr::VtValue(getenvBool("HDMOONRAY_DISABLE_LIGHTING")) },
-        { "DoubleSided",          Tokens->doubleSided,      pxr::VtValue(getenvBool("HDMOONRAY_DOUBLESIDED")) },
-        { "Enable Denoising",     Tokens->enableDenoise,    pxr::VtValue(getenvBool("HDMOONRAY_ENABLE_DENOISE")) },
-        { "Denoise Albedo Guiding", Tokens->denoiseAlbedoGuiding, pxr::VtValue(getenvBool("HDMOONRAY_DENOISE_ALBEDO_GUIDING")) },
-        { "Denoise Normal Guiding", Tokens->denoiseNormalGuiding, pxr::VtValue(getenvBool("HDMOONRAY_DENOISE_NORMAL_GUIDING")) },
-        { "Decode Normals",      Tokens->decodeNormals, pxr::VtValue(false) },
-        { "Enable Motion Blur",      Tokens->enableMotionBlur, pxr::VtValue(true)},
-        { "Prune Willow",      Tokens->pruneWillow, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_WILLOW")) },
-        { "Prune FurDeform",      Tokens->pruneFurDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_FURDEFORM")) },
-        { "Prune Volumes",      Tokens->pruneVolume, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_VOLUME")) },
-        { "Prune WrapDeform",      Tokens->pruneWrapDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_WRAPDEFORM")) },
-        { "Prune CurveDeform",      Tokens->pruneCurveDeform, pxr::VtValue(getenvBool("HDMOONRAY_PRUNE_CURVEDEFORM")) },
-        { "Force Polygon",      Tokens->forcePolygon, pxr::VtValue(getenvBool("HDMOONRAY_FORCE_POLYGON")) },
-        { "Enable Motion Blur",      Tokens->enableMotionBlur, pxr::VtValue(true) },
-        { "Execution Mode",      Tokens->executionMode, pxr::VtValue(getenvString("HDMOONRAY_EXEC_MODE", "auto")) },
-
+    static HdRenderSettingDescriptorList descriptors = {
+       
+        { "Show Debug Messages",  Tokens->debug,               VtValue(getEnv("HDMOONRAY_DEBUG", false)) },
+        { "Show Info Messages",   Tokens->info,                VtValue(getEnv("HDMOONRAY_INFO", false)) },       
+        { "Rdla output",          Tokens->rdlOutput,           VtValue(getEnv("HDMOONRAY_RDLA_OUTPUT","")) },
+        { "Disable Lighting",     Tokens->disableLighting,     VtValue(getEnv("HDMOONRAY_DISABLE_LIGHTING", false)) },
+        { "DoubleSided",          Tokens->doubleSided,         VtValue(getEnv("HDMOONRAY_DOUBLESIDED", false)) },       
+        { "Decode Normals",       Tokens->decodeNormals,       VtValue(getEnv("HDMOONRAY_DOUBLESIDED", false)) },
+        { "Enable Motion Blur",   Tokens->enableMotionBlur,    VtValue(getEnv("HDMOONRAY_ENABLE_MOTION_BLUR", true)) },
+        { "Prune Willow",         Tokens->pruneWillow,         VtValue(getEnv("HDMOONRAY_PRUNE_WILLOW", false)) },
+        { "Prune FurDeform",      Tokens->pruneFurDeform,      VtValue(getEnv("HDMOONRAY_PRUNE_FURDEFORM", false)) },
+        { "Prune Volumes",        Tokens->pruneVolume,         VtValue(getEnv("HDMOONRAY_PRUNE_VOLUME", false)) },
+        { "Prune WrapDeform",     Tokens->pruneWrapDeform,     VtValue(getEnv("HDMOONRAY_PRUNE_WRAPDEFORM", false)) },
+        { "Prune CurveDeform",    Tokens->pruneCurveDeform,    VtValue(getEnv("HDMOONRAY_PRUNE_CURVEDEFORM", false)) },
+        { "Force Polygon",        Tokens->forcePolygon,        VtValue(getEnv("HDMOONRAY_FORCE_POLYGON", false)) },
+        { "Execution Mode",       Tokens->executionMode,       VtValue(getEnv("HDMOONRAY_EXEC_MODE", "auto")) },
     };
-    if (defaultMap.empty()) {
-        for (auto&& i : mDescriptors) {
-            defaultMap[i.key] = i.defaultValue;
-        }
+    for (const auto& desc : descriptors) {
+        descriptorList.push_back(desc);
     }
-    return mDescriptors;
 }
-
-template<typename T>
-T RenderSettings::get(const pxr::TfToken& key) const
+VtValue 
+RenderSettings::getRenderSetting(const TfToken& key) const
 {
-    return mDelegate.GetRenderSetting(key).Cast<T>().GetWithDefault(defaultMap[key].Get<T>());
+    return mDelegate.GetRenderSetting(key);
 }
 
 void RenderSettings::apply()
@@ -140,38 +82,39 @@ void RenderSettings::apply()
         Logger::setDebugLevel();
     }
 
-    static const pxr::TfToken houdiniInteractive("houdini:interactive");
-    pxr::VtValue val = mDelegate.GetRenderSetting(houdiniInteractive);
-    mIsHoudini = not val.IsEmpty();
+    static const TfToken houdiniInteractive("houdini:interactive");
+    VtValue val = mDelegate.GetRenderSetting(houdiniInteractive);
+    mDelegate.setIsHoudini(not val.IsEmpty());
 
-    // fixme: is there a way to make this work using SceneVariables::sLayer, etc instead of string constants?
+    // ---------------------------------------------------------------------------------
+    // support render settings "sceneVariable:<name>" and "sceneVariable_<name>" for any
+    // scene variable. The second form is used in the Houdini .ds file because it
+    // doesn't like the colon character.
+
+    // These are excluded...
     static const std::set<std::string> sDontWrite = {
         "camera", "motion_steps", "enable_motion_blur", "layer", "image_width", "image_height"
     };
 
     scene_rdl2::rdl2::SceneVariables& sv = mDelegate.acquireSceneContext().getSceneVariables();
-    {   UpdateGuard guard(sv);
-        // apply all sceneVariable:xyz attributes from the RenderSettings prim
+    {   
+        UpdateGuard guard(sv);
         const SceneClass& sceneClass = sv.getSceneClass();
         for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
+
             const std::string& attrName = (*it)->getName();
             if (sDontWrite.count(attrName)) continue;
-            // may want to skip some of them or check for overrides here
-            pxr::TfToken key = pxr::TfToken("sceneVariable:" + attrName);
-            pxr::VtValue val = mDelegate.GetRenderSetting(key);
+
+            TfToken key = TfToken("sceneVariable:" + attrName);
+            VtValue val = mDelegate.GetRenderSetting(key);
             if (not val.IsEmpty()) {
                 ValueConverter::setAttribute(&sv, *it, val);
             } else {
-                // Try alternate form since .ds file complains about colon
-                key = pxr::TfToken("sceneVariable_" + attrName);
+                key = TfToken("sceneVariable_" + attrName);
                 val = mDelegate.GetRenderSetting(key);
                 if (not val.IsEmpty()) {
                     ValueConverter::setAttribute(&sv, *it, val);
-                } else {
-                    // Currently the values never return to empty in Houdini, so this never does
-                    // anything.
-                    // ValueConverter::setDefault(&sv, *it);
-                }
+                } 
             }
         }
 
@@ -185,105 +128,24 @@ void RenderSettings::apply()
     mDelegate.setDoubleSided(get<bool>(Tokens->doubleSided));
     mDelegate.setDecodeNormals(get<bool>(Tokens->decodeNormals));
     mDelegate.setEnableMotionBlur(get<bool>(Tokens->enableMotionBlur));
-    mDelegate.setPruneWillow(get<bool>(Tokens->pruneWillow));
-    mDelegate.setPruneFurDeform(get<bool>(Tokens->pruneFurDeform));
-    mDelegate.setPruneCurveDeform(get<bool>(Tokens->pruneCurveDeform));
-    mDelegate.setPruneWrapDeform(get<bool>(Tokens->pruneWrapDeform));
+    mDelegate.setPruneProcedural("WillowGeometry_v3", get<bool>(Tokens->pruneWillow));
+    mDelegate.setPruneProcedural("FurDeformGeometry", get<bool>(Tokens->pruneFurDeform));
+    mDelegate.setPruneProcedural("CurveDeformGeometry", get<bool>(Tokens->pruneCurveDeform));
+    mDelegate.setPruneProcedural("WrapDeformGeometry", get<bool>(Tokens->pruneWrapDeform));
     mDelegate.setPruneVolume(get<bool>(Tokens->pruneVolume));
     mDelegate.setForcePolygon(get<bool>(Tokens->forcePolygon));
 }
 
-bool
-RenderSettings::getArrasLocalMode() const
-{
-    return not get<bool>(Tokens->useRemoteHosts);
-}
-
-int
-RenderSettings::getArrasLogLevel() const
-{
-    return  get<int>(Tokens->logLevel);
-}
-
-int
-RenderSettings::getArrasHostCount() const
-{
-    return  get<int>(Tokens->remoteHosts);
-}
-
-int
-RenderSettings::getArrasLocalReservedCores() const
-{
-    return  get<int>(Tokens->localReservedCores);
-}
-
-float
-RenderSettings::getArrasMaxFps() const
-{
-    return  get<float>(Tokens->maxFps);
-}
 
 std::string
 RenderSettings::getExecutionMode() const
 {
-    // RenderSettings::getDescriptors() initializes the default value for executionMode
-    // as it intializes the defaultMap.
-    // This is called before getDescriptors()
-    // so the val can be empty and we need to provide a default value
-    pxr::VtValue val = mDelegate.GetRenderSetting(Tokens->executionMode);
+    VtValue val = mDelegate.GetRenderSetting(Tokens->executionMode);
     if (not val.IsEmpty()) {
         return val.Get<std::string>();
-    }else{
+    } else {
         return "auto";
     }
 }
 
-bool
-RenderSettings::getRestartToggle() const
-{
-    return  get<bool>(Tokens->restartToggle);
-}
-
-bool
-RenderSettings::getReloadTexturesToggle() const
-{
-    return  get<bool>(Tokens->reloadTexturesToggle);
-}
-
-int
-RenderSettings::getMaxConnectRetries() const
-{
-    return get<int>(Tokens->maxConnectRetries);
-}
-
-bool
-RenderSettings::enableDenoise() const
-{
-    return  get<bool>(Tokens->enableDenoise);
-}
-
-bool
-RenderSettings::denoiseAlbedoGuiding() const
-{
-    return  get<bool>(Tokens->denoiseAlbedoGuiding);
-}
-
-bool
-RenderSettings::denoiseNormalGuiding() const
-{
-    return  get<bool>(Tokens->denoiseNormalGuiding);
-}
-
-bool
-RenderSettings::getDecodeNormals() const
-{
-    return  get<bool>(Tokens->decodeNormals);
-}
-
-bool
-RenderSettings::getEnableMotionBlur() const
-{
-    return  get<bool>(Tokens->enableMotionBlur);
-}
-
-}
+} // namespace hdMoonray

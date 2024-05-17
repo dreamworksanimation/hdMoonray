@@ -43,6 +43,9 @@ public:
 
     const std::string &getRenderer() const { return mRenderer; }
 
+    bool getDisableRender() const { return mDisableRender; }
+    const std::string &getRdlOutput() const { return mRdlOutput; }
+
     const std::string &getInputSceneFile() const { return mInputSceneFile; }
     const std::string getOutputExrFile() const { return mOutputExrFile; }
 
@@ -113,6 +116,9 @@ private:
     bool mHelpRequested;
 
     std::string mRenderer;
+
+    bool mDisableRender;
+    std::string mRdlOutput;
 
     std::string mInputSceneFile;
     std::string mOutputExrFile;

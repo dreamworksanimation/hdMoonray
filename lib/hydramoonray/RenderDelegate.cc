@@ -48,24 +48,27 @@ using scene_rdl2::logging::Logger;
 
 RenderDelegate::RenderDelegate(Renderer* renderer)
     : HdRenderDelegate(),
+      mRenderer(renderer),
       mRenderSettings(*this)
 {
-    _constructor(renderer);
+    _constructor();
 }
 
 RenderDelegate::RenderDelegate(Renderer* renderer, pxr::HdRenderSettingsMap const& settings)
     : HdRenderDelegate(settings),
+      mRenderer(renderer),
       mRenderSettings(*this)
 {
-    _constructor(renderer);
+    _constructor();
 }
 
 void
-RenderDelegate::_constructor(Renderer* renderer)
-{
-    _PopulateDefaultSettings(mRenderSettings.getDescriptors());
+RenderDelegate::_constructor()
+{   
+    mRenderSettings.addDescriptors(mRenderSettingDescriptors);
+    mRenderer->addDescriptors(mRenderSettingDescriptors);
+    _PopulateDefaultSettings(mRenderSettingDescriptors);
     renderParam.This = this;
-    mRenderer = renderer;
     initializeSceneContext();
 }
 
@@ -697,32 +700,11 @@ void RenderDelegate::setDisableLighting(bool v)
     }
 }
 
-void RenderDelegate::setPruneWillow(bool v)
+void RenderDelegate::setPruneProcedural(const std::string& name, bool prune)
 {
-    if (v != mPruneWillow) {
-        mPruneWillow = v;
-        for (auto& p : mProcedurals)
-            mRenderIndex->GetChangeTracker().MarkRprimDirty(
-                        p->GetId(),
-                        pxr::HdChangeTracker::DirtyVisibility);
-    }
-}
-
-void RenderDelegate::setPruneFurDeform(bool v)
-{
-    if (v != mPruneFurDeform) {
-        mPruneFurDeform = v;
-        for (auto& p : mProcedurals)
-            mRenderIndex->GetChangeTracker().MarkRprimDirty(
-                        p->GetId(),
-                        pxr::HdChangeTracker::DirtyVisibility);
-    }
-}
-
-void RenderDelegate::setPruneCurveDeform(bool v)
-{
-    if (v != mPruneCurveDeform) {
-        mPruneCurveDeform = v;
+    if (prune != getPruneProcedural(name)) {
+        if (prune) mPrunedProcedurals.insert(name);
+        else mPrunedProcedurals.erase(name);
         for (auto& p : mProcedurals)
             mRenderIndex->GetChangeTracker().MarkRprimDirty(
                         p->GetId(),
@@ -735,17 +717,6 @@ void RenderDelegate::setPruneVolume(bool v)
     if (v != mPruneVolume) {
         mPruneVolume = v;
         for (auto& p : mVolumes)
-            mRenderIndex->GetChangeTracker().MarkRprimDirty(
-                        p->GetId(),
-                        pxr::HdChangeTracker::DirtyVisibility);
-    }
-}
-
-void RenderDelegate::setPruneWrapDeform(bool v)
-{
-    if (v != mPruneWrapDeform) {
-        mPruneWrapDeform = v;
-        for (auto& p : mProcedurals)
             mRenderIndex->GetChangeTracker().MarkRprimDirty(
                         p->GetId(),
                         pxr::HdChangeTracker::DirtyVisibility);
