@@ -393,7 +393,18 @@
         type        toggle
         size        1
         default     { 0 }
-        help        "Enable denoising of render"
+        help        "Enable denoising of render. By default Optix engine is used unless OIDN is enabled."
+        parmtag     { "uiscope" "viewport" }
+    }
+
+    parm {
+        name        "enableOIDN"
+        label       "Use OIDN Denoising"
+        type        toggle
+        size        1
+        default     { 0 }
+        disablewhen "{ enableDenoise == 0 }"
+        help        "Use OIDN algorithm instead of Optix when denoising is enabled."
         parmtag     { "uiscope" "viewport" }
     }
 
@@ -403,7 +414,7 @@
         type        toggle
         size        1
         default     { 0 }
-        disablewhen "{ enableDenoise == 0 }"
+        disablewhen "{ enableDenoise == 0 } { enableOIDN == 0 }"
         help        "Use albedo guiding when denoising"
         parmtag     { "uiscope" "viewport" }
     }
@@ -414,7 +425,7 @@
         type        toggle
         size        1
         default     { 0 }
-        disablewhen "{ enableDenoise == 0 }"
+        disablewhen "{ enableDenoise == 0 } { enableOIDN == 0 }"
         help        "Use normal guiding when denoising"
         parmtag     { "uiscope" "viewport" }
     }

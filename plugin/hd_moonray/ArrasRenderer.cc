@@ -52,6 +52,12 @@ ArrasRenderer::applySettings(const RenderSettings& settings)
             mFbReceiver->setBeautyDenoiseMode(mCurrentDenoiseMode);
         }
     }
+    if (mCurrentDenoiseEngine != mSettings.getDenoiseEngine()) {
+        mCurrentDenoiseEngine = mSettings.getDenoiseEngine();
+        if (mFbReceiver) {
+            mFbReceiver->setDenoiseEngine(mCurrentDenoiseEngine);
+        }
+    }
 }
 void
 ArrasRenderer::invalidateAllTextureResources()
@@ -385,4 +391,3 @@ ArrasRenderer::isFrameComplete() const
 }
 
 }
-

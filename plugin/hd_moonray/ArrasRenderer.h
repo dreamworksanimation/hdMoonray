@@ -45,7 +45,7 @@ public:
     void deallocate(scene_rdl2::rdl2::RenderOutput*, PixelData&) override;
 
     void applySettings(const RenderSettings&) override;
- 
+
     void invalidateAllTextureResources() override;
     void restartRenderer() override;
 private:
@@ -74,7 +74,7 @@ private:
     //  used to rerender on texture reload, for example)
     // cleared by endUpdate
     std::atomic<bool> mSendEmptyUpdate{false};
-    
+
     bool mPaused = false;
 
     std::atomic<bool> mConnected{false};
@@ -103,11 +103,11 @@ private:
 
     // number of successive connection failures
     int mFailedConnects{0};
-    
+
     ArrasSettings mSettings;
     mcrt_dataio::ClientReceiverFb::DenoiseMode mCurrentDenoiseMode;
+    mcrt_dataio::ClientReceiverFb::DenoiseEngine mCurrentDenoiseEngine;
 
 };
 
 }
-

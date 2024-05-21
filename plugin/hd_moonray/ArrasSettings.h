@@ -25,10 +25,11 @@ public:
 
     void applySettings(const RenderSettings&);
     bool getReconnectRequired() { return mReconnectRequired; }
-    void clearReconnectRequired() { mReconnectRequired = false; }   
+    void clearReconnectRequired() { mReconnectRequired = false; }
     int getMaxConnectRetries() { return mMaxConnectRetries; }
     mcrt_dataio::ClientReceiverFb::DenoiseMode getDenoiseMode() const { return mDenoiseMode; }
-    arras4::log::Logger::Level getLogLevel() 
+    mcrt_dataio::ClientReceiverFb::DenoiseEngine getDenoiseEngine() const {return mDenoiseEngine; }
+    arras4::log::Logger::Level getLogLevel()
         { return static_cast<arras4::log::Logger::Level>(mLogLevel); }
 
 
@@ -40,7 +41,8 @@ private:
     void setExecMode(std::string val);
     void setLocalReservedCores(int val);
     void setMaxConnectRetries(int i) { mMaxConnectRetries = i; }
-    void setDenoiseMode(bool enable, bool albedoGuiding, bool normalGuiding);
+    void setDenoiseMode(bool enable, bool oidn, bool albedoGuiding, bool normalGuiding);
+    void setDenoiseEngine(bool enbale, bool oidn);
 
     bool mLocalMode = true;
     int mLogLevel = 1;
@@ -52,7 +54,7 @@ private:
     int mMaxConnectRetries = 2;
     std::string mExecMode = "auto";
     mcrt_dataio::ClientReceiverFb::DenoiseMode mDenoiseMode = mcrt_dataio::ClientReceiverFb::DenoiseMode::DISABLE;
-
+    mcrt_dataio::ClientReceiverFb::DenoiseEngine mDenoiseEngine = mcrt_dataio::ClientReceiverFb::DenoiseEngine::OPTIX;
     arras4::client::SessionDefinition mSingleHostTemplDef;
     arras4::client::SessionDefinition mMultiHostTemplDef;
 };

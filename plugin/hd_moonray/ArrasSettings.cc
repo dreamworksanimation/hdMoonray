@@ -26,6 +26,7 @@ TF_DEFINE_PRIVATE_TOKENS(Tokens,
    (maxFps)
    (maxConnectRetries)
    (enableDenoise)
+   (enableOIDN)
    (denoiseAlbedoGuiding)
    (denoiseNormalGuiding)
 );
@@ -147,7 +148,7 @@ ArrasSettings::ArrasSettings()
     mMultiHostTemplDef =  arras4::client::SessionDefinition::load("hd_multi");
 }
 
-void 
+void
 ArrasSettings::addDescriptors(HdRenderSettingDescriptorList& descriptorList) const
 {
     static const int hosts = getEnv("HDMOONRAY_HOSTS", 0);
@@ -159,6 +160,7 @@ ArrasSettings::addDescriptors(HdRenderSettingDescriptorList& descriptorList) con
         { "Max FPS",                 Tokens->maxFps,               VtValue(getEnv("HDMOONRAY_MAX_FPS", 12.0f)) },
         { "Maximum connect retries", Tokens->maxConnectRetries,    VtValue(getEnv("HDMOONRAY_MAX_CONNECT_RETRIES",2)) },
         { "Enable Denoising",        Tokens->enableDenoise,        VtValue(getEnv("HDMOONRAY_ENABLE_DENOISE",false)) },
+        { "Enable OIDN",             Tokens->enableOIDN,           VtValue(getEnv("HDMOONRAY_ENABLE_DENOISE_OIDN",false)) },
         { "Denoise Albedo Guiding",  Tokens->denoiseAlbedoGuiding, VtValue(getEnv("HDMOONRAY_DENOISE_ALBEDO_GUIDING", false)) },
         { "Denoise Normal Guiding",  Tokens->denoiseNormalGuiding, VtValue(getEnv("HDMOONRAY_DENOISE_NORMAL_GUIDING", false)) }
     };
@@ -269,9 +271,9 @@ ArrasSettings::setExecMode(std::string val)
 }
 
 void
-ArrasSettings::setDenoiseMode(bool enable, bool albedoGuiding, bool normalGuiding)
+ArrasSettings::setDenoiseMode(bool enable, bool oidn, bool albedoGuiding, bool normalGuiding)
 {
-    if (!enable) {
+    if (!enable && !oidn) {
         mDenoiseMode = mcrt_dataio::ClientReceiverFb::DenoiseMode::DISABLE;
     } else if (albedoGuiding) {
         if (normalGuiding) {
@@ -287,6 +289,18 @@ ArrasSettings::setDenoiseMode(bool enable, bool albedoGuiding, bool normalGuidin
 }
 
 void
+ArrasSettings::setDenoiseEngine(bool enable, bool oidn)
+{
+    if (enable){
+        if (oidn) {
+            mDenoiseEngine = mcrt_dataio::ClientReceiverFb::DenoiseEngine::OPEN_IMAGE_DENOISE;
+        } else {
+            mDenoiseEngine = mcrt_dataio::ClientReceiverFb::DenoiseEngine::OPTIX;
+        }
+    }
+}
+
+void
 ArrasSettings::applySettings(const RenderSettings& settings)
 {
     setLocalMode(!settings.get<bool>(Tokens->useRemoteHosts));
@@ -297,6 +311,7 @@ ArrasSettings::applySettings(const RenderSettings& settings)
     setExecMode(settings.getExecutionMode());
     setMaxConnectRetries(settings.get<int>(Tokens->maxConnectRetries));
     setDenoiseMode(settings.get<bool>(Tokens->enableDenoise),
+                   settings.get<bool>(Tokens->enableOIDN),
                    settings.get<bool>(Tokens->denoiseAlbedoGuiding),
                    settings.get<bool>(Tokens->denoiseNormalGuiding));
 }
