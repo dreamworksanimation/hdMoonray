@@ -379,7 +379,7 @@ Light::Sync(pxr::HdSceneDelegate *sceneDelegate,
 {
     pxr::SdfPath id = GetId();
     hdmLogSyncStart("Light", id, dirtyBits);
-    
+
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
     // HDM-125: usdview sets the intensity of lights to 0.0f if "Enable Scene Lights" is turned off,
@@ -447,8 +447,10 @@ Light::Sync(pxr::HdSceneDelegate *sceneDelegate,
         }
         // Need to call Sync() on all geometry to get categories copied into LightSets
         if (categoriesChanged) {
+            // in 0.22.5, DirtyCategories seems to be ignored. We can force a sync using
+            // DirtyMaterialId even though it isn't strict;y right...
             sceneDelegate->GetRenderIndex().GetChangeTracker().MarkAllRprimsDirty(
-                pxr::HdChangeTracker::DirtyCategories);
+                pxr::HdChangeTracker::DirtyCategories | pxr::HdChangeTracker::DirtyMaterialId);
         }
     }
 

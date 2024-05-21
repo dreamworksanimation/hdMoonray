@@ -30,7 +30,10 @@ public:
     // get a render setting
     pxr::VtValue getRenderSetting(const pxr::TfToken& key) const;
     template<typename T> T get(const pxr::TfToken& key) const {
-        return getRenderSetting(key).Get<T>();
+        // Houdini sometimes changes the type (e.g. long in place of int or bool)
+        // so we have to cast to the right type.
+        pxr::VtValue v = getRenderSetting(key).Cast<T>();
+        return v.Get<T>();
     }
 
     std::string getExecutionMode() const;
