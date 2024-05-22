@@ -49,8 +49,12 @@ public:
     virtual float getProgress() const=0;
     /// Time since progress==0
     virtual float getElapsedSeconds() const=0;
+    /// Current status summary
+    virtual const std::string& getStatusString() const { return mStatusString; };
+
     /// True when converged
     virtual bool isFrameComplete() const=0;
+
 
     /// A null RenderOutput* indicates the beauty buffer. This function should be used to test this
     /// so it can be grepped for:
@@ -85,6 +89,8 @@ public:
 protected:
     scene_rdl2::rdl2::SceneContext* mSceneContext;
     bool isHoudini() const { return mIsHoudini; }
+    std::string mStatusString;
+
 private:
     bool mIsHoudini = false;
 };

@@ -62,6 +62,8 @@ private:
     // Called when statuses are received from other components in Arras.
     void statusHandler(const std::string& msg);
 
+    void updateStatusString(mcrt_dataio::ClientReceiverFb::BackendStat stat, float renderPrepProgress);
+    
     std::unique_ptr<arras4::sdk::SDK> mSDK;
     std::shared_ptr<mcrt_dataio::ClientReceiverFb> mFbReceiver;
 

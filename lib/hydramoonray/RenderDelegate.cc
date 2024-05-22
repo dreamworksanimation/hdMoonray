@@ -191,6 +191,11 @@ RenderDelegate::GetRenderStats() const
         stats[percentDone] = progress * 100;
         static const pxr::TfToken totalClockTime("totalClockTime");
         stats[totalClockTime] = mRenderer->getElapsedSeconds();
+        static const pxr::TfToken rpAnn("renderProgressAnnotation");
+        const std::string& status = mRenderer->getStatusString();
+        if (!status.empty()) {
+            stats[rpAnn] = status;
+        }
     }
     return stats;
 }

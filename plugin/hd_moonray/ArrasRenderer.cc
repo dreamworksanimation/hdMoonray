@@ -144,6 +144,7 @@ ArrasRenderer::connect(bool resetFailureCount)
     mConnected = true;
     hdmLogArras("endConnect");
     Logger::info("Moonray delegate created an Arras session with ID ",sessionId);
+    mStatusString = "Connected";
     return true;
 }
 
@@ -189,6 +190,8 @@ ArrasRenderer::messageHandler(const arras4::api::Message& msg)
         // a result of the latest update
         mFrameComplete = completesFrame && fromLatestUpdate;
 
+        updateStatusString(mFbReceiver->getBackendStat(), mFbReceiver->getRenderPrepProgress());
+
         // acknowledge received frame with a credit message
         mcrt::CreditUpdate::Ptr creditMsg = std::make_shared<mcrt::CreditUpdate>();
         creditMsg->value() = 1;
@@ -200,6 +203,38 @@ ArrasRenderer::messageHandler(const arras4::api::Message& msg)
         }
     }
     hdmLogArras("endMessageHandler");
+}
+
+void 
+ArrasRenderer::updateStatusString(mcrt_dataio::ClientReceiverFb::BackendStat stat,
+                                  float renderPrepProgress)
+{
+    // status string gets placed in the RenderStats dictionary by RenderDelegate,
+    // and is displayed by Houdini just below the progress (top right)
+    if (mFrameComplete) {
+        // NB doesn't actually seem to show up in Houdini : I think the app
+        // stops checking for stats too quickly after completion...
+        mStatusString = "Complete"; return;
+    }
+
+    switch(stat) {
+        case mcrt_dataio::ClientReceiverFb::BackendStat::IDLE:
+            break;
+        case mcrt_dataio::ClientReceiverFb::BackendStat::RENDER_PREP_RUN: 
+        {
+            int percent = (int)(renderPrepProgress*100);
+            mStatusString = "Render Prep " + std::to_string(percent) + "%";
+            break;
+        }
+        case mcrt_dataio::ClientReceiverFb::BackendStat::RENDER_PREP_CANCEL:
+            mStatusString = "Canceling Prep";
+            break;
+        case mcrt_dataio::ClientReceiverFb::BackendStat::MCRT:
+            mStatusString = "Shading";
+            break;
+        default:
+            mStatusString = "";
+    }
 }
 
 void
@@ -241,6 +276,7 @@ ArrasRenderer::statusHandler(const std::string& msg)
                 Logger::error("Arras session stopped, ",
                               (stopReason.isString() ? stopReason.asString() : msg));
                 mConnected = false;
+                mStatusString = "Disconnected";
                 return;
             }
         }
