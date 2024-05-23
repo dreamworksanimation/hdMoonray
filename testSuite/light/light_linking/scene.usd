@@ -41,27 +41,6 @@ def Sphere "sphere3"
     uniform token[] xformOpOrder = ["xformOp:transform"]
 }
 
-def Mesh "two_triangles"
-{
-    matrix4d xformOp:transform = ( (1, 0, 0, 0),
-                                   (0, 1, 0, 0),
-                                   (0, 0, 1, 0),
-                                   (0, 2, 0, 1) )
-    uniform token[] xformOpOrder = ["xformOp:transform"]
-    int[] faceVertexCounts = [3, 3]
-    int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
-    point3f[] points = [(-1, 0, 0), (1, 0, 0), (1, 1, 0), (-1, 1, 0)] (
-        interpolation = "vertex"
-    )
-    uniform token subdivisionScheme = "none"
-    def GeomSubset "right" {
-        int[] indices = [0]
-    }
-    def GeomSubset "left" {
-        int[] indices = [1]
-    }
-}
-
 def DomeLight "dome1"
 {
     color3f color = (1, 0, 0)
@@ -69,7 +48,7 @@ def DomeLight "dome1"
     float intensity = 1
     float inputs:intensity = 1
     bool collection:lightLink:includeRoot = false
-    rel collection:lightLink:includes = [</sphere1>,</sphere2>,</two_triangles/left>]
+    rel collection:lightLink:includes = [</sphere1>,</sphere2>]
 }
 
 def DomeLight "dome2"
@@ -82,14 +61,3 @@ def DomeLight "dome2"
     rel collection:lightLink:includes = [</sphere2>,</sphere3>]
 }
 
-def DomeLight "dome3"
-{
-    color3f color = (0, 0, 1)
-    color3f inputs:color = (0, 0, 1)
-    float intensity = 0.5
-    float inputs:intensity = 0.5
-    bool collection:lightLink:includeRoot = false
-    rel collection:lightLink:includes = [</two_triangles>]
-    rel collection:lightLink:excludes = [</two_triangles/left>]
-
-}

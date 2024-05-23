@@ -88,7 +88,7 @@ tests = {
     #     },
     "rats-opt-debug": {
         "command": "rats -a --rco=2 --nohtml --rac",
-        "requires": ["rats", "opt_level-optdebug", "usd_core_dwa_plugin", "usd_imaging", "moonshine_dwa", "houdini_dwa-19", "python-2.7", "xml-2.9"]
+        "requires": ["rats", "opt_level-optdebug", "usd_core_dwa_plugin", "usd_imaging-0.22.5", "moonshine_dwa", "houdini_dwa-19", "python-3.9"]
         }
     }
 

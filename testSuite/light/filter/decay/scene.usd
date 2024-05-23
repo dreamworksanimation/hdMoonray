@@ -115,5 +115,5 @@ def DiskLight "spot"
     float inputs:shaping:cone:angle = 60
     float moonray:inner_cone_angle = 0
     int moonray:angle_falloff_type = 3
-    rel filters = [</decay>]
+    rel light:filters = [</decay>]
 }
