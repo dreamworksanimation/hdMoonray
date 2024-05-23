@@ -14,7 +14,7 @@
             },
             "Name": "hd_moonray_debug",
             "Type": "library",
-            "LibraryPath": "../../hd_moonray_debug.so"
+            "LibraryPath": "@LIBRARY_PATH@"
         }
     ]
 }

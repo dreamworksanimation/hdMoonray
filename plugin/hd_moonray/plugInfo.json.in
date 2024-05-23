@@ -14,7 +14,7 @@
             },
             "Name": "hd_moonray",
             "Type": "library",
-            "LibraryPath": "../../hd_moonray.so"
+            "LibraryPath": "@LIBRARY_PATH@"
         }
     ]
 }

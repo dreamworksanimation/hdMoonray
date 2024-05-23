@@ -55,6 +55,12 @@ HdMoonray_cxx_compile_features(${component})
 HdMoonray_cxx_compile_options(${component})
 HdMoonray_link_options(${component})
 
+# Configure plugInfo.json file
+set(plugInfoTemplate ${CMAKE_CURRENT_SOURCE_DIR}/plugInfo.json.in)
+set(plugInfoFile ${CMAKE_CURRENT_BINARY_DIR}/plugInfo.json)
+set(LIBRARY_PATH ../../${component}${CMAKE_SHARED_LIBRARY_SUFFIX})
+configure_file(${plugInfoTemplate} ${plugInfoFile})
+
 # -------------------------------------
 # Install the target and the export set
 # -------------------------------------
@@ -78,10 +84,7 @@ install(TARGETS ${component}
 )
 
 # install main plugInfo
-INSTALL(FILES
-            ${CMAKE_CURRENT_SOURCE_DIR}/plugInfo.json
-        DESTINATION
-            plugin/pxr/${component}
+INSTALL(FILES ${plugInfoFile}
+    DESTINATION plugin/pxr/${component}
 )
-
 

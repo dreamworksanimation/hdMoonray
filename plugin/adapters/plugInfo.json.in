@@ -23,7 +23,7 @@
                     }
                 }
             },
-            "LibraryPath": "../../hdMoonrayAdapters.so",
+            "LibraryPath": "@LIBRARY_PATH@",
             "Name": "hdMoonrayAdapters",
             "Type": "library"
         }
