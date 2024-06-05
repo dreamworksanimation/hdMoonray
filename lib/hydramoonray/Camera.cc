@@ -22,6 +22,10 @@
 
 #include <iostream>
 
+// define this to avoid switching the identity of the perspective camera
+// (see HDM-95/HDM-351)
+#define DONT_SWITCH_PERSPECTIVE_CAMERA
+
 namespace {
 
 const pxr::TfToken moonrayClassToken("moonray:class");
@@ -29,16 +33,6 @@ const pxr::TfToken PerspectiveCameraToken("PerspectiveCamera");
 const pxr::TfToken OrthographicCameraToken("OrthographicCamera");
 
 const hdMoonray::Camera* pCamera = nullptr; // used to detect if camera changed, assume only one global one
-
-// in 2203 DirtyBits::DirtyParams replaced deprecated DirtyProjMatrix
-// and DirtyTransform replaced depr DirtyViewMatrix
-#if PXR_VERSION >= 2203
-const pxr::HdCamera::DirtyBits CamDirtyProj = pxr::HdCamera::DirtyBits::DirtyParams;
-const pxr::HdCamera::DirtyBits CamDirtyView = pxr::HdCamera::DirtyBits::DirtyTransform;
-#else
-const pxr::HdCamera::DirtyBits CamDirtyProj = pxr::HdCamera::DirtyBits::DirtyProjMatrix;
-const pxr::HdCamera::DirtyBits CamDirtyView = pxr::HdCamera::DirtyBits::DirtyViewMatrix;
-#endif
 
 }
 
@@ -65,25 +59,22 @@ Camera::Sync(pxr::HdSceneDelegate* sceneDelegate,
     mSceneDelegate = sceneDelegate; // save for use by setAsPrimaryCamera() and RenderPass
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
-    // Remember the dirty bits as HdCamera::Sync clears them
+    // Remember the dirty bits, as HdCamera::Sync clears them
     pxr::HdDirtyBits bits(*dirtyBits);
 
     // must call this first, it updates members like GetViewMatrix():
     HdCamera::Sync(sceneDelegate, renderParam, dirtyBits);
 
+    // determine the type of camera (orthographic or perspective or custom RDL)
     pxr::TfToken newClass;
     // Use the moonray:class, otherwise guess from the projection matrix (the
-    // "projection" attriubute is not set by usdview for interactive camera)
-    { pxr::VtValue v = sceneDelegate->GetCameraParamValue(GetId(), moonrayClassToken);
+    // "projection" attribute is not set by usdview for interactive camera)
+    { 
+        pxr::VtValue v = sceneDelegate->GetCameraParamValue(GetId(), moonrayClassToken);
         if (v.IsHolding<pxr::TfToken>()) {
             newClass = v.UncheckedGet<pxr::TfToken>();
         } else {
-#if PXR_VERSION >= 2203
-// in 2203, GetProjectionMatrix() was renamed ComputeProjectionMatrix()
             const auto& matrix = ComputeProjectionMatrix();
-#else
-            const auto& matrix = GetProjectionMatrix();
-#endif
             if (matrix[2][3] == 0) {
                 newClass = OrthographicCameraToken;
             } else {
@@ -92,6 +83,8 @@ Camera::Sync(pxr::HdSceneDelegate* sceneDelegate,
         }
     }
 
+    // The camera is created lazily
+    // (rwilson) Is this mutex still needed?
     std::lock_guard<std::mutex> lock(mCreateMutex);
     if (newClass != mClass) {
         mClass = newClass;
@@ -103,6 +96,7 @@ Camera::Sync(pxr::HdSceneDelegate* sceneDelegate,
     hdmLogSyncEnd(id);
 }
 
+// create the RDL camera if it doesn't exist, and update to match HdCamera
 scene_rdl2::rdl2::Camera*
 Camera::createCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& renderDelegate)
 {
@@ -116,6 +110,7 @@ Camera::createCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
     return mCamera;
 }
 
+// static function to ensure the camera is created at a given path and update it
 scene_rdl2::rdl2::Camera*
 Camera::createCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& renderDelegate, const pxr::SdfPath& path)
 {
@@ -127,24 +122,23 @@ Camera::createCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
     return nullptr;
 }
 
+// update the existing RDL camera (mCamera) based on the Hydra values and dirty mask
+// mCamera must exist when this is called
 void
 Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& renderDelegate, pxr::HdDirtyBits bits)
 {
     const pxr::SdfPath& id = GetId();
     UpdateGuard guard(renderDelegate, mCamera);
 
-    if (bits & CamDirtyView) {
+    // update the inverse view matrix (in RDL this is node_xform)
+    if (bits & pxr::HdCamera::DirtyBits::DirtyTransform) {
         pxr::HdTimeSampleArray<pxr::GfMatrix4d, 4> sampledXforms;
         sceneDelegate->SampleTransform(id, &sampledXforms);
-        // if there's only one sample, it should match the cached value
+        
         if (sampledXforms.count <= 1) {
-#if PXR_VERSION >= 2203
-// in 2203, GetViewInverseMatrix was removed, having been previously deprecated
+            // if there's only one sample, it should match the cached value
             const pxr::GfMatrix4d xform(GetTransform());
-#else
-            const pxr::GfMatrix4d xform(GetViewInverseMatrix());
-#endif
-            mCamera->set(mCamera->sNodeXformKey, reinterpret_cast<const scene_rdl2::rdl2::Mat4d&>(xform));
+            mCamera->set(mCamera->sNodeXformKey, reinterpret_cast<const scene_rdl2::rdl2::Mat4d&>(xform));        
         } else {
             // first and last samples will be sample interval boundaries
             pxr::GfCamera cam(sampledXforms.values[0]);
@@ -158,62 +152,84 @@ Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
             mCamera->set(mCamera->sNodeXformKey,
                          reinterpret_cast<const scene_rdl2::rdl2::Mat4d&>(viewInverse),
                          scene_rdl2::rdl2::TIMESTEP_END);
-       }
+        }
         mXformChanged = true;
     }
 
-    if ((bits & CamDirtyProj) &&
+    // update the projection parameters. HdCamera will calculate the projection matrix
+    // for us : from this most of the RDL parameters can be extracted, with the exception
+    // of the camera aperture.
+    // Note (rwilson) : I'm not sure why the code gets the parameters in this roundabout way,
+    // rather that querying them directly, but presumably there was some reason...
+    if ((bits & pxr::HdCamera::DirtyBits::DirtyParams) &&
         (mClass == PerspectiveCameraToken || mClass == OrthographicCameraToken)) {
-        float w, h, cx, cy, fl;
+        
+        // we compute the following values from attributes and the projection matrix
+        // and place them into the RDL camera
+        float apertureWidth, apertureHeight;
+        float horizOffset, vertOffset;
+        float focalLength;
 
-        // inverse of calculation in base/gf/frustum.cpp
-#if PXR_VERSION >= 2203
-// in 2203, GetProjectionMatrix() was renamed ComputeProjectionMatrix()
         const auto& matrix = ComputeProjectionMatrix();
-#else
-        const auto& matrix = GetProjectionMatrix();
-#endif
+
         if (mClass == OrthographicCameraToken) {
-            w = 2 / matrix[0][0];
-            h = 2 / matrix[1][1];
-            fl = 30;
-            cx = - w * matrix[3][0] / 2;
-            cy = - h * matrix[3][1] / 2;
+
+            apertureWidth = 2 / matrix[0][0];
+            apertureHeight = 2 / matrix[1][1];
+            focalLength = 30;
+            horizOffset = - apertureWidth * matrix[3][0] / 2;
+            vertOffset = - apertureHeight * matrix[3][1] / 2;
             mNear = (matrix[3][2] + 1) / matrix[2][2];
             mFar = (matrix[3][2] - 1) / matrix[2][2];
+
         } else {
-            // Aperture width cannot be determined from matrix, read the attribute
+
+            // The projection matrix cannot be used to obtain the aperture,
+            // but once we have the aperture width we can compute the rest
             pxr::VtValue v = sceneDelegate->GetCameraParamValue(id, pxr::HdCameraTokens->horizontalAperture);
             if (v.IsEmpty()) {
-                w = 20.955f; // USD default value (Moonray default is 24.0)
+                apertureWidth = 20.955f; // USD default value (Moonray default is 24.0)
             } else {
-                w = v.Get<float>() * 10; // convert back to value in USD prim, Hydra divided by 10
+                apertureWidth = v.Get<float>() * 10; // convert back to value in USD prim, Hydra divided by 10
                 // HDM-153: Houdini by default measures camera in 1/10 meters. This ran into clamping
                 // issues in Moonray (MOONRAY-4261), and may also mess up fstop (below). Check this
             }
-            h = w * matrix[0][0] / matrix[1][1];
-            fl = w * matrix[0][0] / 2;
-            cx = w * matrix[2][0] / 2;
-            cy = h * matrix[2][1] / 2;
+            apertureHeight = apertureWidth * matrix[0][0] / matrix[1][1];
+            focalLength = apertureWidth * matrix[0][0] / 2;
+            horizOffset = apertureWidth * matrix[2][0] / 2;
+            vertOffset = apertureHeight * matrix[2][1] / 2;
             mNear = matrix[3][2] / (matrix[2][2] - 1);
             mFar = matrix[3][2] / (matrix[2][2] + 1);
         }
 
-        if (mAspectRatio != 0.0) {
-            w = pxr::CameraUtilConformedWindow(pxr::GfVec2d(w, h), GetWindowPolicy(), mAspectRatio)[0];
+        // apertureWidth/apertureHeight gives us the camera aspect ratio.
+        // if necessary, we adjust this based on the requested image aspect ratio (mDesiredAspectRatio)
+        // and the window policy. Note that the RDL camera only specifies apertureWidth, so
+        // it's not clear that all conform options will work
+        pxr::GfVec2d adjustedAperture(apertureWidth, apertureHeight);
+        if (mDesiredAspectRatio != 0.0) {
+            adjustedAperture = pxr::CameraUtilConformedWindow(adjustedAperture, GetWindowPolicy(), mDesiredAspectRatio);
         }
 
-        mCamera->set("film_width_aperture", w);
-        mCamera->setFocalLength(fl);
-        mCamera->set("horizontal_film_offset", cx);
-        mCamera->set("vertical_film_offset", cy * w / h); // MOONRAY-4278, cy units are wrong
+        // according to MOONRAY-4278, vertical offset needs to be adjusted
+        double adjustedAr = adjustedAperture[0]/apertureHeight;
+        vertOffset *= adjustedAr;
+
+        mCamera->set("film_width_aperture", (float)adjustedAperture[0]);
+        mCamera->setFocalLength(focalLength);
+        mCamera->set("horizontal_film_offset", horizOffset);
+        mCamera->set("vertical_film_offset", vertOffset);
         mCamera->setNear(mNear);
         mCamera->setFar(mFar);
         mProjChanged = true;
     }
 
-    if (bits & (DirtyBits::DirtyParams | CamDirtyProj)) {
+    // handles all other params
+    if (bits & (DirtyBits::DirtyParams | pxr::HdCamera::DirtyBits::DirtyParams)) {
+        
         pxr::VtValue v;
+
+        // motion params
         if (mClass == PerspectiveCameraToken || mClass == OrthographicCameraToken) {
             v = sceneDelegate->GetCameraParamValue(id, pxr::HdCameraTokens->fStop);
             const float fStop = v.IsEmpty() ? 0.0f : v.Get<float>();
@@ -269,29 +285,36 @@ Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
         mParamsChanged = true;
     }
 
-    if (bits & DirtyBits::DirtyWindowPolicy) {
-        // The value of GetWindowPolicy() was already updated by HdCamera::Sync()
-    }
-
-    if (bits & DirtyBits::DirtyClipPlanes) {
-        // arbitrary clipping planes, not supported by Moonray
-    }
+    // DirtyBits::DirtyWindowPolicy)
+    //      The value of GetWindowPolicy() was already updated by HdCamera::Sync()
+    // DirtyBits::DirtyClipPlanes) 
+    //      arbitrary clipping planes, not supported by Moonray
 }
 
-// aspectRatio is the shape of the image. This is needed to implement GetWindwowPolicy, it will zoom
-// the camera in/out as necessary because moonray only implments MatchHorizontally policy
+// Set this camera as the camera to use when rendering
+//
+// This code actually maintains a single RDL perspective camera ("primaryCamera"), and sets this camera as
+// active by copying the parameters into "primaryCamera". The original motivation was that changing the
+// scene camera identity interactively doesn't work (see HDM-95). This is now addressed, but there are
+// some open questions about performance and accuracy of these two approaches (see HDM-351)
+// 
+// aspectRatio is the shape of the image. The camera's window policy (GetWindowPolicy)
+// will be used to adjust the camera as needed to match.
 void
 Camera::setAsPrimaryCamera(RenderDelegate& renderDelegate, double aspectRatio)
 {
-    if (aspectRatio != mAspectRatio) {
-        mAspectRatio = aspectRatio;
+    if (aspectRatio != mDesiredAspectRatio) {
+        mDesiredAspectRatio = aspectRatio;
         if (mCamera) {
-            updateCamera(mSceneDelegate, renderDelegate, CamDirtyProj);
+            // will adjusr camera to match mDesiredAspectRatio
+            updateCamera(mSceneDelegate, renderDelegate, pxr::HdCamera::DirtyBits::DirtyParams);
         }
     }
     createCamera(mSceneDelegate, renderDelegate);
 
     scene_rdl2::rdl2::Camera* cameraToUse;
+
+#ifdef DONT_SWITCH_PERSPECTIVE_CAMERA // see HDM-351
     if (mClass == PerspectiveCameraToken) {
         // update single perspective camera in-place
         if (this == pCamera) {
@@ -347,8 +370,10 @@ Camera::setAsPrimaryCamera(RenderDelegate& renderDelegate, double aspectRatio)
             mParamsChanged = false;
         }
 
-    } else {
-        // switch to any other class of camera
+    } else
+
+#endif // DONT_SWITCH_PERSPECTIVE_CAMERA
+    {
         if (this == pCamera) return;
         pCamera = this;
         cameraToUse = mCamera;

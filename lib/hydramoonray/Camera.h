@@ -47,7 +47,11 @@ private:
     std::mutex mCreateMutex;
     float mNear = 1;
     float mFar = 10000;
-    double mAspectRatio = 0;
+
+    // set to aspect ratio of image when camera is selected for rendering
+    // the aperture ratio of the camera may be adjusted to match by updateCamera()
+    double mDesiredAspectRatio = 0;  
+    
     pxr::TfToken mClass; // moonray:class
     mutable bool mXformChanged = true;
     mutable bool mProjChanged = true;
