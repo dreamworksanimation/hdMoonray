@@ -31,7 +31,10 @@ endif()
 target_link_libraries(${component}
     PUBLIC
         HdMoonray::hydramoonray
+        Moonray::rendering_mcrt_common
         Moonray::rendering_rndr
+        SceneRdl2::common_fb_util
+        SceneRdl2::scene_rdl2
         TBB::tbb
         hd   # pxr imaging
         usdImaging

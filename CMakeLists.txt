@@ -14,26 +14,13 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(OMR_Platform)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    include(CTest)
-endif()
-
-# ================================================
-# Options
-# ================================================
-option(${PROJECT_NAME_UPPER}_BUILD_TESTING
-    "Whether or not to build the unittests" YES)
-
-if (NOT DEFINED BOOST_PYTHON_COMPONENT_NAME)
-    # may need to be, e.g. python36, python39
-    set(BOOST_PYTHON_COMPONENT_NAME python)
-endif()
-
-
 # ================================================
 # Find dependencies
 # ================================================
+
 find_package(Python REQUIRED COMPONENTS Interpreter Development)
+
+set(BUILD_SHARED_LIBS ON)
 
 # the DWA installation of pxrConfig.cmake lives in
 # the usd_imaging Rez package. To work correctly, it
@@ -44,11 +31,21 @@ if(NOT pxr_FOUND)
     find_package(pxr REQUIRED)
 endif()
 
+find_package(JPEG REQUIRED)
+find_package(OpenImageIO REQUIRED)
+
 # Our USD config doesn't specify TBB or Boost dependencies,
 # so we need to pull the in explicitly
 find_package(TBB REQUIRED)
+
+if (NOT DEFINED BOOST_PYTHON_COMPONENT_NAME)
+    # may need to be, e.g. python36, python39
+    set(BOOST_PYTHON_COMPONENT_NAME python)
+endif()
+
 set(BUILD_SHARED_LIBS ON)
 find_package(Boost REQUIRED COMPONENTS "${BOOST_PYTHON_COMPONENT_NAME}")
+
 if("${PROJECT_NAME}" STREQUAL "${CMAKE_PROJECT_NAME}")
     find_package(ArrasCore REQUIRED)
     find_package(McrtDataio REQUIRED)
@@ -56,9 +53,6 @@ if("${PROJECT_NAME}" STREQUAL "${CMAKE_PROJECT_NAME}")
     find_package(Moonray REQUIRED)
     find_package(SceneRdl2 REQUIRED)
 endif()
-
-find_package(OpenImageIO REQUIRED)
-find_package(JPEG REQUIRED)
 
 # Set the RPATH for binaries in the install tree
 set(CMAKE_INSTALL_RPATH ${GLOBAL_INSTALL_RPATH})
@@ -122,8 +116,7 @@ write_basic_package_version_file(
     COMPATIBILITY SameMinorVersion
 )
 
-install(
-    FILES
+install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
     DESTINATION
@@ -133,4 +126,6 @@ install(
 install(
     DIRECTORY testSuite
     DESTINATION .
-    USE_SOURCE_PERMISSIONS)
+    USE_SOURCE_PERMISSIONS
+)
+

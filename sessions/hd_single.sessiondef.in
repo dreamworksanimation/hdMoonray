@@ -7,7 +7,7 @@
             }
         },
         "mcrt": {
-            "dso": "libcomputation_progmcrt.so",
+            "dso": "@COMPUTATION_PROGMCRT_LIB@",
             "entry": "yes",
             "fps": 12,
             "imageEncoding": 3,

@@ -33,6 +33,14 @@ struct RefConverter<T,T> { static const T& _(const T& v) { return v; }};
 // cases where the types can be cast in-place
 #define PTRCAST(T,H)                                                     \
     template<> struct RefConverter<T,H> { static const T& _(const H& v) { return reinterpret_cast<const T&>(v); }}
+
+PTRCAST(Bool, bool);
+PTRCAST(Double, double);
+PTRCAST(Float, float);
+PTRCAST(Int, int);
+PTRCAST(Long, long);
+PTRCAST(String, std::string);
+
 PTRCAST(Vec2f, pxr::GfVec2f);
 PTRCAST(Vec2d, pxr::GfVec2d);
 PTRCAST(Vec3f, pxr::GfVec3f);
@@ -46,13 +54,13 @@ PTRCAST(Mat4f, pxr::GfMatrix4f);
 PTRCAST(Mat4d, pxr::GfMatrix4d);
 
 // Token to string
-template<> struct RefConverter<std::string , pxr::TfToken> {
-    static const std::string& _(const pxr::TfToken& v) { return v.GetString(); }
+template<> struct RefConverter<String, pxr::TfToken> {
+    static const String& _(const pxr::TfToken& v) { return v.GetString(); }
 };
 
 // use first entry of vector
-template<> struct RefConverter<float, pxr::GfVec3f> {
-    static const float& _(const pxr::GfVec3f& v) { return v[0]; }
+template<> struct RefConverter<Float, pxr::GfVec3f> {
+    static const Float& _(const pxr::GfVec3f& v) { return v[0]; }
 };
 
 template <typename T, typename H>
@@ -86,10 +94,10 @@ struct Converter<std::vector<T>, pxr::VtArray<H>>
 
 // Rdl2 uses a deque rather than a vector for bool arrays
 template<>
-struct Converter<std::deque<bool>, pxr::VtArray<bool>>
+struct Converter<BoolVector, pxr::VtArray<bool>>
 {
-    static std::deque<bool> _(const pxr::VtArray<bool>& v) {
-        return std::deque<bool>(&v[0], &v[0] + v.size());
+    static BoolVector _(const pxr::VtArray<bool>& v) {
+        return BoolVector(&v[0], &v[0] + v.size());
     }
 };
 
@@ -123,11 +131,11 @@ ValueConverter::setAttribute(SceneObject* sceneObj, const Attribute* attribute, 
     switch(attribute->getType()) {
     case TYPE_BOOL:
         if (val.IsHolding<long>()) {
-            sceneObj->set(AttributeKey<bool>(*attribute), static_cast<bool>(val.UncheckedGet<long>()));
+            sceneObj->set(AttributeKey<Bool>(*attribute), static_cast<bool>(val.UncheckedGet<long>()));
             return;
         }
-        if (_setAttributeRef<bool, bool>(sceneObj, attribute, val)) return;
-        if (_setAttribute<bool, int>(sceneObj, attribute, val)) return; // used by show_specular by Houdini
+        if (_setAttributeRef<Bool, bool>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Bool, int>(sceneObj, attribute, val)) return; // used by show_specular by Houdini
         break;
     case TYPE_INT:
         if (attribute->isEnumerable()) {
@@ -143,7 +151,7 @@ ValueConverter::setAttribute(SceneObject* sceneObj, const Attribute* attribute, 
                 int index = 0;
                 for (auto it = attribute->beginEnumValues(); it != attribute->endEnumValues(); ++it) {
                     if (index == intVal) {
-                        sceneObj->set(AttributeKey<int>(*attribute), it->first);
+                        sceneObj->set(AttributeKey<Int>(*attribute), it->first);
                         return;
                     }
                     ++index;
@@ -163,34 +171,34 @@ ValueConverter::setAttribute(SceneObject* sceneObj, const Attribute* attribute, 
                           ": Invalid enum key '", *key, "'");
             return;
         } else  if (val.IsHolding<long>()) {
-            sceneObj->set(AttributeKey<int>(*attribute), static_cast<int>(val.UncheckedGet<long>()));
+            sceneObj->set(AttributeKey<Int>(*attribute), static_cast<int>(val.UncheckedGet<long>()));
             return;
         } else {
-            if (_setAttributeRef<int, int>(sceneObj, attribute, val)) return;
+            if (_setAttributeRef<Int, int>(sceneObj, attribute, val)) return;
         }
         break;
     case TYPE_LONG:
-        if (_setAttributeRef<long, long>(sceneObj, attribute, val)) return;
+        if (_setAttributeRef<Long, long>(sceneObj, attribute, val)) return;
         break;
     case TYPE_FLOAT:
         if (val.IsHolding<int>()) {
             const float floatVal = static_cast<float>(val.UncheckedGet<int>());
-            sceneObj->set(AttributeKey<float>(*attribute), floatVal);
+            sceneObj->set(AttributeKey<Float>(*attribute), floatVal);
             return;
         } else if (val.IsHolding<long>()) {
             const float floatVal = static_cast<float>(val.UncheckedGet<long>());
-            sceneObj->set(AttributeKey<float>(*attribute), floatVal);
+            sceneObj->set(AttributeKey<Float>(*attribute), floatVal);
             return;
         } else {
-            if (_setAttributeRef<float, float>(sceneObj, attribute, val)) return;
-            if (_setAttribute<float, double>(sceneObj, attribute, val)) return;
+            if (_setAttributeRef<Float, float>(sceneObj, attribute, val)) return;
+            if (_setAttribute<Float, double>(sceneObj, attribute, val)) return;
             // handle incorrect types in Input bindings
-            if (_setAttributeRef<float, pxr::GfVec3f>(sceneObj, attribute, val)) return;
+            if (_setAttributeRef<Float, pxr::GfVec3f>(sceneObj, attribute, val)) return;
         }
         break;
     case TYPE_DOUBLE:
-        if (_setAttributeRef<double, double>(sceneObj, attribute, val)) return;
-        if (_setAttribute<double, float>(sceneObj, attribute, val)) return;
+        if (_setAttributeRef<Double, double>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Double, float>(sceneObj, attribute, val)) return;
         break;
     case TYPE_STRING:
         if (attribute->isFilename() &&
@@ -199,8 +207,8 @@ ValueConverter::setAttribute(SceneObject* sceneObj, const Attribute* attribute, 
             _set(sceneObj, attribute, assetPath.GetResolvedPath());
             return;
         }
-        if (_setAttributeRef<std::string, std::string>(sceneObj, attribute, val)) return;
-        if (_setAttributeRef<std::string, pxr::TfToken>(sceneObj, attribute, val)) return;
+        if (_setAttributeRef<String, std::string>(sceneObj, attribute, val)) return;
+        if (_setAttributeRef<String, pxr::TfToken>(sceneObj, attribute, val)) return;
         break;
     case TYPE_RGB:
         if (_setAttributeRef<Rgb, pxr::GfVec3f>(sceneObj, attribute, val)) return;
@@ -238,52 +246,52 @@ ValueConverter::setAttribute(SceneObject* sceneObj, const Attribute* attribute, 
         // not supported yet
         break;
     case TYPE_BOOL_VECTOR:
-        if (_setAttribute<std::deque<bool>, pxr::VtArray<bool>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<BoolVector, pxr::VtArray<bool>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_INT_VECTOR:
-        if (_setAttribute<std::vector<int>, pxr::VtArray<int>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<IntVector, pxr::VtArray<int>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_LONG_VECTOR:
-        if (_setAttribute<std::vector<long>, pxr::VtArray<long>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<LongVector, pxr::VtArray<long>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_FLOAT_VECTOR:
-        if (_setAttribute<std::vector<float>, pxr::VtArray<float>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<FloatVector, pxr::VtArray<float>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_DOUBLE_VECTOR:
-        if (_setAttribute<std::vector<double>, pxr::VtArray<double>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<DoubleVector, pxr::VtArray<double>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_STRING_VECTOR:
-        if (_setAttribute<std::vector<std::string>, pxr::VtArray<std::string>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<StringVector, pxr::VtArray<std::string>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_RGB_VECTOR:
-        if (_setAttribute<std::vector<Rgb>, pxr::VtArray<pxr::GfVec3f>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<RgbVector, pxr::VtArray<pxr::GfVec3f>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_RGBA_VECTOR:
-        if (_setAttribute<std::vector<Rgba>, pxr::VtArray<pxr::GfVec4f>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<RgbaVector, pxr::VtArray<pxr::GfVec4f>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_VEC2F_VECTOR:
-        if (_setAttribute<std::vector<Vec2f>, pxr::VtArray<pxr::GfVec2f>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Vec2fVector, pxr::VtArray<pxr::GfVec2f>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_VEC2D_VECTOR:
-        if (_setAttribute<std::vector<Vec2d>, pxr::VtArray<pxr::GfVec2d>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Vec2dVector, pxr::VtArray<pxr::GfVec2d>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_VEC3F_VECTOR:
-        if (_setAttribute<std::vector<Vec3f>, pxr::VtArray<pxr::GfVec3f>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Vec3fVector, pxr::VtArray<pxr::GfVec3f>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_VEC3D_VECTOR:
-        if (_setAttribute<std::vector<Vec3d>, pxr::VtArray<pxr::GfVec3d>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Vec3dVector, pxr::VtArray<pxr::GfVec3d>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_VEC4F_VECTOR:
-        if (_setAttribute<std::vector<Vec4f>, pxr::VtArray<pxr::GfVec4f>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Vec4fVector, pxr::VtArray<pxr::GfVec4f>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_VEC4D_VECTOR:
-        if (_setAttribute<std::vector<Vec4d>, pxr::VtArray<pxr::GfVec4d>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Vec4dVector, pxr::VtArray<pxr::GfVec4d>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_MAT4F_VECTOR:
-        if (_setAttribute<std::vector<Mat4f>, pxr::VtArray<pxr::GfMatrix4f>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Mat4fVector, pxr::VtArray<pxr::GfMatrix4f>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_MAT4D_VECTOR:
-        if (_setAttribute<std::vector<Mat4d>, pxr::VtArray<pxr::GfMatrix4d>>(sceneObj, attribute, val)) return;
+        if (_setAttribute<Mat4dVector, pxr::VtArray<pxr::GfMatrix4d>>(sceneObj, attribute, val)) return;
         break;
     case TYPE_SCENE_OBJECT_VECTOR:
     case TYPE_SCENE_OBJECT_INDEXABLE:

@@ -72,6 +72,8 @@ endif()
 target_link_libraries(${component}
     PUBLIC
         SceneRdl2::common_except
+        SceneRdl2::common_fb_util
+        SceneRdl2::common_math
         SceneRdl2::render_logging
         SceneRdl2::scene_rdl2
         TBB::tbb
