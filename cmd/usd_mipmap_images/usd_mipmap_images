@@ -39,7 +39,7 @@ def isMipMappedAndTiled(filename):
         decodedOutput = output.decode('utf-8')
         return (decodedOutput.find("MIP-map levels:")!=-1) and (decodedOutput.find("tile size:")!=-1)
 
-def isMipMappedAndTilesCached(filename):
+def isMipMappedAndTiledCached(filename):
     global mipmapCache
 
     entry = mipmapCache.get(filename)
