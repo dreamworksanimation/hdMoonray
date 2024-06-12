@@ -34,6 +34,16 @@ const pxr::TfToken OrthographicCameraToken("OrthographicCamera");
 
 const hdMoonray::Camera* pCamera = nullptr; // used to detect if camera changed, assume only one global one
 
+// in 2203 DirtyBits::DirtyParams replaced deprecated DirtyProjMatrix
+// and DirtyTransform replaced depr DirtyViewMatrix
+#if PXR_VERSION >= 2203
+const pxr::HdCamera::DirtyBits CamDirtyProj = pxr::HdCamera::DirtyBits::DirtyParams;
+const pxr::HdCamera::DirtyBits CamDirtyView = pxr::HdCamera::DirtyBits::DirtyTransform;
+#else
+const pxr::HdCamera::DirtyBits CamDirtyProj = pxr::HdCamera::DirtyBits::DirtyProjMatrix;
+const pxr::HdCamera::DirtyBits CamDirtyView = pxr::HdCamera::DirtyBits::DirtyViewMatrix;
+#endif
+
 }
 
 namespace hdMoonray {
@@ -74,7 +84,13 @@ Camera::Sync(pxr::HdSceneDelegate* sceneDelegate,
         if (v.IsHolding<pxr::TfToken>()) {
             newClass = v.UncheckedGet<pxr::TfToken>();
         } else {
+
+#if PXR_VERSION >= 2203
+// in 2203, GetProjectionMatrix() was renamed ComputeProjectionMatrix()
             const auto& matrix = ComputeProjectionMatrix();
+#else
+            const auto& matrix = GetProjectionMatrix();
+#endif
             if (matrix[2][3] == 0) {
                 newClass = OrthographicCameraToken;
             } else {
@@ -131,13 +147,18 @@ Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
     UpdateGuard guard(renderDelegate, mCamera);
 
     // update the inverse view matrix (in RDL this is node_xform)
-    if (bits & pxr::HdCamera::DirtyBits::DirtyTransform) {
+    if (bits & CamDirtyView) {
         pxr::HdTimeSampleArray<pxr::GfMatrix4d, 4> sampledXforms;
         sceneDelegate->SampleTransform(id, &sampledXforms);
         
         if (sampledXforms.count <= 1) {
             // if there's only one sample, it should match the cached value
+#if PXR_VERSION >= 2203
+            // in 2203, GetViewInverseMatrix was removed, having been previously deprecated
             const pxr::GfMatrix4d xform(GetTransform());
+#else
+            const pxr::GfMatrix4d xform(GetViewInverseMatrix());
+#endif
             mCamera->set(mCamera->sNodeXformKey, reinterpret_cast<const scene_rdl2::rdl2::Mat4d&>(xform));        
         } else {
             // first and last samples will be sample interval boundaries
@@ -161,7 +182,7 @@ Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
     // of the camera aperture.
     // Note (rwilson) : I'm not sure why the code gets the parameters in this roundabout way,
     // rather that querying them directly, but presumably there was some reason...
-    if ((bits & pxr::HdCamera::DirtyBits::DirtyParams) &&
+    if ((bits & CamDirtyProj) &&
         (mClass == PerspectiveCameraToken || mClass == OrthographicCameraToken)) {
         
         // we compute the following values from attributes and the projection matrix
@@ -169,8 +190,12 @@ Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
         float apertureWidth, apertureHeight;
         float horizOffset, vertOffset;
         float focalLength;
-
+#if PXR_VERSION >= 2203
+// in 2203, GetProjectionMatrix() was renamed ComputeProjectionMatrix()
         const auto& matrix = ComputeProjectionMatrix();
+#else
+        const auto& matrix = GetProjectionMatrix();
+#endif
 
         if (mClass == OrthographicCameraToken) {
 
@@ -225,7 +250,7 @@ Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
     }
 
     // handles all other params
-    if (bits & (DirtyBits::DirtyParams | pxr::HdCamera::DirtyBits::DirtyParams)) {
+    if (bits & (DirtyBits::DirtyParams | CamDirtyProj)) {
         
         pxr::VtValue v;
 
