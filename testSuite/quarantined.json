@@ -35,6 +35,18 @@
                 "vectorized-hq": {
                 }
             }
+        },
+        "tank": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
         }
     },
     "unsupportedTests": {
@@ -63,6 +75,18 @@
             }
         },
         "cobalt": {
+            "AVX": {
+                "scalar": {
+                },
+                "scalar-hq": {
+                },
+                "vectorized": {
+                },
+                "vectorized-hq": {
+                }
+            }
+        },
+        "tank": {
             "AVX": {
                 "scalar": {
                 },
