@@ -40,16 +40,16 @@ namespace hdMoonray {
 
 using scene_rdl2::logging::Logger;
 
-void 
+void
 RenderSettings::addDescriptors(HdRenderSettingDescriptorList& descriptorList) const
 {
     static HdRenderSettingDescriptorList descriptors = {
-       
+
         { "Show Debug Messages",  Tokens->debug,               VtValue(getEnv("HDMOONRAY_DEBUG", false)) },
-        { "Show Info Messages",   Tokens->info,                VtValue(getEnv("HDMOONRAY_INFO", false)) },       
+        { "Show Info Messages",   Tokens->info,                VtValue(getEnv("HDMOONRAY_INFO", false)) },
         { "Rdla output",          Tokens->rdlOutput,           VtValue(getEnv("HDMOONRAY_RDLA_OUTPUT","")) },
         { "Disable Lighting",     Tokens->disableLighting,     VtValue(getEnv("HDMOONRAY_DISABLE_LIGHTING", false)) },
-        { "DoubleSided",          Tokens->doubleSided,         VtValue(getEnv("HDMOONRAY_DOUBLESIDED", false)) },       
+        { "DoubleSided",          Tokens->doubleSided,         VtValue(getEnv("HDMOONRAY_DOUBLESIDED", false)) },
         { "Decode Normals",       Tokens->decodeNormals,       VtValue(getEnv("HDMOONRAY_DOUBLESIDED", false)) },
         { "Enable Motion Blur",   Tokens->enableMotionBlur,    VtValue(getEnv("HDMOONRAY_ENABLE_MOTION_BLUR", true)) },
         { "Prune Willow",         Tokens->pruneWillow,         VtValue(getEnv("HDMOONRAY_PRUNE_WILLOW", false)) },
@@ -64,7 +64,7 @@ RenderSettings::addDescriptors(HdRenderSettingDescriptorList& descriptorList) co
         descriptorList.push_back(desc);
     }
 }
-VtValue 
+VtValue
 RenderSettings::getRenderSetting(const TfToken& key) const
 {
     return mDelegate.GetRenderSetting(key);
@@ -87,7 +87,7 @@ void RenderSettings::apply()
     mDelegate.setIsHoudini(not val.IsEmpty());
 
     // ---------------------------------------------------------------------------------
-    // support render settings "sceneVariable:<name>" and "sceneVariable_<name>" for any
+    // support render settings "moonray:sceneVariable:<name>" and "moonray:sceneVariable_<name>" for any
     // scene variable. The second form is used in the Houdini .ds file because it
     // doesn't like the colon character.
 
@@ -97,7 +97,7 @@ void RenderSettings::apply()
     };
 
     scene_rdl2::rdl2::SceneVariables& sv = mDelegate.acquireSceneContext().getSceneVariables();
-    {   
+    {
         UpdateGuard guard(sv);
         const SceneClass& sceneClass = sv.getSceneClass();
         for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
@@ -105,7 +105,7 @@ void RenderSettings::apply()
             const std::string& attrName = (*it)->getName();
             if (sDontWrite.count(attrName)) continue;
 
-            TfToken key = TfToken("sceneVariable:" + attrName);
+            TfToken key = TfToken("moonray:sceneVariable:" + attrName);
             VtValue val = mDelegate.GetRenderSetting(key);
             if (not val.IsEmpty()) {
                 ValueConverter::setAttribute(&sv, *it, val);
@@ -114,7 +114,7 @@ void RenderSettings::apply()
                 val = mDelegate.GetRenderSetting(key);
                 if (not val.IsEmpty()) {
                     ValueConverter::setAttribute(&sv, *it, val);
-                } 
+                }
             }
         }
 

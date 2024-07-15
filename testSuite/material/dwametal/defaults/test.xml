@@ -6,7 +6,7 @@
     <commands>
       <command>
         <executable>hd_render</executable>
-        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -size 600 500 -set 'sceneVariable:pixel_samples' 2 -set 'sceneVariable:light_samples' 2 -set 'sceneVariable:bsdf_samples' 3 -set 'sceneVariable:max_depth' 3</args>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -size 600 500 -set 'moonray:sceneVariable:pixel_samples' 2 -set 'moonray:sceneVariable:light_samples' 2 -set 'moonray:sceneVariable:bsdf_samples' 3 -set 'moonray:sceneVariable:max_depth' 3</args>
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>

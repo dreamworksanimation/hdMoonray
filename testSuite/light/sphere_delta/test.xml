@@ -6,7 +6,7 @@
     <commands>
       <command>
         <executable>hd_render</executable>
-        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -camera camera -size 960 540 -set executionMode vectorized -set 'sceneVariable:pixel_samples' 2 -set 'sceneVariable:max_depth' 0 -delta_in ${shot_dir}/delta.usd -delta_out ${result0} -set doubleSided 0</args>
+        <args>-in ${shot_dir}/scene.usd -out ${result} ${args} -res ${res} -camera camera -size 960 540 -set executionMode vectorized -set 'moonray:sceneVariable:pixel_samples' 2 -set 'moonray:sceneVariable:max_depth' 0 -delta_in ${shot_dir}/delta.usd -delta_out ${result0} -set doubleSided 0</args>
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>

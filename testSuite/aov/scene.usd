@@ -149,15 +149,15 @@ def Scope "Render"
         float pixelAspectRatio = 1
         rel products = </Render/Products/aov_test>
         int2 resolution = (500, 500)
-        custom bool sceneVariable:enable_dof = 0
-        custom int sceneVariable:max_adaptive_samples = 1024
-        custom int sceneVariable:max_depth = 0
-        custom int sceneVariable:max_diffuse_depth = 1
-        custom int sceneVariable:max_glossy_depth = 2
-        custom int sceneVariable:max_hair_depth = 2
-        custom int sceneVariable:min_adaptive_samples = 4
-        custom int sceneVariable:pixel_samples = 2
-        custom int sceneVariable:light_samples = 1
-        custom int sceneVariable:bsdf_samples = 1
+        custom bool moonray:sceneVariable:enable_dof = 0
+        custom int moonray:sceneVariable:max_adaptive_samples = 1024
+        custom int moonray:sceneVariable:max_depth = 0
+        custom int moonray:sceneVariable:max_diffuse_depth = 1
+        custom int moonray:sceneVariable:max_glossy_depth = 2
+        custom int moonray:sceneVariable:max_hair_depth = 2
+        custom int moonray:sceneVariable:min_adaptive_samples = 4
+        custom int moonray:sceneVariable:pixel_samples = 2
+        custom int moonray:sceneVariable:light_samples = 1
+        custom int moonray:sceneVariable:bsdf_samples = 1
     }
 }
