@@ -5,6 +5,7 @@
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
 #include "Material.h"
+#include "Camera.h"
 #include "HdmLog.h"
 
 #include <pxr/imaging/hd/sceneDelegate.h>
@@ -56,11 +57,17 @@ LightFilter::syncParams(const pxr::SdfPath& id,
          it != sceneClass.endAttributes(); ++it) {
 
         const std::string& attrName = (*it)->getName();
-        std::string moonrayName = "moonray:"+attrName;
-        if (attrName == "texture_map") {
-            syncTexture(attrName, id, sceneDelegate, renderDelegate);
+        if (attrName == "node_xform") {
+            syncXform(id, sceneDelegate);
+        } else if (attrName == "projector") {
+            syncProjector(id,sceneDelegate, renderDelegate);
+        } else if (attrName == "texture_map") {
+            syncTextureMap(id, sceneDelegate, renderDelegate);
+        } else  if (attrName == "light_filters") {
+            syncCombineFilters(id, sceneDelegate, renderDelegate);
         } else {
-            pxr::VtValue val = sceneDelegate->GetLightParamValue(id, pxr::TfToken(moonrayName));
+            pxr::TfToken moonrayName("moonray:" + attrName);
+            pxr::VtValue val = sceneDelegate->GetLightParamValue(id, moonrayName);
             if (val.IsEmpty()) {
                 ValueConverter::setDefault(mLightFilter, *it);
             } else {
@@ -71,14 +78,95 @@ LightFilter::syncParams(const pxr::SdfPath& id,
 }
 
 void
-LightFilter::syncTexture(const std::string& attrName,
-                         const pxr::SdfPath& id,
+LightFilter::syncProjector(const pxr::SdfPath& id,
                          pxr::HdSceneDelegate *sceneDelegate,
-                         RenderDelegate& renderDelegate){
+                         RenderDelegate& renderDelegate) 
+{
+    // sync the "projector" attribute of Cookie light filters,
+    // which is authored as a "rel" to a camera. Note that this
+    // requires the custom MoonrayLightFilterAdapter to work
+    static pxr::TfToken projectorToken("moonray:projector");
+    pxr::VtValue val = sceneDelegate->Get(id, projectorToken); // supplied by adapter
+    if (val.IsHolding<pxr::SdfPath>()) {
+        pxr::SdfPath path = val.UncheckedGet<pxr::SdfPath>();
+        path.ReplacePrefix(pxr::SdfPath::AbsoluteRootPath(), sceneDelegate->GetDelegateID());
+        SceneObject* so = hdMoonray::Camera::createCamera(sceneDelegate, renderDelegate, path);
+        mLightFilter->set("projector", so);
+        if (not so) {
+            Logger::error(GetId(), ".moonray:projector: ", path, " not found");
+        }
+    } else if (not val.IsEmpty()) {
+        Logger::error(GetId(), ".moonray:projector: must be a path");
+    }
+}
 
-    std::string moonrayName = "moonray:"+attrName;
+void
+LightFilter::syncXform(const pxr::SdfPath& id,
+                       pxr::HdSceneDelegate *sceneDelegate)
+{
+    // some light filters (e.g. Rod) have a blurrable node_xform attr
+    // (although not actually inherited from Node, so don't use Node's attribute key)
+    // Do not call this function without first verifying that the
+    // light filter has an attribute called "node_xform"
+    pxr::HdTimeSampleArray<pxr::GfMatrix4d, 4> sampledXforms;
+    sceneDelegate->SampleTransform(id, &sampledXforms);
+    // if there's only one sample, it should match the cached value
+    if (sampledXforms.count <= 1) {
+        scene_rdl2::rdl2::Mat4d rdl2Xform0 =
+            reinterpret_cast<scene_rdl2::rdl2::Mat4d&>(sampledXforms.values[0]);
+        mLightFilter->set("node_xform", rdl2Xform0);
+    } else {
+        // first and last samples will be sample interval boundaries
+        scene_rdl2::rdl2::Mat4d rdl2Xform0 =
+            reinterpret_cast<scene_rdl2::rdl2::Mat4d&>(sampledXforms.values[0]);
+        mLightFilter->set("node_xform", rdl2Xform0);
+        scene_rdl2::rdl2::Mat4d rdl2Xform1 =
+            reinterpret_cast<scene_rdl2::rdl2::Mat4d&>(sampledXforms.values[sampledXforms.count-1]);
+        mLightFilter->set("node_xform", rdl2Xform1, scene_rdl2::rdl2::TIMESTEP_END);
+   }
+}
+
+void
+LightFilter::syncCombineFilters(const pxr::SdfPath& id,
+                                pxr::HdSceneDelegate *sceneDelegate,
+                                RenderDelegate& renderDelegate)
+{
+    // sync the "light_filters" attribute of Combine light filters,
+    // which is authored as "rel"s to light filters. Note that this
+    // requires the custom MoonrayLightFilterAdapter to work
+    static pxr::TfToken filtersToken("moonray:light_filters");
+    pxr::VtValue val = sceneDelegate->Get(id, filtersToken); // supplied by adapter
+    if (val.IsHolding<pxr::SdfPathVector>()) {
+        scene_rdl2::rdl2::SceneObjectVector rdlObjects;
+        pxr::SdfPathVector pathVec = val.UncheckedGet<pxr::SdfPathVector>();
+        for (const pxr::SdfPath& cpath : pathVec) {
+            pxr::SdfPath path(cpath);
+            path.ReplacePrefix(pxr::SdfPath::AbsoluteRootPath(), sceneDelegate->GetDelegateID());
+            SceneObject* so = LightFilter::getFilter(sceneDelegate, renderDelegate, path);
+            if (so) {
+                rdlObjects.push_back(so);
+            } else {
+                Logger::error(GetId(), ".moonray:light_filters: ", path, " not found");
+            }
+        }
+        mLightFilter->set("light_filters", rdlObjects);
+    } else if (not val.IsEmpty()) {
+        Logger::error(GetId(), ".moonray:light_filters: must be a list of paths");
+    }
+}
+
+void
+LightFilter::syncTextureMap(const pxr::SdfPath& id,
+                            pxr::HdSceneDelegate *sceneDelegate,
+                            RenderDelegate& renderDelegate)
+{
+
+    const std::string moonrayName = "moonray:texture_map";
     scene_rdl2::rdl2::SceneObject* shader = nullptr;
     pxr::VtValue hdMatVal = sceneDelegate->GetMaterialResource(id);
+    if (!hdMatVal.IsHolding<pxr::HdMaterialNetworkMap>()) {
+        return;
+    }
     const pxr::HdMaterialNetworkMap& networkmap = hdMatVal.UncheckedGet<pxr::HdMaterialNetworkMap>();
     pxr::SdfPath inputId;
     for (auto const& iter : networkmap.map) {
@@ -91,18 +179,22 @@ LightFilter::syncTexture(const std::string& attrName,
         }
         if (inputId.IsEmpty())
             continue;
+
         // found the connected network, import all the shader nodes
         // and set the connected one
         for (const pxr::HdMaterialNode & node : network.nodes) {
-            if (node.identifier == "MoonrayLightFilter")
+            // we have to skip the actual light filter node
+            if (node.identifier == "MoonrayLightFilter" || 
+                node.path == id) {
                 continue;
+            }
             const std::string nodeName = node.path.GetString();
             shader = makeMoonrayShader(renderDelegate, sceneDelegate, node, nodeName, nullptr);
             if (!shader) {
                 continue;
             }
             if (node.path == inputId){
-                mLightFilter->set(attrName, shader);
+                mLightFilter->set("texture_map", shader);
             }
         }
     }
@@ -146,7 +238,6 @@ LightFilter::Sync(pxr::HdSceneDelegate *sceneDelegate,
 {
     pxr::SdfPath id = GetId();
     hdmLogSyncStart("LightFilter", id, dirtyBits);
-
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
     getOrCreateFilter(sceneDelegate,renderDelegate,id);

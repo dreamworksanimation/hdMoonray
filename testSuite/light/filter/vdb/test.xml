@@ -1,12 +1,12 @@
 <testsuite>
   <testcase owner="Rob Wilson">
     <description>
-    Hydra test of decay light filter
+    Hydra test of vdb light filter
     </description>
     <commands>
       <command>
         <executable>hd_render</executable>
-        <args>-in ${shot_dir}/decay.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -set 'moonray:sceneVariable:pixel_samples' 3 -set 'moonray:sceneVariable:max_depth' 3 -set doubleSided 0</args>
+        <args>-in ${shot_dir}/vdb.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -set 'moonray:sceneVariable:pixel_samples' 3 -set 'moonray:sceneVariable:max_depth' 3 -set doubleSided 0</args>
       </command>
       <command>
 	<executable>${oiiotool_path}oiiotool</executable>

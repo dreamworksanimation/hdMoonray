@@ -8,20 +8,14 @@
 
 #include "pxr/imaging/hd/tokens.h"
 
+
+
 PXR_NAMESPACE_OPEN_SCOPE
 
-
 namespace {
-    TfToken textureToken("moonray:texture_map");
+    TfToken cookie_projector_token("moonray:projector");
+    TfToken combine_filters_token("moonray:light_filters");
 }
-
-
-#if PXR_VERSION >= 2005
-# define lightFilterToken (HdPrimTypeTokens->lightFilter)
-#else
-static TfToken lightFilterToken("lightFilter");
-#endif
-
 
 TF_REGISTRY_FUNCTION(TfType)
 {
@@ -33,59 +27,36 @@ TF_REGISTRY_FUNCTION(TfType)
 MoonrayLightFilterAdapter::~MoonrayLightFilterAdapter()
 {
 }
-#if PXR_VERSION >= 2011
+
 VtValue
 MoonrayLightFilterAdapter::Get(
     UsdPrim const& prim,
     SdfPath const& cachePath,
     TfToken const &key,
-    UsdTimeCode time
-#if PXR_VERSION >= 2105
-    , VtIntArray* outIndices
-#endif
-) const
+    UsdTimeCode time, 
+    VtIntArray* outIndices) const
 {
-    if (key == textureToken) {
-        UsdProperty prop = prim.GetProperty(textureToken);
+    // we need to provide access to "rel" properties on the prim, since
+    // the standard "Get" doesn't see them
+    if (key == cookie_projector_token) {
+        UsdProperty prop = prim.GetProperty(key);
         if (UsdRelationship rel = prop.As<UsdRelationship>()) {
-            // return the first target of "rel texture_map" as SdfPath
             SdfPathVector targets;
             if (rel.GetForwardedTargets(&targets) && !targets.empty()) {
                 return VtValue(targets.front());
             }
         }
+    } else if (key == combine_filters_token) {
+        UsdProperty prop = prim.GetProperty(key);
+        if (UsdRelationship rel = prop.As<UsdRelationship>()) {
+            SdfPathVector targets;
+            if (rel.GetForwardedTargets(&targets) && !targets.empty()) {
+                return VtValue(targets);
+            }
+        }
     }
-    return BaseAdapter::Get(prim, cachePath, key, time
-#if PXR_VERSION >= 2105
-                            , outIndices
-#endif
-);
-}
-#endif
-
-#if PXR_VERSION < 2105
-bool
-MoonrayLightFilterAdapter::IsSupported(
-        UsdImagingIndexProxy const* index) const
-{
-    return index->IsSprimTypeSupported(lightFilterToken);
+    return BaseAdapter::Get(prim, cachePath, key, time, outIndices);
 }
 
-SdfPath
-MoonrayLightFilterAdapter::Populate(UsdPrim const& prim,
-                                    UsdImagingIndexProxy* index,
-                                    UsdImagingInstancerContext const* instancerContext)
-{
-    index->InsertSprim(lightFilterToken, prim.GetPath(), prim);
-    HD_PERF_COUNTER_INCR(lightFilterToken);
-    return prim.GetPath();
-}
 
-void
-MoonrayLightFilterAdapter::_RemovePrim(SdfPath const& cachePath,
-                                       UsdImagingIndexProxy* index)
-{
-    index->RemoveSprim(lightFilterToken, cachePath);
-}
-#endif
 PXR_NAMESPACE_CLOSE_SCOPE

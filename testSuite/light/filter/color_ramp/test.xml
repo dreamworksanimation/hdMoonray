@@ -1,0 +1,23 @@
+<testsuite>
+  <testcase owner="Rob Wilson">
+    <description>
+    Hydra test of color_ramp light filter
+    </description>
+    <commands>
+      <command>
+        <executable>hd_render</executable>
+        <args>-in ${shot_dir}/color_ramp.usd -out ${result} ${args} -res ${res} -renderer Moonray -camera camera -set 'moonray:sceneVariable:pixel_samples' 3 -set 'moonray:sceneVariable:max_depth' 3 -set doubleSided 0</args>
+      </command>
+      <command>
+	<executable>${oiiotool_path}oiiotool</executable>
+	<args>${shot_tmp_dir}/${result} ${shot_tmp_dir}/${canonical} -a --warn ${error_threshold} --fail 0.04 --failpercent 0.1 --diff --absdiff -o ${shot_tmp_dir}/${diff}</args>
+      </command>
+    </commands>
+    <variables>
+      <variable>
+        <name>error_threshold</name>
+        <value>0.01</value>
+      </variable>
+    </variables>
+  </testcase>
+</testsuite>

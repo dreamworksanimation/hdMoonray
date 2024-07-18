@@ -46,10 +46,18 @@ private:
     void syncParams(const pxr::SdfPath& id,
                     pxr::HdSceneDelegate *sceneDelegate,
                     RenderDelegate& renderDelegate);
-    void syncTexture(const std::string& attrName,
-                    const pxr::SdfPath& id,
-                    pxr::HdSceneDelegate *sceneDelegate,
-                    RenderDelegate& renderDelegate);
+    void syncXform(const pxr::SdfPath& id,
+                    pxr::HdSceneDelegate *sceneDelegate);
+    void syncTextureMap(const pxr::SdfPath& id,
+                        pxr::HdSceneDelegate *sceneDelegate,
+                        RenderDelegate& renderDelegate);
+    void syncProjector(const pxr::SdfPath& id,
+                        pxr::HdSceneDelegate *sceneDelegate,
+                        RenderDelegate& renderDelegate); 
+    void syncCombineFilters(const pxr::SdfPath& id,
+                            pxr::HdSceneDelegate *sceneDelegate,
+                            RenderDelegate& renderDelegate);
+                            
     scene_rdl2::rdl2::LightFilter* getOrCreateFilter(pxr::HdSceneDelegate *sceneDelegate,
                                                 RenderDelegate& renderDelegate,
                                                const pxr::SdfPath& filterId);
