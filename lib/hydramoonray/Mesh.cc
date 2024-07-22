@@ -6,12 +6,14 @@
 #include "Material.h"
 
 #include "HdmLog.h"
+#include "MurmurHash3.h"
 
 #include <pxr/base/gf/vec2f.h>
 #include <pxr/imaging/hd/meshUtil.h>
 #include <pxr/imaging/pxOsd/tokens.h>
 
 #include <scene_rdl2/scene/rdl2/Geometry.h>
+#include <scene_rdl2/scene/rdl2/UserData.h>
 
 #include <iostream>
 
@@ -126,10 +128,10 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
            pxr::HdDirtyBits     *dirtyBits,
            pxr::TfToken const   &reprToken)
 {
-    
+
     const pxr::SdfPath& id = GetId();
     hdmLogSyncStart("Mesh", id, dirtyBits);
-    
+
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
     if (pxr::HdChangeTracker::IsVisibilityDirty(*dirtyBits, id)) {
@@ -144,6 +146,7 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
         return; // ignore errors and invisible objects
     }
 
+    bool userDataSetChanged = false;
     {   UpdateGuard guard(renderDelegate, geometry());
         setCommonAttributes(sceneDelegate, renderDelegate, dirtyBits, dirtyPrimvars);
 
@@ -194,7 +197,13 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
                 }
                 geometry()->set("part_face_count_list", partFaceCountList);
                 geometry()->set("part_face_indices", partFaceIndices);
-                geometry()->set("part_list", partList);
+                if (!partList.empty()){
+                    geometry()->set("part_list", partList);
+                }
+
+                //update cryptomatte
+                updateCryptomatte(renderDelegate);
+                userDataSetChanged = true;
             }
 
             if (_GetReprDesc(reprToken)[0].flatShadingEnabled) {
@@ -356,8 +365,7 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
             }
         }
     }
-
-    updatePrimvars(dirtyPrimvars, renderDelegate);
+    updatePrimvars(dirtyPrimvars, renderDelegate, userDataSetChanged);
 
 #if PXR_VERSION >= 2102
     _UpdateInstancer(sceneDelegate, dirtyBits);
@@ -374,6 +382,40 @@ Mesh::Sync(pxr::HdSceneDelegate *sceneDelegate,
     // update due to them until another dirty bit is also turned on.
     *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
     hdmLogSyncEnd(id);
+}
+
+void
+Mesh::updateCryptomatte(RenderDelegate& renderDelegate)
+{
+    if (!renderDelegate.getDisableRender()) return;
+    std::string idName = renderDelegate.getDeepIdAttrName();
+    if (idName.empty()) return;
+
+    std::string prim_id = geometry()->getName() + ".primvars:" + idName;
+
+    scene_rdl2::rdl2::UserData* cryptoId =
+            renderDelegate.createSceneObject("UserData", prim_id)->asA<scene_rdl2::rdl2::UserData>();
+    {
+        UpdateGuard guard(cryptoId);
+        if (!partList.empty()){
+            scene_rdl2::rdl2::FloatVector data;
+            data.reserve(partList.size());
+
+            for (auto& part: partList){
+                //std::cout << "part: "<<part << part.c_str() <<  std::endl;
+                data.emplace_back(MurmurHash3_to_float(part.c_str()));
+            }
+            cryptoId->setFloatData(idName, data);
+
+        } else {
+            scene_rdl2::rdl2::FloatVector data(1);
+            //std::cout << "mesh: " << geometry()->getName() <<std::endl;
+            data[0]=MurmurHash3_to_float(geometry()->getName().c_str());
+            cryptoId->setFloatData(idName, data);
+
+        }
+        updateUserData(pxr::TfToken("primvars:"+idName), cryptoId);
+    }
 }
 
 }

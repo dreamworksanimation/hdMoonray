@@ -74,7 +74,6 @@ lookup(pxr::TfToken const& name) {
         {pxr::TfToken("wireframe"), {pxr::HdFormatFloat32Vec3, RO::RESULT_WIREFRAME}}, // crashes
         {pxr::TfToken("weight"), {pxr::HdFormatFloat32, RO::RESULT_WEIGHT}},
         {pxr::TfToken("beauty_aux"), {pxr::HdFormatFloat32Vec3, RO::RESULT_BEAUTY_AUX}},
-        {pxr::TfToken("cryptomatte"), {pxr::HdFormatFloat32Vec3, RO::RESULT_CRYPTOMATTE}},
         {pxr::TfToken("alpha_aux"), {pxr::HdFormatFloat32, RO::RESULT_ALPHA_AUX}},
         {pxr::TfToken("P"), {pxr::HdFormatFloat32Vec3, RO::STATE_VARIABLE_P}},
         {pxr::TfToken("Ng"), {pxr::HdFormatFloat32Vec3, RO::STATE_VARIABLE_NG}},
@@ -165,7 +164,7 @@ RenderBuffer::Sync(pxr::HdSceneDelegate* sceneDelegate,
 {
     const pxr::SdfPath& id = GetId();
     hdmLogSyncStart("RenderBuffer", id, dirtyBits);
-   
+
     mRenderDelegate = &RenderDelegate::get(renderParam);
     pxr::HdRenderBuffer::Sync(sceneDelegate, renderParam, dirtyBits); // this calls Allocate()
     hdmLogSyncEnd(id);
@@ -217,7 +216,7 @@ void
 RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* camera)
 {
     hdmLogRenderBuffer("Bind", GetId());
-    
+
     mAovName = aovBinding.aovName;
     mNear = camera->getNear();
     mFar = camera->getFar();
@@ -241,8 +240,63 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
         // special case Color if it is 4 channels by using dummy RenderOutput
         mRenderOutput = nullptr;
 
-    } else {
+    } else if (mAovName == pxr::TfToken("cryptomatte")) {
+        //Add dummy render output first
+        std::string idName = mRenderDelegate->getDeepIdAttrName();
+        if (idName.empty()) return;
+        scene_rdl2::rdl2::SceneObject* dummyObject =
+            mRenderDelegate->createSceneObject("RenderOutput", "dummy0");
+        if (not dummyObject) return;
 
+        scene_rdl2::rdl2::RenderOutput* mDummyRenderOutput =
+            dummyObject->asA<scene_rdl2::rdl2::RenderOutput>();
+        auto& dro(*mDummyRenderOutput);
+        {   UpdateGuard guard(dro);
+            dro.setActive(true);
+            dro.setResult(RO::RESULT_PRIMITIVE_ATTRIBUTE);
+            dro.setPrimitiveAttribute(idName);
+            dro.setFileName("ignore_this_file");
+        }
+        //Add cryptomatte render output first
+        scene_rdl2::rdl2::SceneObject* object =
+            mRenderDelegate->createSceneObject("RenderOutput", "cryptomatte");
+        if (not object) return;
+        mRenderOutput = object->asA<scene_rdl2::rdl2::RenderOutput>();
+        auto& ro(*mRenderOutput);
+        {
+            UpdateGuard guard(ro);
+            ro.setActive(true);
+            ro.setResult(RO::RESULT_CRYPTOMATTE);
+            const SceneClass& sceneClass = mRenderOutput->getSceneClass();
+            for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
+                const std::string& attrName = (*it)->getName();
+                pxr::TfToken key = pxr::TfToken("parameters:moonray:" + attrName);
+                pxr::VtValue val = aovSettings[key];
+                if (not val.IsEmpty()) {
+                    ValueConverter::setAttribute(mRenderOutput, *it, val);
+                }
+            }
+        }
+    } else if (mAovName == pxr::HdAovTokens->instanceId) {
+        // this output will be the sum of instanceId+instanceIdA+instanceIdB...
+        for (size_t i = 0; i < INSTANCE_NESTING; ++i) {
+            char letter = 'A'+i;
+            scene_rdl2::rdl2::SceneObject* object =
+                mRenderDelegate->createSceneObject("RenderOutput", GetId().GetString() + letter);
+            if (not object) return;
+            mMoreOutputs[i] = object->asA<scene_rdl2::rdl2::RenderOutput>();
+            auto& ro(*mMoreOutputs[i]);
+            {
+                UpdateGuard guard(ro);
+                ro.setActive(true);
+                ro.setResult(RO::RESULT_PRIMITIVE_ATTRIBUTE);
+                ro.setPrimitiveAttribute(mAovName.GetString() + letter);
+                ro.setPrimitiveAttributeType(RO::PRIMITIVE_ATTRIBUTE_TYPE_FLOAT);
+                ro.setMathFilter(RO::MATH_FILTER_CLOSEST);
+            }
+        }
+    }
+    else {
         if (not mRenderOutput) {
             // use a name that will be consistent from run to run, to make it easier to compare
             // rdl files for testing
@@ -254,7 +308,7 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
             mRenderOutput = object->asA<scene_rdl2::rdl2::RenderOutput>();
         }
         auto& ro(*mRenderOutput);
-        {   
+        {
             UpdateGuard guard(ro);
             ro.setActive(true);
             // to do : change to "" when MOONRAY-5301 is fixed
@@ -308,9 +362,9 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
                 } else if (prefix == pxr::HdAovTokens->shader) {
                     ro.setResult(ro.RESULT_MATERIAL_AOV);
                     ro.setMaterialAov(suffix.GetString());
-                } 
+                }
             }
-            
+
             // Add any custom moonray settings
             const SceneClass& sceneClass = mRenderOutput->getSceneClass();
             for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
@@ -319,26 +373,6 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
                 pxr::VtValue val = aovSettings[key];
                 if (not val.IsEmpty()) {
                     ValueConverter::setAttribute(mRenderOutput, *it, val);
-                }
-            }
-        }
-
-        if (mAovName == pxr::HdAovTokens->instanceId) {
-            // this output will be the sum of instanceId+instanceIdA+instanceIdB...
-            for (size_t i = 0; i < INSTANCE_NESTING; ++i) {
-                char letter = 'A'+i;
-                scene_rdl2::rdl2::SceneObject* object =
-                    mRenderDelegate->createSceneObject("RenderOutput", GetId().GetString() + letter);
-                if (not object) return;
-                mMoreOutputs[i] = object->asA<scene_rdl2::rdl2::RenderOutput>();
-                auto& ro(*mMoreOutputs[i]);
-                {   
-                    UpdateGuard guard(ro);
-                    ro.setActive(true);
-                    ro.setResult(RO::RESULT_PRIMITIVE_ATTRIBUTE);
-                    ro.setPrimitiveAttribute(mAovName.GetString() + letter);
-                    ro.setPrimitiveAttributeType(RO::PRIMITIVE_ATTRIBUTE_TYPE_FLOAT);
-                    ro.setMathFilter(RO::MATH_FILTER_CLOSEST);
                 }
             }
         }
@@ -483,7 +517,7 @@ RenderBuffer::Finalize(pxr::HdRenderParam* renderParam)
 
     if (mRenderOutput) {
         RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
-        {   
+        {
             UpdateGuard guard(renderDelegate, mRenderOutput);
             mRenderOutput->setActive(false);
         }

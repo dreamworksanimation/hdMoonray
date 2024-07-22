@@ -64,7 +64,7 @@ RenderDelegate::RenderDelegate(Renderer* renderer, pxr::HdRenderSettingsMap cons
 
 void
 RenderDelegate::_constructor()
-{   
+{
     mRenderSettings.addDescriptors(mRenderSettingDescriptors);
     mRenderer->addDescriptors(mRenderSettingDescriptors);
     _PopulateDefaultSettings(mRenderSettingDescriptors);

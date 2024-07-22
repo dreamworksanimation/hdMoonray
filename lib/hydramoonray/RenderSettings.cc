@@ -121,8 +121,8 @@ void RenderSettings::apply()
         // apply any overrides from the render options
         sv.set(sv.sDebugKey, dbg);
         sv.set(sv.sInfoKey, info);
-    }
 
+    }
     mDelegate.setRdlOutput(get<std::string>(Tokens->rdlOutput));
     mDelegate.setDisableLighting(get<bool>(Tokens->disableLighting));
     mDelegate.setDoubleSided(get<bool>(Tokens->doubleSided));
@@ -134,6 +134,8 @@ void RenderSettings::apply()
     mDelegate.setPruneProcedural("WrapDeformGeometry", get<bool>(Tokens->pruneWrapDeform));
     mDelegate.setPruneVolume(get<bool>(Tokens->pruneVolume));
     mDelegate.setForcePolygon(get<bool>(Tokens->forcePolygon));
+    setDeepIdAttributeName();
+
 }
 
 
@@ -145,6 +147,16 @@ RenderSettings::getExecutionMode() const
         return val.Get<std::string>();
     } else {
         return "auto";
+    }
+}
+
+void
+RenderSettings::setDeepIdAttributeName(){
+    TfToken key = TfToken("moonray:sceneVariable:deep_id_attribute_names");
+    VtValue val = mDelegate.GetRenderSetting(key);
+    if (val.IsHolding<pxr::VtArray<std::string>>()) {
+        pxr::VtArray<std::string> names = val.UncheckedGet<pxr::VtArray<std::string>>();
+        mDelegate.setDeepIdAttrName(names.front());
     }
 }
 

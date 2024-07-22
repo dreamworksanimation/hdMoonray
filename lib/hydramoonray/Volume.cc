@@ -53,7 +53,7 @@ Volume::Sync(pxr::HdSceneDelegate* sceneDelegate,
 {
     const pxr::SdfPath& id = GetId();
     hdmLogSyncStart("Volume", id, dirtyBits);
-    
+
     RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
 
     if (renderDelegate.getPruneVolume()){
@@ -108,7 +108,6 @@ Volume::Sync(pxr::HdSceneDelegate* sceneDelegate,
         }
     }
 
-    // updatePrimvars(dirtyPrimvars, renderDelegate); // there are no primitive_attributes
 
 #if PXR_VERSION >= 2102
     _UpdateInstancer(sceneDelegate, dirtyBits);
@@ -131,7 +130,7 @@ OpenVdbAsset::Sync(pxr::HdSceneDelegate *sceneDelegate,
                    pxr::HdDirtyBits     *dirtyBits)
 {
     const pxr::SdfPath& id = GetId();
- 
+
     if (*dirtyBits & DirtyParams) {
         pxr::VtValue v;
         v = sceneDelegate->Get(id, pxr::HdFieldTokens->filePath);

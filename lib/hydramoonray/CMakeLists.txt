@@ -22,6 +22,7 @@ target_sources(${component}
         LightFilter.cc
         Material.cc
         Mesh.cc
+        MurmurHash3.cc
         NullRenderer.cc
         Points.cc
         Procedural.cc
@@ -115,6 +116,3 @@ install(TARGETS ${component}
     PUBLIC_HEADER
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${installIncludeDir}
 )
-
-
-

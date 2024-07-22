@@ -411,9 +411,10 @@ Geometry::setCommonAttributes(
 // geometry to the list. Any primvars stored directly in the geometry should be
 // removed from this list by emptying the value in the dirtyPrimvars.
 void
-Geometry::updatePrimvars(DirtyPrimvars& dirtyPrimvars, RenderDelegate& renderDelegate)
+Geometry::updatePrimvars(DirtyPrimvars& dirtyPrimvars,
+                         RenderDelegate& renderDelegate,
+                         bool userDataSetChanged)
 {
-    bool userDataSetChanged = false;
 
     for (auto& i : dirtyPrimvars) {
         pxr::TfToken name = i.first;
@@ -660,6 +661,12 @@ Geometry::updateCommonPrimvars(pxr::HdSceneDelegate *sceneDelegate,
     } else {
         return false;
     }
+}
+
+void
+Geometry::updateUserData(pxr::TfToken key,  scene_rdl2::rdl2::UserData* userData)
+{
+    mUserData[key] = userData;
 }
 
 }

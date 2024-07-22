@@ -5,6 +5,7 @@
 
 #include <pxr/imaging/hd/rprim.h>
 #include <pxr/base/gf/matrix4f.h>
+#include <scene_rdl2/scene/rdl2/Geometry.h>
 
 // This macro is used for the instanceId argument to constructors which was removed in usd-21.2
 #if PXR_VERSION < 2102
@@ -71,7 +72,7 @@ public:
     void setPruned(bool v) {mPruned = v;}
     bool isMirror() const { return mMirror; } // set by setCommonAttributes
 
-    void updatePrimvars(DirtyPrimvars&, RenderDelegate&);
+    void updatePrimvars(DirtyPrimvars&, RenderDelegate&, bool userDataSetChanged = false);
     bool hasPrimvar(const pxr::TfToken& name) const { return mUserData.count(name) || mMoonrayPrimvars.count(name); }
 
     void assign(pxr::HdSceneDelegate*, RenderDelegate&, pxr::HdDirtyBits*, bool volume = false);
@@ -83,6 +84,9 @@ public:
                                      const pxr::TfToken& name,
                                      pxr::VtValue& value,
                                      scene_rdl2::rdl2::Geometry* geometry);
+
+    void updateUserData(pxr::TfToken key,
+                        scene_rdl2::rdl2::UserData* userData);
 
 protected:
     // Subclass must fill these in if there are any parts. Currenlty only Mesh does this:
@@ -107,6 +111,7 @@ private:
     unsigned mVisibleFlags = 0; // bitmap of all the Moonray visibility
     unsigned mVisibleTurnedOffByPrimvar = 0;
     unsigned mPruned = 0; // display option for pruning procedural geometries.
+    bool mUserDataSetChanged = false;
     bool getBool(const pxr::TfToken& name, const pxr::VtValue&, bool dflt) const;
     bool consumeMoonrayPrimvar(pxr::HdSceneDelegate*, const pxr::HdPrimvarDescriptor&);
 

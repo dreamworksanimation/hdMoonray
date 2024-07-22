@@ -12,6 +12,7 @@
 #include <scene_rdl2/scene/rdl2/SceneObject.h>
 
 #include "Geometry.h"
+#include "MurmurHash3.h"
 
 #include <mutex>
 
@@ -61,4 +62,3 @@ private:
 };
 
 }
-

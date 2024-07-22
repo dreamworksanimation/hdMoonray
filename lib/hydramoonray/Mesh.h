@@ -35,6 +35,7 @@ protected:
     // Expand dirty bits to what Sync() actually needs
     pxr::HdDirtyBits _PropagateDirtyBits(pxr::HdDirtyBits bits) const override;
     bool isSubdiv(RenderDelegate& renderDelegate);
+    void updateCryptomatte(RenderDelegate& renderDelegate);
 
 
 private:

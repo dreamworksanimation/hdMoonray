@@ -65,7 +65,7 @@ public:
     /// Invoke a command
     bool InvokeCommand(const pxr::TfToken& command, const pxr::HdCommandArgs& args = pxr::HdCommandArgs()) override;
 #endif
-    
+
     /// Return true to indicate that pausing and resuming are supported.
     bool IsPauseSupported() const override;
 
@@ -283,14 +283,17 @@ public:
     void setEnableMotionBlur(bool v) { mEnableMotionBlur = v; }
     bool getForcePolygon() const {return mForcePolygon;}
 
-    bool getPruneProcedural(const std::string& rdlName) const 
+    bool getPruneProcedural(const std::string& rdlName) const
         { return mPrunedProcedurals.count(rdlName) > 0; }
     void setPruneProcedural(const std::string& rdlName, bool prune);
     bool getPruneVolume() const {return mPruneVolume;}
     void setPruneVolume(bool v);
     void setForcePolygon(bool v);
     void setIsHoudini(bool v) { mIsHoudini = v; }
-    
+    void setDisableRender(bool v) {mDisableRender = v;}
+    bool getDisableRender() {return mDisableRender;}
+    void setDeepIdAttrName(std::string attrName) {mDeepIdAttrName = attrName;}
+    std::string  getDeepIdAttrName() {return mDeepIdAttrName;}
 
     const RenderSettings& renderSettings() const { return mRenderSettings; }
 
@@ -310,11 +313,11 @@ private:
 
     void _constructor();
 
-    Renderer* mRenderer = nullptr; 
+    Renderer* mRenderer = nullptr;
     RenderSettings mRenderSettings;
     unsigned mPreviousRenderSettings = 0;
     pxr::HdRenderSettingDescriptorList mRenderSettingDescriptors;
-    
+
     bool mDisableLighting = false;
     bool mDoubleSided = true;
     bool mDecodeNormals = false;
@@ -323,7 +326,8 @@ private:
     bool mForcePolygon = false;
     std::set<std::string> mPrunedProcedurals; // stores RDL2 name
     bool mPruneVolume = false;
-
+    bool mDisableRender = false;
+    std::string mDeepIdAttrName;
     // true when settings contains "houdini:interactive"
     bool mIsHoudini = false;
 

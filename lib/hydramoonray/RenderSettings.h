@@ -20,7 +20,7 @@ class RenderSettings
 {
 public:
     RenderSettings(RenderDelegate& delegate) : mDelegate(delegate) {}
-    
+
     void addDescriptors(pxr::HdRenderSettingDescriptorList& descriptorList) const;
 
     // if stored settings have changed since the last apply,
@@ -37,6 +37,7 @@ public:
     }
 
     std::string getExecutionMode() const;
+    void setDeepIdAttributeName();
 
 private:
 

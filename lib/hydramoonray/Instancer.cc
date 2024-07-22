@@ -169,11 +169,25 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
         instanceId->setFloatData(name, out);
     }
 
+
+    // add crytomatte id if enabled
+    const std::string m_name("prim_id");
+    std::string prim_id = prototype->getName() + "/Instancer.primvars:" + m_name;
+    scene_rdl2::rdl2::UserData* cryptoId =
+            renderDelegate.createSceneObject("UserData", prim_id)->asA<scene_rdl2::rdl2::UserData>();
+    UpdateGuard guard(cryptoId);
+    scene_rdl2::rdl2::FloatVector data(1);
+    data[0]=MurmurHash3_to_float(instancer->getName().c_str());
+    //std::cout << instancer->getName() << ": " << data[0] <<std::endl;
+    cryptoId->setFloatData(m_name, data);
+
     // MOONSHINE-1533: Moonray uses the number of transforms to count instances, while Hydra Prman
     // and Embree use the size of the protoIndices array. For bad data where these are unequal,
     // resize the primvars to match the number of instances, so all the renderers produce the same
     // number of instances.
     scene_rdl2::rdl2::SceneObjectVector primitiveAttributes{instanceId};
+    primitiveAttributes.push_back(cryptoId);
+
     for (auto p : mPrimvars) {
         const pxr::TfToken& name = p.first;
         if (name == pxr::HdInstancerTokens->instanceTransform ||
@@ -329,4 +343,3 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
 }
 
 }
-

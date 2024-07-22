@@ -1,0 +1,197 @@
+#usda 1.0
+(
+    endTimeCode = 119
+    metersPerUnit = 0.01
+    startTimeCode = 119
+    upAxis = "Y"
+)
+
+def Scope "Render"
+{
+    def Scope "Products"
+    {
+        def Scope "Vars"
+        {
+            def RenderVar "beauty" (
+                prepend apiSchemas = ["MoonrayVarAPI"]
+            )
+            {
+                uniform token dataType = "color4f"
+                custom string driver:parameters:aov:name = "beauty"
+                uniform token parameters:moonray:channel_format = "half"
+                uniform token parameters:moonray:channel_name = "beauty"
+                uniform double parameters:moonray:exr_dwa_compression_level = 85
+                token parameters:moonray:file_name = "/tmp/cryptomatte_test.exr"
+                uniform token parameters:moonray:output_type = "flat"
+                uniform token parameters:moonray:result = "beauty"
+            }
+
+            def RenderVar "alpha" (
+                prepend apiSchemas = ["MoonrayVarAPI"]
+            )
+            {
+                uniform token dataType = "float"
+                custom string driver:parameters:aov:name = "alpha"
+                uniform token parameters:moonray:channel_format = "half"
+                uniform token parameters:moonray:channel_name = "alpha"
+                uniform double parameters:moonray:exr_dwa_compression_level = 85
+                token parameters:moonray:file_name = "/tmp/cryptomatte_test.exr"
+                uniform token parameters:moonray:output_type = "flat"
+                uniform token parameters:moonray:result = "alpha"
+            }
+
+            def RenderVar "cryptomatte" (
+                prepend apiSchemas = ["MoonrayVarAPI"]
+            )
+            {
+                token dataType = "float"
+                custom string driver:parameters:aov:name = "cryptomatte"
+                uniform bool parameters:moonray:active = 1
+                uniform token parameters:moonray:channel_format = "half"
+                uniform token parameters:moonray:channel_name = "cryptomatte"
+                uniform token parameters:moonray:channel_suffix_mode = "auto"
+                uniform int parameters:moonray:cryptomatte_depth = 4
+                uniform bool parameters:moonray:cryptomatte_output_beauty = 0
+                uniform bool parameters:moonray:cryptomatte_output_normals = 0
+                uniform bool parameters:moonray:cryptomatte_output_positions = 0
+                uniform bool parameters:moonray:cryptomatte_output_refn = 0
+                uniform bool parameters:moonray:cryptomatte_output_refp = 0
+                uniform bool parameters:moonray:cryptomatte_output_uv = 0
+                uniform double parameters:moonray:exr_dwa_compression_level = 85
+                token parameters:moonray:file_name = "/tmp/cryptomatte_test.exr"
+                uniform token parameters:moonray:file_part = "cryptomatte"
+                uniform token parameters:moonray:lpe = ""
+                uniform token parameters:moonray:material_aov = ""
+                uniform token parameters:moonray:math_filter = "average"
+                uniform token parameters:moonray:output_type = "flat"
+                uniform token parameters:moonray:primitive_attribute = ""
+                token parameters:moonray:primitive_attribute_type = "FLOAT"
+                uniform token parameters:moonray:result = "cryptomatte"
+                token parameters:moonray:state_variable = "N"
+                uniform token parameters:moonray:visibility_aov = "C[<T.><RS>]*[<R[DG]><TD>][LO]"
+            }
+
+            def RenderVar "N" (
+                prepend apiSchemas = ["MoonrayVarAPI"]
+            )
+            {
+                custom string driver:parameters:aov:name = "N"
+                uniform bool parameters:moonray:active = 1
+                uniform token parameters:moonray:channel_format = "half"
+                uniform token parameters:moonray:channel_name = "N"
+                uniform token parameters:moonray:channel_suffix_mode = "auto"
+                uniform int parameters:moonray:cryptomatte_depth = 6
+                uniform bool parameters:moonray:cryptomatte_output_beauty = 0
+                uniform bool parameters:moonray:cryptomatte_output_normals = 0
+                uniform bool parameters:moonray:cryptomatte_output_positions = 0
+                uniform bool parameters:moonray:cryptomatte_output_refn = 0
+                uniform bool parameters:moonray:cryptomatte_output_refp = 0
+                uniform bool parameters:moonray:cryptomatte_output_uv = 0
+                uniform double parameters:moonray:exr_dwa_compression_level = 85
+                token parameters:moonray:file_name = "/tmp/cryptomatte_test.exr"
+                uniform token parameters:moonray:file_part = "main"
+                uniform token parameters:moonray:lpe = ""
+                uniform token parameters:moonray:material_aov = ""
+                uniform token parameters:moonray:math_filter = "average"
+                uniform token parameters:moonray:output_type = "flat"
+                uniform token parameters:moonray:primitive_attribute = ""
+                token parameters:moonray:primitive_attribute_type = "FLOAT"
+                uniform token parameters:moonray:result = "state variable"
+                token parameters:moonray:state_variable = "N"
+                uniform token parameters:moonray:visibility_aov = "C[<T.><RS>]*[<R[DG]><TD>][LO]"
+            }
+        }
+
+        def RenderProduct "All"
+        {
+            rel orderedVars = [
+                </Render/Products/Vars/beauty>,
+                </Render/Products/Vars/N>,
+                </Render/Products/Vars/cryptomatte>,
+            ]
+        }
+    }
+
+    def RenderSettings "All_render" (
+        prepend apiSchemas = ["MoonraySceneVariablesAPI"]
+    )
+    {
+        rel camera = </camera>
+        custom bool debugMode = 1
+        custom bool disableRender = 1
+        custom bool enableMotionBlur = 0
+        custom int logLevel = 0
+        string[] moonray:sceneVariable:deep_id_attribute_names = ["prim_id"]
+        rel products = </Render/Products/All>
+        custom string rdlOutput = "/tmp/m_test"
+        uniform int2 resolution = (644, 274)
+        custom bool moonray:sceneVariable:enable_dof = 1
+    }
+}
+
+def Camera "camera"
+{
+    float2 clippingRange = (0.01, 10000)
+    float focalLength = 300
+    float horizontalAperture = 240
+    float verticalAperture = 240
+    matrix4d xformOp:transform = ( (0.658163, 0.0116603, -0.752785, 0), (-0.20786, 0.963831, -0.166803, 0), (0.723613, 0.266257, 0.636782, 0), (11.6274, 5.83104, 1.19332, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def "gronkle" (
+    payload = @/work/rd/raas/hydra/rats/data/gronkle.usdc@
+)
+{
+    matrix4d xformOp:transform:a = ( (0.03, 0, 0, 0), (0, 0.03, 0, 0), (0, 0, 0.03, 0), (0, 0, -7, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:a", "xformOp:transform"]
+}
+
+def Mesh "floor"
+{
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+    color3f[] primvars:displayColor = [(1, 1, 1)] (
+        interpolation = "uniform"
+    )
+    float2[] primvars:uv = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+        interpolation = "faceVarying"
+    )
+    matrix4d xformOp:transform = ( (20, 0, 0, 0), (0, 20, 0, 0), (0, 0, 20, 0), (0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def Mesh "wall"
+{
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+    color3f[] primvars:displayColor = [(1, 1, 1)] (
+        interpolation = "uniform"
+    )
+    float2[] primvars:uv = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+        interpolation = "faceVarying"
+    )
+    matrix4d xformOp:transform = ( (20, 0, 0, 0), (0, 0, 1, 0), (0, -10, 0, 0), (0, 5, -10, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def CylinderLight "cylinder"
+{
+    float colorTemperature = 6500
+    bool enableColorTemperature = 1
+    float inputs:colorTemperature = 6500
+    bool inputs:enableColorTemperature = 1
+    float inputs:intensity = 5
+    float inputs:length = 10
+    float inputs:radius = 0.3
+    float intensity = 5
+    float length = 10
+    token moonray:visible_in_camera = "force on"
+    float radius = 0.3
+    matrix4d xformOp:transform = ( (0.999573, -4.37114e-8, 0.0291956, 0), (0.0291956, 0, -0.999573, 0), (4.36928e-8, 1, 1.27618e-9, 0), (0, 4, -8, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}

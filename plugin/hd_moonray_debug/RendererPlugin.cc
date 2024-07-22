@@ -25,10 +25,12 @@ public:
         auto it = settings.find(pxr::TfToken("disableRender"));
         if (it != settings.end()) {
             if (it->second.Get<bool>()) {
-                return new hdMoonray::RenderDelegate(new hdMoonray::NullRenderer(),settings);
+                auto rd = new hdMoonray::RenderDelegate(new hdMoonray::NullRenderer(),settings);
+                rd->setDisableRender(true);
+                return rd;
             }
         }
-        
+
         uint32_t threads = 0;
         it = settings.find(pxr::TfToken("threads"));
         if (it != settings.end()) {
@@ -63,4 +65,3 @@ TF_REGISTRY_FUNCTION(TfType)
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
-
