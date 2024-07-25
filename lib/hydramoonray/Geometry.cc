@@ -58,24 +58,27 @@ setMoonrayVec3fPrimvarMb(pxr::HdSceneDelegate& sceneDelegate,
     pxr::HdTimeSampleArray<pxr::VtValue, 4> vals;
     sceneDelegate.SamplePrimvar(id, hdToken, &vals);
 
-    const bool sizesMatch =
-        vals.values[0].Get<pxr::VtVec3fArray>().size() ==
-        vals.values[1].Get<pxr::VtVec3fArray>().size();
 
     if (vals.count <= 1) {
         setMoonrayVec3fPrimvar(geometry, name0,
                                value.Get<pxr::VtVec3fArray>());
-    } else if (sizesMatch) {
-        setMoonrayVec3fPrimvar(geometry, name0,
-                               vals.values[0].Get<pxr::VtVec3fArray>());
-
-        setMoonrayVec3fPrimvar(geometry, name1,
-                               vals.values[vals.count - 1].Get<pxr::VtVec3fArray>());
     } else {
-        // If the sizes of the arrays don't match, then the topology
-        // is changing and we should just use the second set of values
-        setMoonrayVec3fPrimvar(geometry, name0,
-                               vals.values[vals.count - 1].Get<pxr::VtVec3fArray>());
+        const bool sizesMatch =
+            vals.values[0].Get<pxr::VtVec3fArray>().size() ==
+            vals.values[vals.count - 1].Get<pxr::VtVec3fArray>().size();
+
+        if (sizesMatch) {
+            setMoonrayVec3fPrimvar(geometry, name0,
+                                   vals.values[0].Get<pxr::VtVec3fArray>());
+
+            setMoonrayVec3fPrimvar(geometry, name1,
+                                   vals.values[vals.count - 1].Get<pxr::VtVec3fArray>());
+        } else {
+            // If the sizes of the arrays don't match, then the topology
+            // is changing and we should just use the second set of values
+            setMoonrayVec3fPrimvar(geometry, name0,
+                                   vals.values[vals.count - 1].Get<pxr::VtVec3fArray>());
+        }
     }
 }
 
