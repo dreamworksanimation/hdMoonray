@@ -277,24 +277,6 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
                 }
             }
         }
-    } else if (mAovName == pxr::HdAovTokens->instanceId) {
-        // this output will be the sum of instanceId+instanceIdA+instanceIdB...
-        for (size_t i = 0; i < INSTANCE_NESTING; ++i) {
-            char letter = 'A'+i;
-            scene_rdl2::rdl2::SceneObject* object =
-                mRenderDelegate->createSceneObject("RenderOutput", GetId().GetString() + letter);
-            if (not object) return;
-            mMoreOutputs[i] = object->asA<scene_rdl2::rdl2::RenderOutput>();
-            auto& ro(*mMoreOutputs[i]);
-            {
-                UpdateGuard guard(ro);
-                ro.setActive(true);
-                ro.setResult(RO::RESULT_PRIMITIVE_ATTRIBUTE);
-                ro.setPrimitiveAttribute(mAovName.GetString() + letter);
-                ro.setPrimitiveAttributeType(RO::PRIMITIVE_ATTRIBUTE_TYPE_FLOAT);
-                ro.setMathFilter(RO::MATH_FILTER_CLOSEST);
-            }
-        }
     }
     else {
         if (not mRenderOutput) {
@@ -318,7 +300,7 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
             auto desc = lookup(mAovName);
             if (desc) {
                 if (desc->hdFormat == pxr::HdFormatInt32) {
-                    // this is for the instanceId and similar primvars
+                    // this is for the instanceId (important for viewport selection) and similar primvars
                     ro.setResult(RO::RESULT_PRIMITIVE_ATTRIBUTE);
                     ro.setPrimitiveAttribute(mAovName.GetString());
                     ro.setPrimitiveAttributeType(RO::PRIMITIVE_ATTRIBUTE_TYPE_FLOAT);
@@ -374,6 +356,25 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
                 if (not val.IsEmpty()) {
                     ValueConverter::setAttribute(mRenderOutput, *it, val);
                 }
+            }
+        }
+    }
+    if (mAovName == pxr::HdAovTokens->instanceId) {
+        // this output will be the sum of instanceId+instanceIdA+instanceIdB...
+        for (size_t i = 0; i < INSTANCE_NESTING; ++i) {
+            char letter = 'A'+i;
+            scene_rdl2::rdl2::SceneObject* object =
+                mRenderDelegate->createSceneObject("RenderOutput", GetId().GetString() + letter);
+            if (not object) return;
+            mMoreOutputs[i] = object->asA<scene_rdl2::rdl2::RenderOutput>();
+            auto& ro(*mMoreOutputs[i]);
+            {
+                UpdateGuard guard(ro);
+                ro.setActive(true);
+                ro.setResult(RO::RESULT_PRIMITIVE_ATTRIBUTE);
+                ro.setPrimitiveAttribute(mAovName.GetString() + letter);
+                ro.setPrimitiveAttributeType(RO::PRIMITIVE_ATTRIBUTE_TYPE_FLOAT);
+                ro.setMathFilter(RO::MATH_FILTER_CLOSEST);
             }
         }
     }
