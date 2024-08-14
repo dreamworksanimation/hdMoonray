@@ -282,9 +282,7 @@ RenderBuffer::bind(const pxr::HdRenderPassAovBinding& aovBinding, const Camera* 
         if (not mRenderOutput) {
             // use a name that will be consistent from run to run, to make it easier to compare
             // rdl files for testing
-            const pxr::SdfPath ROId = pxr::SdfPath::AbsoluteRootPath()
-                .AppendChild(pxr::TfToken("_outputs"))
-                .AppendChild(mAovName);
+            const std::string ROId = "/_outputs/" + mAovName.GetString();
             scene_rdl2::rdl2::SceneObject* object = mRenderDelegate->createSceneObject("RenderOutput", ROId);
             if (not object) return;
             mRenderOutput = object->asA<scene_rdl2::rdl2::RenderOutput>();

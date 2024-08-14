@@ -110,22 +110,28 @@ getCoordSysBinding(
 ) {
     auto valIt = node.parameters.find(key);
     if (valIt != node.parameters.end()) {
-        pxr::TfToken coordSysName = valIt->second.Get<pxr::TfToken>();
-        scene_rdl2::rdl2::SceneObject* sceneObject =
-            hdMoonray::CoordSys::getBinding(sceneDelegate, renderDelegate, geom->GetId(), coordSysName);
-        if (not sceneObject) {
-            Logger::error(node.path, ".", key, ": failed to find binding for coordSys ", coordSysName);
+        const pxr::VtValue& val = valIt->second;
+        if (val.IsHolding<pxr::TfToken>()) {
+            pxr::TfToken coordSysName = val.UncheckedGet<pxr::TfToken>();
+            // empty token is used to specify a nullptr SceneObject*
+            if (coordSysName.IsEmpty()) return nullptr;
+            scene_rdl2::rdl2::SceneObject* sceneObject =
+                hdMoonray::CoordSys::getBinding(sceneDelegate, renderDelegate, geom->GetId(), coordSysName);
+            if (not sceneObject) {
+                Logger::error(node.path, ".", key, ": failed to find binding for coordSys ", coordSysName);
+            }
+            return sceneObject;
+        } else {
+            Logger::error(node.path, ".", key, ": invalid type '",val.GetTypeName(), "', should be 'token'");
         }
-        return sceneObject;
     } else if (key == projectorToken) {
         // fix sq9010 s2 and other shots where Mpaint assets are missing the coordSys binding
         scene_rdl2::rdl2::SceneObject* sceneObject =
             hdMoonray::CoordSys::getBinding(sceneDelegate, renderDelegate, geom->GetId(), proj_camToken);
         // no error if not found, as this would be triggered if bindings to shaders are used
         return sceneObject;
-    } else {
-        return nullptr;
-    }
+    } 
+    return nullptr;
 }
 
 SceneObject*
@@ -263,7 +269,7 @@ Material::updateTerminal(pxr::TfToken terminalName,
     // Create the nodes
     scene_rdl2::rdl2::SceneObject* last = nullptr;
     for (const pxr::HdMaterialNode& node : network.nodes) {
-
+        scene_rdl2::rdl2::SceneObject* next = nullptr;
         // Don't create UsdUVTexture nodes if their file name parameter is empty
         if (node.identifier == "UsdUVTexture") {
             auto valIt = node.parameters.find(pxr::TfToken("file"));
@@ -284,7 +290,7 @@ Material::updateTerminal(pxr::TfToken terminalName,
                     getNodeWithChannelName(node.path.GetString(),
                                            channel);
 
-                last = makeMoonrayShader(renderDelegate,
+                next = makeMoonrayShader(renderDelegate,
                                          sceneDelegate,
                                          node,
                                          nodeName,
@@ -293,14 +299,14 @@ Material::updateTerminal(pxr::TfToken terminalName,
         } else {
             // If the node isn't in the nodeChannelMap (i.e. materials)
             // then only one node is created using the USD path as the name.
-            last = makeMoonrayShader(renderDelegate,
+            next = makeMoonrayShader(renderDelegate,
                                      sceneDelegate,
                                      node,
                                      node.path.GetString(),
                                      geom);
         }
 
-        if (not last) break; // give up after first error
+        if (next) last = next; // HDM-368 : don't give up on error
     }
 
     // set bindings (fixme: only works for Moonray shaders)
