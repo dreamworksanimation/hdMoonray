@@ -81,7 +81,13 @@ ArrasRenderer::restartRenderer()
 }
 
 ArrasRenderer::~ArrasRenderer()
-{
+{ 
+    // ensure no more messages are processed
+    // (MOONRAY-5403)
+    {
+        std::lock_guard<std::mutex> guard(mMutex);
+        mFbReceiver.reset();
+    }
     delete mSceneContext;
 }
 
@@ -153,6 +159,10 @@ ArrasRenderer::messageHandler(const arras4::api::Message& msg)
 {
     hdmLogArras("messageHandler");
     std::lock_guard<std::mutex> guard(mMutex);
+
+    // don't try to process messages while destructing
+    // (MOONRAY-5403)
+    if (!mFbReceiver) return;
 
     if (msg.classId() == mcrt::ProgressiveFrame::ID) {
 
