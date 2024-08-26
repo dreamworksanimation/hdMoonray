@@ -324,15 +324,13 @@ ArrasRenderer::resolve(scene_rdl2::rdl2::RenderOutput* ro, PixelData& pd)
     pd.filmActivity = n;
 
     if (isBeauty(ro)) {
-        mFbReceiver->getBeauty(pd.vec);
+        mFbReceiver->getBeautyMTSafe(pd.vec, pd.mWidth, pd.mHeight);
         pd.mChannels = 4;
     } else {
-        unsigned n = mFbReceiver->getRenderOutput(ro->getName(), pd.vec);
+        unsigned n = mFbReceiver->getRenderOutputMTSafe(ro->getName(), pd.vec, pd.mWidth, pd.mHeight);
         if (not n) return false; // ignore occasional bad data
         pd.mChannels = n;
     }
-    pd.mWidth = mFbReceiver->getWidth();
-    pd.mHeight = mFbReceiver->getHeight();
     pd.mData = pd.vec.data();
 
     return true;
