@@ -608,7 +608,13 @@ Geometry::assign(pxr::HdSceneDelegate* sceneDelegate,
                 // when instanced. light linking for parts can only be inherited from the instancer
                 if (instancerId.IsEmpty()) {
                     // not instanced : there could be light linking on the GeomSubset
-                    renderDelegate.updateAssignmentFromCategories(assignment, sceneDelegate->GetCategories(partPaths[i]));
+                    // ---
+                    // HDM-374 : GetCategories() does not work for GeomSubset paths, at least in 
+                    //    HdSceneIndexAdapterSceneDelegate at ver 0.22.5 : in fact the subsets don't seem to have
+                    //    an HdSceneIndexPrim at all. So we use the categories of the full mesh:
+                    renderDelegate.updateAssignmentFromCategories(assignment, categories);
+                    // This is the correct implementation (if it worked...)
+                    //renderDelegate.updateAssignmentFromCategories(assignment, sceneDelegate->GetCategories(partPaths[i]));
                 }
                 Material::get(assignment, partMaterials[i], renderDelegate, sceneDelegate, &rprim, volume);
                 renderDelegate.assign(geometry(), partList[i], assignment);
