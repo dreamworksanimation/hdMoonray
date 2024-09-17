@@ -710,10 +710,12 @@ void RenderDelegate::setPruneProcedural(const std::string& name, bool prune)
     if (prune != getPruneProcedural(name)) {
         if (prune) mPrunedProcedurals.insert(name);
         else mPrunedProcedurals.erase(name);
-        for (auto& p : mProcedurals)
-            mRenderIndex->GetChangeTracker().MarkRprimDirty(
-                        p->GetId(),
-                        pxr::HdChangeTracker::DirtyVisibility);
+        for (auto& p : mProcedurals){
+            if (mRenderIndex)
+                mRenderIndex->GetChangeTracker().MarkRprimDirty(
+                            p->GetId(),
+                            pxr::HdChangeTracker::DirtyVisibility);
+        }
     }
 }
 
@@ -721,10 +723,12 @@ void RenderDelegate::setPruneVolume(bool v)
 {
     if (v != mPruneVolume) {
         mPruneVolume = v;
-        for (auto& p : mVolumes)
-            mRenderIndex->GetChangeTracker().MarkRprimDirty(
-                        p->GetId(),
-                        pxr::HdChangeTracker::DirtyVisibility);
+        for (auto& p : mVolumes){
+            if (mRenderIndex)
+                mRenderIndex->GetChangeTracker().MarkRprimDirty(
+                            p->GetId(),
+                            pxr::HdChangeTracker::DirtyVisibility);
+        }
     }
 }
 
