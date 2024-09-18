@@ -1,0 +1,14 @@
+name: Manually run CI/RaTS against last Moonbase CI run.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  main_CI_RaTS_run:
+    runs-on: [self-hosted, rez]
+    steps:
+      - name: Launch Action
+        uses: CM/cm-actions/pipeline_trigger@main
+        with:
+          pipe_config: 'continuous-integration'
+          rez_config: 'rez-2-CI-RaTS-main'
