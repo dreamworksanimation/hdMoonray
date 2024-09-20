@@ -274,9 +274,9 @@ pipeline-configurations:
       zulip_enabled: false
     initialize:
       email_enabled: true
-      email_recipients:
-      - _submitter_
-      - _contributor_
+      # email_recipients:
+      # - _submitter_
+      # - _contributor_
       chat_enabled: false
       zulip_enabled: false
 
