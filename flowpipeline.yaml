@@ -280,6 +280,67 @@ pipeline-configurations:
       chat_enabled: false
       zulip_enabled: false
 
+  continuous-integration-against:
+    checkout:
+      enabled: true
+      fresh: true
+      clone: 1
+      merge_enabled: false
+      merge_target: develop
+      merge_target_type: branch
+    build:
+      enabled: true
+      rez_args: -b cmake
+      resource:
+        os-rocky-9: EL9
+        os-CentOS-7: EL7_RaTS_build_fast
+      post_cmd:
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      build_directory: ../build
+      parallel_variants: true
+      prepend_release_dir: false
+    scan:
+      enabled: false
+      abi_checker: false
+      checkmarx: false
+      fossID: false
+    test:
+      enabled: true
+      cmd:
+#      - rez-test _packagename_ rats-debug
+      - rez-test _packagename_ rats-opt-debug
+      ignore_failures: false
+      resource:
+#      - EL7_RaTS2_cpu
+      - EL7_RaTS
+      postp: /opt/electriccloud/electriccommander/bin/postp
+      name_filter: foobar
+    release:
+      enabled: false
+      ask_approval: false
+      update_git: false
+      update_jira: false
+    finalize:
+      email_enabled: true
+      email_recipients_failure:
+      - _submitter_
+      - _contributor_
+      - moonbase_dev@dreamworks.com
+      email_recipients_success:
+      - _submitter_
+      - _contributor_
+      - moonbase_dev@dreamworks.com
+      chat_enabled: false
+      zulip_enabled: false
+    initialize:
+      email_enabled: true
+      email_recipients:
+      - _submitter_
+      - _contributor_
+       - moonbase_dev@dreamworks.com
+      chat_enabled: false
+      zulip_enabled: false
+
 # -- Customize Your Pre-Release, aka, Test Maps, Here --------------------------
 
   pre-release:
