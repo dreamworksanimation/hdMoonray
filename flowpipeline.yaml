@@ -337,7 +337,7 @@ pipeline-configurations:
       email_recipients:
       - _submitter_
       - _contributor_
-       - moonbase_dev@dreamworks.com
+      - moonbase_dev@dreamworks.com
       chat_enabled: false
       zulip_enabled: false
 
