@@ -10,5 +10,5 @@ jobs:
       - name: Launch Action
         uses: CM/cm-actions/pipeline_trigger@main
         with:
-          pipe_config: 'continuous-integration'
+          pipe_config: 'continuous-integration-against'
           rez_config: 'rez-2-CI-RaTS-main'
