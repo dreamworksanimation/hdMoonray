@@ -1,0 +1,69 @@
+#usda 1.0
+
+def Camera "camera"
+{
+    matrix4d xformOp:transform = (  (0.658163, 0.0116603, -0.752785, 0),
+                                    (-0.20786, 0.963831, -0.166803, 0),
+                                    (0.723613, 0.266257, 0.636782, 0),
+                                    (11.6274, 5.83104, 1.19332, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+
+    float focalLength = 300;
+    float horizontalAperture = 240;
+    float verticalAperture = 240
+    float2 clippingRange = (0.01, 10000)
+}
+
+
+def "gronkle" ( payload = @/work/rd/raas/hydra/rats/data/gronkle.usdc@ )
+{
+    matrix4d xformOp:transform:a = ( (0.03, 0, 0, 0),
+                                   (0, 0.03, 0, 0),
+                                   (0, 0, 0.03, 0),
+                                   (0, 0, -7, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:a","xformOp:transform"]
+    token visibility = "invisible"
+}
+
+def Mesh "floor"
+{
+    matrix4d xformOp:transform = ( (20, 0, 0, 0),
+                                   ( 0, 20, 0, 0),
+                                   ( 0, 0, 20, 0),
+                                   ( 0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+    float2[] primvars:uv = [(0, 0), (1, 0), (1, 1), (0, 1)] ( interpolation = "faceVarying" )
+    color3f[] primvars:displayColor = [(1, 1, 1)] ( interpolation = "uniform" )
+}
+
+def Mesh "wall"
+{
+    matrix4d xformOp:transform = ( (20, 0, 0, 0),
+                                   (0, 0, 1, 0),
+                                   (0, -10, 0, 0),
+                                   (0, 5, -10, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+    float2[] primvars:uv = [(0, 0), (1, 0), (1, 1), (0, 1)] ( interpolation = "faceVarying" )
+    color3f[] primvars:displayColor = [(1, 1, 1)] ( interpolation = "uniform" )
+}
+
+def GeometryLight "geomlight"
+{
+    uniform token moonray:class = "MeshLight"
+    // this is the correct way to set the geometry
+    rel inputs:geometry = </gronkle/m_skin>
+    // a workaround for the issue that (pre-0.20.11)
+    // render delegates cannot read "rel" properties
+    string moonray:geometry = "/gronkle/m_skin"
+    float intensity = 1
+    float inputs:intensity = 1
+    token moonray:visible_in_camera = "force on"
+}

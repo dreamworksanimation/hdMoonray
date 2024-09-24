@@ -1,0 +1,75 @@
+#usda 1.0
+
+def "Prototype" (
+    active = false
+)
+{
+    def Xform "Points" (
+        instanceable = true
+    ) {
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+        def PointInstancer "pointInstancer" {
+            point3f[] positions = [
+                (0, 0, 0), (5, 0, 0), (10, 0, 0), (0, 5, 0), (5, 5, 0), (10, 5, 0),
+                (0, 10, 0), (5, 10, 0), (10, 10, 0), (0, 15, 0), (5, 15, 0), (10, 15, 0)
+            ]
+            quath[] orientations = [
+                (0, 0, 0, 1), (.707107, 0, 0, .707107), (0, .707107, 0, .707107), (0, 0, .707107, .707107),
+                (0, 0, 0, 1), (0, .577350, .577350, .577350), (.577350, 0, .577350, .577350), (.577350, .577350, 0, .577350),
+                (0, 0, 0, 1), (0.5, 0.5, 0.5, 0.5), (-0.5, 0.5, 0.5, 0.5), (-0.5, 0.5, 0.5, -0.5)
+            ]
+            color3f[] primvars:displayColor = [
+                (0, 0, 1), (0, 1, 0), (0, 1, 1), (1, 0, 0), (1, 0, 1), (1, 1, 0),
+                (1, 1, 1), (.5, .5, 1), (.5, 1, .5), (.5, 1, 1), (1, .5, .5), (1, .5, 1)
+            ] (
+                interpolation = "varying"
+            )
+            int[] protoIndices = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            add rel prototypes = [
+                <prototype>
+            ]
+            def Mesh "prototype" {
+                float3[] extent = [(-1, 0, -1), (1, 2, 1)]
+                float3[] points = [(1, 0, 1), (-1, 0, 1), (-1, 0, -1), (1, 0, -1), (0, 2, 0)]
+                int[] faceVertexCounts = [4, 3, 3, 3, 3]
+                int[] faceVertexIndices =  [0, 1, 2, 3, 1, 0, 4, 2, 1, 4, 3, 2, 4, 0, 3, 4]
+                normal3f[] primvars:normals = [
+                    (0, -1, 0), (0, 0.45, 0.89), (-0.89, 0.45, 0), (0, 0.45, -0.89), (0.89, 0.45, 0)
+                ] (
+                    interpolation = "uniform"
+                )
+                uniform token subdivisionScheme = "none"
+            }
+        }
+    }
+}
+
+def Xform "Points1" (
+    append references = </Prototype/Points>
+) { }
+
+def Xform "Points2" (
+    append references = </Prototype/Points>
+) {
+    double3 xformOp:translate = (0, 0, 5)
+}
+
+def Xform "Points3" (
+    append references = </Prototype/Points>
+) {
+    double3 xformOp:translate = (0, 0, 10)
+}
+
+def Xform "Points4" (
+    append references = </Prototype/Points>
+) {
+    double3 xformOp:translate = (0, 0, 15)
+}
+
+def Xform "Points5" (
+    append references = </Prototype/Points>
+) {
+    double3 xformOp:translate = (0, 0, 20)
+    double3 xformOp:rotateXYZ = (45, 45, 45)
+}
+

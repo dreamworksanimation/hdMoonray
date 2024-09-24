@@ -1,0 +1,98 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+ImageMap("/surfacing_plane1/planeMap.out") {
+    ["wrap_around"] = false,
+    ["texture"] = "/work/gshad/moonshine_test/rats_data/map/udim/udim/rgb_checker_black_<UDIM>.exr",
+}
+
+ImageMap("/surfacing_plane2/planeMap.out") {
+    ["wrap_around"] = false,
+    ["texture"] = "/work/gshad/moonshine_test/rats_data/map/udim/udim/rgb_checker_black_udim.exr",
+}
+
+RdlMeshGeometry("/plane1/_") {
+    ["node_xform"] = blur(Mat4(2, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, -1, 1, 0, 1), Mat4(2, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, -1, 1, 0, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["uv_list"] = { Vec2(0, 4), Vec2(4, 4), Vec2(4, 0), Vec2(0, 0)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/plane1/_.primvars:primId")},
+}
+
+RdlMeshGeometry("/plane2/_") {
+    ["node_xform"] = blur(Mat4(2, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, -1, 0, 1), Mat4(2, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, -1, 0, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["uv_list"] = { Vec2(0, 4), Vec2(4, 4), Vec2(4, 0), Vec2(0, 0)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/plane2/_.primvars:primId")},
+}
+
+GeometrySet("allGeometry") {
+    RdlMeshGeometry("/plane1/_"),
+    RdlMeshGeometry("/plane2/_"),
+}
+
+Layer("defaultLayer") {
+    {RdlMeshGeometry("/plane1/_"), "", BaseMaterial("/surfacing_plane1/planeMtl"), LightSet("LightSet1F05B0"), undef(), undef(), undef(), undef(), undef()},
+    {RdlMeshGeometry("/plane2/_"), "", BaseMaterial("/surfacing_plane2/planeMtl"), LightSet("LightSet1F05B0"), undef(), undef(), undef(), undef(), undef()},
+}
+
+BaseMaterial("/surfacing_plane1/planeMtl") {
+    ["diffuse_color"] = bind(ImageMap("/surfacing_plane1/planeMap.out"), Rgb(1, 1, 1)),
+    ["specular_factor"] = 0.0199999996,
+    ["specular_roughness"] = bind(undef(), 0.547722578),
+    ["directional_diffuse_roughness"] = bind(undef(), 0.547722995),
+}
+
+BaseMaterial("/surfacing_plane2/planeMtl") {
+    ["diffuse_color"] = bind(ImageMap("/surfacing_plane2/planeMap.out"), Rgb(1, 1, 1)),
+    ["specular_factor"] = 0.0199999996,
+    ["specular_roughness"] = bind(undef(), 0.547722578),
+    ["directional_diffuse_roughness"] = bind(undef(), 0.547722995),
+}
+
+RectLight("/key") {
+    ["node_xform"] = blur(Mat4(0.98480775301220802, 0, 0.17364817766693033, 0, 0.030153689607045803, 0.98480775301220802, -0.17101007166283433, 0, -0.17101007166283433, 0.17364817766693033, 0.9698463103929541, 0, -17.101007166283434, 17.364817766693033, 96.984631039295408, 1), Mat4(0.98480775301220802, 0, 0.17364817766693033, 0, 0.030153689607045803, 0.98480775301220802, -0.17101007166283433, 0, -0.17101007166283433, 0.17364817766693033, 0.9698463103929541, 0, -17.101007166283434, 17.364817766693033, 96.984631039295408, 1)),
+    ["intensity"] = 12,
+    ["width"] = 50,
+    ["height"] = 50,
+}
+
+LightSet("LightSet1F05B0") {
+    RectLight("/key"),
+}
+
+PerspectiveCamera("/camera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.75, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.75, 1)),
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(500, 500),
+    ["film_width_aperture"] = 240,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.75, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.75, 1)),
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(500, 500),
+    ["film_width_aperture"] = 240,
+}
+
+UserData("/plane1/_.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 0},
+    ["rate"] = "constant",
+}
+
+UserData("/plane2/_.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 1},
+    ["rate"] = "constant",
+}

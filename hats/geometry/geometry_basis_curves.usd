@@ -1,0 +1,50 @@
+#usda 1.0
+
+def BasisCurves "linear"
+{
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        float3 xformOp:translate = (-3, 0, 0)
+
+        uniform token type = "linear"
+        int[] curveVertexCounts = [7]
+        point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+        float[] widths = [0, .5, .5, .8, .5, .5, 0] (interpolation = "varying")
+        color3f[] primvars:displayColor = [(1, 0, 0)]
+}
+
+def BasisCurves "bspline"
+{
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        float3 xformOp:translate = (0, 0, 0)
+
+        uniform token type = "cubic"
+        uniform token basis = "bspline"
+        int[] curveVertexCounts = [9]
+        point3f[] points = [(0, 0, 0), (0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0), (0, 6, 0)]
+        float[] widths = [0, 0, .5, .5, .8, .5, .5, 0, 0] (interpolation = "vertex")
+        color3f[] primvars:displayColor = [(0, 1, 0)]
+}
+
+def BasisCurves "bezier"
+{
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+        float3 xformOp:translate = (3, 0, 0)
+
+        uniform token type = "cubic"
+        uniform token basis = "bezier"
+        int[] curveVertexCounts = [7]
+        point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+        float[] widths = [0, .5, .5, .8, .5, .5, 0] (interpolation = "vertex")
+        color3f[] primvars:displayColor = [(0, 0, 1), (0, 1, 0), (0, 1, 1), (1, 0, 0), (1,0,1), (1,1,0),
+                                           (1,1,1)] (interpolation = "vertex")
+}
+
+def DomeLight "dome"
+{
+}
+
+def Camera "camera"
+{
+      uniform token[] xformOpOrder = ["xformOp:translate"]
+      float3 xformOp:translate = (0, 3, 30)
+}

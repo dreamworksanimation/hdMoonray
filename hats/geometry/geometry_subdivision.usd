@@ -1,0 +1,102 @@
+#usda 1.0
+
+# orientation does not work for Cube, bug sent to pixar
+#def Cube "cube"
+#{
+#    double size = 2
+#    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.5, 0, 0, 1) )
+#    uniform token[] xformOpOrder = ["xformOp:transform"]
+#}
+
+def Mesh "cube"
+{
+    float3[] extent = [(-1, -1, -1), (1, 1, 1)]
+    int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
+    int[] faceVertexIndices =  [0, 1, 2, 3, 4, 5, 6, 7, 4, 7, 3, 2, 0, 3, 7, 6, 4, 2, 1, 5, 6, 5, 1, 0]
+    float3[] points = [(1, 1, 1), (-1, 1, 1), (-1, -1, 1), (1, -1, 1), (-1, -1, -1), (-1, 1, -1), (1, 1, -1), (1, -1, -1)]
+    uniform token subdivisionScheme = "none"
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.5, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+def "cubeCatmull" (
+    append references = </cube>
+) {
+    uniform token subdivisionScheme = "catmullClark"
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (1.5, 0, 0, 1) )
+}
+
+def "cubeLoop" (
+    append references = </cube>
+) {
+    uniform token subdivisionScheme = "loop"
+    int[] faceVertexCounts = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+    int[] faceVertexIndices =  [
+    0, 1, 2, 2, 3, 0,
+    4, 5, 6, 6, 7, 4,
+    4, 7, 3, 3, 2, 4,
+    0, 3, 7, 7, 6, 0,
+    4, 2, 1, 1, 5, 4,
+    6, 5, 1, 1, 0, 6]
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (4.5, 0, 0, 1) )
+}
+
+def "cubeBilinear" (
+    append references = </cube>
+) {
+    uniform token subdivisionScheme = "bilinear"
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (7.5, 0, 0, 1) )
+}
+
+################
+
+def "cubeFaceVaryingAll" (
+    append references = </cube>
+) {
+    uniform token faceVaryingLinearInterpolation = "all"
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.5, 3, 0, 1) )
+}
+
+def "cubeCatmullFaceVaryingAll" (
+    append references = </cubeCatmull>
+) {
+    uniform token faceVaryingLinearInterpolation = "all"
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (1.5, 3, 0, 1) )
+}
+
+def "cubeCatmullTriangleSmooth" (
+    append references = </cubeCatmull>
+) {
+    uniform token triangleSubdivisionRule = "smooth"
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (4.5, 3, 0, 1) )
+}
+
+def "cubeCatmullSharpCorners" (
+    append references = </cubeCatmull>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (7.5, 3, 0, 1) )
+    int[] cornerIndices = [2, 3, 5, 6]
+    float[] cornerSharpnesses = [10, 10, 10, 10]
+}
+
+def "cubeCatmullCreases" (
+    append references = </cubeCatmull>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (1.5, 6, 0, 1) )
+    int[] creaseIndices = [0, 1, 2, 4, 7, 6]
+    int[] creaseLengths = [3, 4]
+    float[] creaseSharpnesses = [10, 10]
+}
+
+################
+
+def Mesh "plane"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices =  [0, 1, 2, 3]
+    float3[] points = [(-3, -1.1, 1.5), (9,-1.1,1.5), (9,-1.1,-10.5), (-3,-1.1,-10.5)]
+    color3f[] primvars:displayColor = [(1, 0, 0), (1, 0, 1), (1, 0, 0), (1, 0, 1)] (
+        interpolation = "vertex"
+    )
+    uniform token subdivisionScheme = "none"
+}

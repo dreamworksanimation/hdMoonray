@@ -1,0 +1,60 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+RdlMeshGeometry("/ground/mesh_0") {
+    ["node_xform"] = blur(Mat4(100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 100, 0, 0, -1, 0, 1), Mat4(100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 100, 0, 0, -1, 0, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-5, 0, -5), Vec3(5, 0, -5), Vec3(-5, 0, 5), Vec3(5, 0, 5)},
+    ["orientation"] = "left-handed",
+    ["is_subd"] = false,
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/ground/mesh_0.primvars:primId")},
+    ["smooth_normal"] = false,
+}
+
+GeometrySet("allGeometry") {
+    RdlMeshGeometry("/ground/mesh_0"),
+}
+
+Layer("defaultLayer") {
+    {RdlMeshGeometry("/ground/mesh_0"), "", UsdPreviewSurface("/materials/usdpreviewsurfaceground/usdpreviewsurfaceground"), LightSet("LightSet30AD42"), undef(), undef(), undef(), undef(), undef()},
+}
+
+UsdPreviewSurface("/materials/usdpreviewsurfaceground/usdpreviewsurfaceground") {
+}
+
+RectLight("/lights/light1") {
+    ["node_xform"] = blur(Mat4(0.49999999999999978, -0.86602540378443871, 0, 0, -0.86602540378443871, -0.49999999999999978, 0, 0, 0, 0, -1, 0, -1.666666666666667, 0, 0, 1), Mat4(0.49999999999999978, -0.86602540378443871, 0, 0, -0.86602540378443871, -0.49999999999999978, 0, 0, 0, 0, -1, 0, -1.666666666666667, 0, 0, 1)),
+    ["mb"] = true,
+    ["visible_in_camera"] = "force on",
+    ["intensity"] = 5,
+    ["normalized"] = false,
+}
+
+LightSet("LightSet30AD42") {
+    RectLight("/lights/light1"),
+}
+
+PerspectiveCamera("/camera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)),
+    ["far"] = 1000000,
+    ["focal"] = blur(0.5, 0.5),
+    ["film_width_aperture"] = 0.209549993,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)),
+    ["far"] = 1000000,
+    ["focal"] = blur(0.5, 0.5),
+    ["film_width_aperture"] = 0.209549993,
+}
+
+UserData("/ground/mesh_0.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 0},
+    ["rate"] = "constant",
+}

@@ -1,0 +1,283 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+AttributeMap("displayColor") {
+    ["default_value"] = bind(undef(), Rgb(0.5, 0.5, 0.5)),
+    ["primitive_attribute_name"] = "displayColor",
+}
+
+AttributeMap("displayOpacity") {
+    ["primitive_attribute_name"] = "displayOpacity",
+    ["primitive_attribute_type"] = "float",
+}
+
+RdlMeshGeometry("/world/plane") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 0, 0, 0, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 0, 0, 0, 1)),
+    ["side_type"] = "force single-sided",
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 2, 3},
+    ["vertex_list_0"] = { Vec3(-3, -1.10000002, 1.5), Vec3(9, -1.10000002, 1.5), Vec3(9, -1.10000002, -10.5), Vec3(-3, -1.10000002, -10.5)},
+    ["is_subd"] = false,
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/world/plane.primvars:displayColor"), UserData("/world/plane.primvars:primId")},
+    ["smooth_normal"] = false,
+}
+
+SphereGeometry("/world/sphere") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 0, 0, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 0, 0, 1)),
+}
+
+SphereGeometry("/world/sphere10") {
+    ["node_xform"] = blur(Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 4.2426406871192857, -4.2426406871192848, 1), Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 4.2426406871192857, -4.2426406871192848, 1)),
+    ["radius"] = 1.5,
+    ["zmin"] = -1.5,
+    ["zmax"] = 1.5,
+    ["phi_max"] = 180,
+}
+
+SphereGeometry("/world/sphere11") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 4.2426406871192857, -4.2426406871192848, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 4.2426406871192857, -4.2426406871192848, 1)),
+}
+
+SphereGeometry("/world/sphere12") {
+    ["node_xform"] = blur(Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 4.2426406871192857, -4.2426406871192848, 1), Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 4.2426406871192857, -4.2426406871192848, 1)),
+    ["radius"] = 2,
+    ["zmin"] = -2,
+}
+
+SphereGeometry("/world/sphere13") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 6.3639610306789285, -6.3639610306789276, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 6.3639610306789285, -6.3639610306789276, 1)),
+    ["radius"] = 1.5,
+    ["zmin"] = -1.5,
+    ["zmax"] = 1.5,
+    ["phi_max"] = 180,
+}
+
+SphereGeometry("/world/sphere14") {
+    ["node_xform"] = blur(Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 6.3639610306789285, -6.3639610306789276, 1), Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 6.3639610306789285, -6.3639610306789276, 1)),
+}
+
+SphereGeometry("/world/sphere15") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 6.3639610306789285, -6.3639610306789276, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 6.3639610306789285, -6.3639610306789276, 1)),
+    ["radius"] = 2,
+    ["zmin"] = -2,
+}
+
+SphereGeometry("/world/sphere16") {
+    ["node_xform"] = blur(Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 6.3639610306789285, -6.3639610306789276, 1), Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 6.3639610306789285, -6.3639610306789276, 1)),
+    ["phi_max"] = 180,
+}
+
+SphereGeometry("/world/sphere2") {
+    ["node_xform"] = blur(Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 0, 0, 1), Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 0, 0, 1)),
+    ["radius"] = 2,
+    ["zmin"] = -2,
+}
+
+SphereGeometry("/world/sphere3") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 0, 0, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 0, 0, 1)),
+    ["phi_max"] = 180,
+}
+
+SphereGeometry("/world/sphere4") {
+    ["node_xform"] = blur(Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 0, 0, 1), Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 0, 0, 1)),
+    ["radius"] = 1.5,
+    ["zmin"] = -1.5,
+    ["zmax"] = 1.5,
+    ["phi_max"] = 180,
+}
+
+SphereGeometry("/world/sphere5") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 2.1213203435596428, -2.1213203435596424, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 2.1213203435596428, -2.1213203435596424, 1)),
+    ["radius"] = 2,
+    ["zmin"] = -2,
+}
+
+SphereGeometry("/world/sphere6") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 2.1213203435596428, -2.1213203435596424, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 1.5, 2.1213203435596428, -2.1213203435596424, 1)),
+    ["phi_max"] = 180,
+}
+
+SphereGeometry("/world/sphere7") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 2.1213203435596428, -2.1213203435596424, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 4.5, 2.1213203435596428, -2.1213203435596424, 1)),
+    ["radius"] = 1.5,
+    ["zmin"] = -1.5,
+    ["zmax"] = 1.5,
+    ["phi_max"] = 180,
+}
+
+SphereGeometry("/world/sphere8") {
+    ["node_xform"] = blur(Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 2.1213203435596428, -2.1213203435596424, 1), Mat4(-1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, 7.5, 2.1213203435596428, -2.1213203435596424, 1)),
+}
+
+SphereGeometry("/world/sphere9") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 4.2426406871192857, -4.2426406871192848, 1), Mat4(1, 0, 0, 0, 0, 0.70710678118654746, 0.70710678118654757, 0, 0, -0.70710678118654757, 0.70710678118654746, 0, -1.5, 4.2426406871192857, -4.2426406871192848, 1)),
+    ["phi_max"] = 180,
+}
+
+GeometrySet("allGeometry") {
+    RdlMeshGeometry("/world/plane"),
+    SphereGeometry("/world/sphere"),
+    SphereGeometry("/world/sphere10"),
+    SphereGeometry("/world/sphere11"),
+    SphereGeometry("/world/sphere12"),
+    SphereGeometry("/world/sphere13"),
+    SphereGeometry("/world/sphere14"),
+    SphereGeometry("/world/sphere15"),
+    SphereGeometry("/world/sphere16"),
+    SphereGeometry("/world/sphere2"),
+    SphereGeometry("/world/sphere3"),
+    SphereGeometry("/world/sphere4"),
+    SphereGeometry("/world/sphere5"),
+    SphereGeometry("/world/sphere6"),
+    SphereGeometry("/world/sphere7"),
+    SphereGeometry("/world/sphere8"),
+    SphereGeometry("/world/sphere9"),
+}
+
+Layer("defaultLayer") {
+    {RdlMeshGeometry("/world/plane"), "", UsdPreviewSurface("defaultMaterial"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere"), "", DwaBaseMaterial("/world/sphere/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere10"), "", DwaBaseMaterial("/world/sphere10/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere11"), "", DwaBaseMaterial("/world/sphere11/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere12"), "", DwaBaseMaterial("/world/sphere12/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere13"), "", DwaBaseMaterial("/world/sphere13/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere14"), "", DwaBaseMaterial("/world/sphere14/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere15"), "", DwaBaseMaterial("/world/sphere15/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere16"), "", DwaBaseMaterial("/world/sphere16/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere2"), "", DwaBaseMaterial("/world/sphere2/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere3"), "", DwaBaseMaterial("/world/sphere3/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere4"), "", DwaBaseMaterial("/world/sphere4/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere5"), "", DwaBaseMaterial("/world/sphere5/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere6"), "", DwaBaseMaterial("/world/sphere6/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere7"), "", DwaBaseMaterial("/world/sphere7/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere8"), "", DwaBaseMaterial("/world/sphere8/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {SphereGeometry("/world/sphere9"), "", DwaBaseMaterial("/world/sphere9/surfacing/baseMtl"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+}
+
+DwaBaseMaterial("/world/sphere/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere10/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere11/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere12/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere13/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere14/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere15/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere16/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere2/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere3/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere4/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere5/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere6/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere7/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere8/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+DwaBaseMaterial("/world/sphere9/surfacing/baseMtl") {
+    ["roughness"] = bind(undef(), 0.200000003),
+    ["albedo"] = bind(undef(), Rgb(0.100000001, 0.200000003, 0.300000012)),
+}
+
+UsdPreviewSurface("defaultMaterial") {
+    ["diffuseColor"] = bind(AttributeMap("displayColor"), Rgb(1, 1, 1)),
+    ["roughness"] = bind(undef(), 0.300000012),
+    ["opacity"] = bind(AttributeMap("displayOpacity"), 1),
+}
+
+EnvLight("defaultLight") {
+    ["max_shadow_distance"] = 100,
+}
+
+LightSet("LightSet0E11AB") {
+    EnvLight("defaultLight"),
+}
+
+PerspectiveCamera("/app_scene/free_cam") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, -0, 1, 0, 3, 3.5355339059327386, 43.242023467114137, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, -0, 1, 0, 3, 3.5355339059327386, 43.242023467114137, 1)),
+    ["far"] = 1000000,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(50, 50),
+    ["film_width_aperture"] = 20.9549999,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, -0, 1, 0, 3, 3.5355339059327386, 43.242023467114137, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, -0, 1, 0, 3, 3.5355339059327386, 43.242023467114137, 1)),
+    ["far"] = 1000000,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(50, 50),
+    ["film_width_aperture"] = 20.9549999,
+}
+
+UserData("/world/plane.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 16},
+    ["rate"] = "constant",
+}
+
+UserData("/world/plane.primvars:displayColor") {
+    ["color_key"] = "displayColor",
+    ["color_values_0"] = { Rgb(1, 0, 0), Rgb(1, 0, 1), Rgb(1, 0, 0), Rgb(1, 0, 1)},
+    ["rate"] = "vertex",
+}

@@ -1,0 +1,98 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+RdlMeshGeometry("/floor") {
+    ["node_xform"] = blur(Mat4(20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1), Mat4(20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/floor.primvars:primId")},
+}
+
+RdlMeshGeometry("/wall") {
+    ["node_xform"] = blur(Mat4(20, 0, 0, 0, 0, 0, 1, 0, 0, -10, 0, 0, 0, 5, -10, 1), Mat4(20, 0, 0, 0, 0, 0, 1, 0, 0, -10, 0, 0, 0, 5, -10, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/wall.primvars:primId")},
+}
+
+GeometrySet("allGeometry") {
+    RdlMeshGeometry("/floor"),
+    RdlMeshGeometry("/wall"),
+}
+
+Layer("defaultLayer") {
+    {RdlMeshGeometry("/floor"), "", BaseMaterial("/surface/baseMtl"), LightSet("LightSet164831"), undef(), undef(), LightFilterSet("LightFilterSet13F8D"), undef(), undef()},
+    {RdlMeshGeometry("/wall"), "", BaseMaterial("/surface/baseMtl"), LightSet("LightSet164831"), undef(), undef(), LightFilterSet("LightFilterSet13F8D"), undef(), undef()},
+}
+
+BaseMaterial("/surface/baseMtl") {
+}
+
+SpotLight("/spot") {
+    ["node_xform"] = blur(Mat4(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 9, -8, 1), Mat4(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 9, -8, 1)),
+    ["intensity"] = 0.200000003,
+    ["light_filters"] = { BarnDoorLightFilter("/barnDoor")},
+    ["lens_radius"] = 0.5,
+    ["outer_cone_angle"] = 90,
+    ["inner_cone_angle"] = 90,
+}
+
+LightFilterSet("LightFilterSet13F8D") {
+    BarnDoorLightFilter("/barnDoor"),
+}
+
+LightSet("LightSet164831") {
+    SpotLight("/spot"),
+}
+
+PerspectiveCamera("/camera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1)),
+    ["near"] = 0.00999999978,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(300, 300),
+    ["film_width_aperture"] = 240,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1)),
+    ["near"] = 0.00999999978,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(300, 300),
+    ["film_width_aperture"] = 240,
+}
+
+BarnDoorLightFilter("/barnDoor") {
+    ["projector_focal_distance"] = 9,
+    ["projector_height"] = 0.5,
+    ["pre_barn_mode"] = "black",
+    ["pre_barn_distance"] = 0,
+    ["edge_scale_bottom"] = 0.109999999,
+    ["edge_scale_left"] = 0.5,
+    ["edge_scale_right"] = 10,
+    ["density"] = 0.949999988,
+    ["radius"] = 0.200000003,
+    ["edge"] = 0.200000003,
+    ["mode"] = "physical",
+    ["rotation"] = 35,
+}
+
+UserData("/wall.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 1},
+    ["rate"] = "constant",
+}
+
+UserData("/floor.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 0},
+    ["rate"] = "constant",
+}

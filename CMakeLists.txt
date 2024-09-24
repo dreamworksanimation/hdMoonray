@@ -91,6 +91,7 @@ add_subdirectory(lib)
 add_subdirectory(plugin)
 add_subdirectory(cmd)
 add_subdirectory(sessions)
+add_subdirectory(hats)
 
 # ================================================
 # Install

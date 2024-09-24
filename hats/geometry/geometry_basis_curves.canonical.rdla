@@ -1,0 +1,119 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+AttributeMap("displayColor") {
+    ["default_value"] = bind(undef(), Rgb(0.5, 0.5, 0.5)),
+    ["primitive_attribute_name"] = "displayColor",
+}
+
+AttributeMap("displayOpacity") {
+    ["primitive_attribute_name"] = "displayOpacity",
+    ["primitive_attribute_type"] = "float",
+}
+
+RdlCurveGeometry("/bezier") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 3, 0, 0, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 3, 0, 0, 1)),
+    ["curves_vertex_count"] = { 7},
+    ["vertex_list_0"] = { Vec3(0, 0, 0), Vec3(1, 1, 0), Vec3(1, 2, 0), Vec3(0, 3, 0), Vec3(-1, 4, 0), Vec3(-1, 5, 0), Vec3(0, 6, 0)},
+    ["radius_list"] = { 0, 0.25, 0.25, 0.400000006, 0.25, 0.25, 0},
+    ["primitive_attributes"] = { UserData("/bezier.primvars:displayColor"), UserData("/bezier.primvars:primId")},
+}
+
+RdlCurveGeometry("/bspline") {
+    ["curves_vertex_count"] = { 9},
+    ["vertex_list_0"] = { Vec3(0, 0, 0), Vec3(0, 0, 0), Vec3(1, 1, 0), Vec3(1, 2, 0), Vec3(0, 3, 0), Vec3(-1, 4, 0), Vec3(-1, 5, 0), Vec3(0, 6, 0), Vec3(0, 6, 0)},
+    ["radius_list"] = { 0, 0, 0.25, 0.25, 0.400000006, 0.25, 0.25, 0, 0},
+    ["curve_type"] = "bspline",
+    ["primitive_attributes"] = { UserData("/bspline.primvars:displayColor"), UserData("/bspline.primvars:primId")},
+}
+
+RdlCurveGeometry("/linear") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -3, 0, 0, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -3, 0, 0, 1)),
+    ["curves_vertex_count"] = { 7},
+    ["vertex_list_0"] = { Vec3(0, 0, 0), Vec3(1, 1, 0), Vec3(1, 2, 0), Vec3(0, 3, 0), Vec3(-1, 4, 0), Vec3(-1, 5, 0), Vec3(0, 6, 0)},
+    ["radius_list"] = { 0, 0.25, 0.25, 0.400000006, 0.25, 0.25, 0},
+    ["curve_type"] = "linear",
+    ["primitive_attributes"] = { UserData("/linear.primvars:displayColor"), UserData("/linear.primvars:primId")},
+}
+
+GeometrySet("allGeometry") {
+    RdlCurveGeometry("/bezier"),
+    RdlCurveGeometry("/bspline"),
+    RdlCurveGeometry("/linear"),
+}
+
+Layer("defaultLayer") {
+    {RdlCurveGeometry("/bezier"), "", UsdPreviewSurface("defaultMaterial"), LightSet("LightSet011CB2"), undef(), undef(), undef(), undef(), undef()},
+    {RdlCurveGeometry("/bspline"), "", UsdPreviewSurface("defaultMaterial"), LightSet("LightSet011CB2"), undef(), undef(), undef(), undef(), undef()},
+    {RdlCurveGeometry("/linear"), "", UsdPreviewSurface("defaultMaterial"), LightSet("LightSet011CB2"), undef(), undef(), undef(), undef(), undef()},
+}
+
+UsdPreviewSurface("defaultMaterial") {
+    ["diffuseColor"] = bind(AttributeMap("displayColor"), Rgb(1, 1, 1)),
+    ["roughness"] = bind(undef(), 0.300000012),
+    ["opacity"] = bind(AttributeMap("displayOpacity"), 1),
+}
+
+EnvLight("/dome") {
+}
+
+LightSet("LightSet011CB2") {
+    EnvLight("/dome"),
+}
+
+PerspectiveCamera("/camera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 3, 30, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 3, 30, 1)),
+    ["far"] = 1000000,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(50, 50),
+    ["film_width_aperture"] = 20.9549999,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 3, 30, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 3, 30, 1)),
+    ["far"] = 1000000,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(50, 50),
+    ["film_width_aperture"] = 20.9549999,
+}
+
+UserData("/linear.primvars:displayColor") {
+    ["color_key"] = "displayColor",
+    ["color_values_0"] = { Rgb(1, 0, 0)},
+    ["rate"] = "constant",
+}
+
+UserData("/bspline.primvars:displayColor") {
+    ["color_key"] = "displayColor",
+    ["color_values_0"] = { Rgb(0, 1, 0)},
+    ["rate"] = "constant",
+}
+
+UserData("/bspline.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 1},
+    ["rate"] = "constant",
+}
+
+UserData("/linear.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 0},
+    ["rate"] = "constant",
+}
+
+UserData("/bezier.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 2},
+    ["rate"] = "constant",
+}
+
+UserData("/bezier.primvars:displayColor") {
+    ["color_key"] = "displayColor",
+    ["color_values_0"] = { Rgb(0, 0, 1), Rgb(0, 1, 0), Rgb(0, 1, 1), Rgb(1, 0, 0), Rgb(1, 0, 1), Rgb(1, 1, 0), Rgb(1, 1, 1)},
+    ["rate"] = "vertex",
+}

@@ -1,0 +1,41 @@
+#usda 1.0
+
+def Camera "camera"
+{
+    matrix4d xformOp:transform = ( (0.927173, 0, 0.374633, 0),
+                                   (0.0972581, 0.965714, -0.240702, 0),
+                                   (-0.361788, 0.259609, 0.895384, 0),
+                                   (-2.05326, 2.95242, 0.348492, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+
+    float focalLength = 300;
+    float horizontalAperture = 240;
+    float verticalAperture = 240
+    float2 clippingRange = (0.01, 10000)
+}
+
+def "gronkle" ( payload =  @/work/rd/raas/hydra/rats/data/gronkle.usdc@)
+{
+    matrix4d xformOp:transform:a = ( (0.0216271, 0, -0.020791, 0),
+                                   (0, 0.03, 0, 0),
+                                   (0.020791, 0, 0.0216271, 0),
+                                   (0, 0, -7, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:a","xformOp:transform"]
+}
+
+def DomeLight "dome"
+{
+    matrix4d xformOp:transform = ( (-0.459297, 0, 0.888282, 0),
+                                   (0.742928, 0.548173, 0.38414, 0),
+                                   (-0.486933, 0.836364, -0.251775, 0),
+                                   (-4.4944, 8.78556, -9.49043, 1) )
+    token moonray:visible_in_camera = "force on"
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    color3f color = (1, 1, 1)
+    color3f inputs:color = (1, 1, 1)
+    float intensity = 1
+    float inputs:intensity = 1
+    asset texture:file = "/work/gshad/moonshine_test/rats_data/light/env_textured/env_maps/burning_man-med.exr"
+    asset inputs:texture:file = "/work/gshad/moonshine_test/rats_data/light/env_textured/env_maps/burning_man-med.exr"
+    bool moonray:sample_upper_hemisphere_only = false
+}

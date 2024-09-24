@@ -1,0 +1,93 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+RdlMeshGeometry("/floor") {
+    ["node_xform"] = blur(Mat4(20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1), Mat4(20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/floor.primvars:primId")},
+}
+
+RdlMeshGeometry("/wall") {
+    ["node_xform"] = blur(Mat4(20, 0, 0, 0, 0, 0, 1, 0, 0, -10, 0, 0, 0, 5, -10, 1), Mat4(20, 0, 0, 0, 0, 0, 1, 0, 0, -10, 0, 0, 0, 5, -10, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/wall.primvars:primId")},
+}
+
+GeometrySet("allGeometry") {
+    RdlMeshGeometry("/floor"),
+    RdlMeshGeometry("/wall"),
+}
+
+Layer("defaultLayer") {
+    {RdlMeshGeometry("/floor"), "", BaseMaterial("/surface/baseMtl"), LightSet("LightSet164831"), undef(), undef(), LightFilterSet("LightFilterSet111FC"), undef(), undef()},
+    {RdlMeshGeometry("/wall"), "", BaseMaterial("/surface/baseMtl"), LightSet("LightSet164831"), undef(), undef(), LightFilterSet("LightFilterSet111FC"), undef(), undef()},
+}
+
+BaseMaterial("/surface/baseMtl") {
+}
+
+SpotLight("/spot") {
+    ["node_xform"] = blur(Mat4(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 9, -8, 1), Mat4(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 9, -8, 1)),
+    ["intensity"] = 0.200000003,
+    ["light_filters"] = { RodLightFilter("/rod")},
+    ["lens_radius"] = 0.5,
+    ["outer_cone_angle"] = 90,
+    ["inner_cone_angle"] = 90,
+}
+
+LightFilterSet("LightFilterSet111FC") {
+    RodLightFilter("/rod"),
+}
+
+LightSet("LightSet164831") {
+    SpotLight("/spot"),
+}
+
+PerspectiveCamera("/camera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1)),
+    ["near"] = 0.00999999978,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(300, 300),
+    ["film_width_aperture"] = 240,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1)),
+    ["near"] = 0.00999999978,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(300, 300),
+    ["film_width_aperture"] = 240,
+}
+
+UserData("/wall.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 1},
+    ["rate"] = "constant",
+}
+
+UserData("/floor.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 0},
+    ["rate"] = "constant",
+}
+
+RodLightFilter("/rod") {
+    ["node_xform"] = blur(Mat4(0.89000000000000001, 0.01, -0.44335140454101996, 0, 0.089999999999999997, 0.96999999999999997, 0.19, 0, 0.42999999999999999, -0.20999999999999999, 0.87, 0, 8, 13, -6, 1), Mat4(0.89000000000000001, 0.01, -0.44335140454101996, 0, 0.089999999999999997, 0.96999999999999997, 0.19, 0, 0.42999999999999999, -0.20999999999999999, 0.87, 0, 8, 13, -6, 1)),
+    ["width"] = 10,
+    ["depth"] = 10,
+    ["height"] = 20,
+    ["radius"] = 2,
+    ["edge"] = 2,
+    ["color"] = Rgb(1, 0, 0.300000012),
+}

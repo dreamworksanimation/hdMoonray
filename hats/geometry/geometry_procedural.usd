@@ -1,0 +1,151 @@
+#usda 1.0
+
+def Xform "world"
+{
+    float xformOp:rotateX = 45
+    uniform token[] xformOpOrder = ["xformOp:rotateX"]
+    float3 xformOp:rotate = (0,1,0)
+
+def Procedural "sphere"
+{
+    token procedural:class = "SphereGeometry"
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.5, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    float3[] extent = [(-1,-1,-1), (1,1,1)]
+    rel material:binding = <surfacing>
+    def Material "surfacing"
+    {
+        color4f outputs:moonray:surface.connect = <baseMtl.outputs:surface>
+
+        def Shader "baseMtl"
+        {
+            uniform token info:id = "DwaBaseMaterial"
+            color4f outputs:surface
+            float inputs:roughness = .2
+            color3f inputs:albedo = (.1,.2,.3)
+         }
+    }
+}
+
+def "sphere2" (
+    append references = </world/sphere>
+) {
+    float procedural:radius = 2
+    float procedural:zmin = -2
+    matrix4d xformOp:transform = ( (-1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (1.5, 0, 0, 1) )
+    float3[] extent = [(-2,-2,-2), (2,2,1)]
+}
+
+def "sphere3" (
+    append references = </world/sphere>
+) {
+    float procedural:phi_max = 180
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (4.5, 0, 0, 1) )
+    float3[] extent = [(-1,0,-1), (1,1,1)]
+}
+
+def "sphere4" (
+    append references = </world/sphere>
+) {
+    float procedural:radius = 1.5
+    float procedural:phi_max = 180
+    float procedural:zmax = 1.5
+    float procedural:zmin = -1.5
+    matrix4d xformOp:transform = ( (-1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (7.5, 0, 0, 1) )
+    float3[] extent = [(-1.5,0,-1.5), (1.5,1.5,1.5)]
+}
+
+################
+
+def "sphere5" (
+    append references = </world/sphere2>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.5, 0, -3, 1) )
+}
+
+def "sphere6" (
+    append references = </world/sphere3>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (1.5, 0, -3, 1) )
+}
+
+def "sphere7" (
+    append references = </world/sphere4>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (4.5, 0, -3, 1) )
+}
+
+def "sphere8" (
+    append references = </world/sphere>
+) {
+    matrix4d xformOp:transform = ( (-1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (7.5, 0, -3, 1) )
+}
+
+################
+
+def "sphere9" (
+    append references = </world/sphere3>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.5, 0, -6, 1) )
+}
+
+def "sphere10" (
+    append references = </world/sphere4>
+) {
+    matrix4d xformOp:transform = ( (-1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (1.5, 0, -6, 1) )
+}
+
+def "sphere11" (
+    append references = </world/sphere>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (4.5, 0, -6, 1) )
+}
+
+def "sphere12" (
+    append references = </world/sphere2>
+) {
+    matrix4d xformOp:transform = ( (-1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (7.5, 0, -6, 1) )
+}
+
+################
+
+def "sphere13" (
+    append references = </world/sphere4>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.5, 0, -9, 1) )
+}
+
+def "sphere14" (
+    append references = </world/sphere>
+) {
+    matrix4d xformOp:transform = ( (-1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (1.5, 0, -9, 1) )
+}
+
+def "sphere15" (
+    append references = </world/sphere2>
+) {
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (4.5, 0, -9, 1) )
+}
+
+def "sphere16" (
+    append references = </world/sphere3>
+) {
+    matrix4d xformOp:transform = ( (-1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (7.5, 0, -9, 1) )
+}
+
+################
+
+def Mesh "plane"
+{
+    int primvars:moonray:side_type = 1
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices =  [0, 1, 2, 3]
+    float3[] points = [(-3, -1.1, 1.5), (9,-1.1,1.5), (9,-1.1,-10.5), (-3,-1.1,-10.5)]
+    color3f[] primvars:displayColor = [(1, 0, 0), (1, 0, 1), (1, 0, 0), (1, 0, 1)] (
+        interpolation = "vertex"
+    )
+    uniform token subdivisionScheme = "none"
+}
+
+}
+

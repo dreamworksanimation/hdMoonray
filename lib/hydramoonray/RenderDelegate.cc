@@ -42,6 +42,37 @@
 
 //#define DEBUG_MSG
 
+namespace {
+
+    // Testing is much easier if the names of code-generated objects are 
+    // consistent from run to run. Given the nature of Hydra, 
+    // we can't rely on objects to always be processed in the same order.
+    // Therefore we have to name them using a content hash, rather than 
+    // sequentially. The hash algorithm has to produces the same value
+    // from run-to-run, with collisions very unlikely.
+    constexpr size_t HASH_M = 2<<24 - 3; // prime, fits in 6 hex digits
+    constexpr size_t HASH_P = 127; 
+
+    size_t repeatableStringHash(const std::string& s)
+    {
+        // standard polynomial rolling algoritm
+        size_t hash = 0;
+        size_t p = 1;
+        for (unsigned char c : s) {
+            hash = (hash + c * p) % HASH_M;
+            p = (p * HASH_P) % HASH_M;
+        }
+        return hash;
+    }
+
+    unsigned hashObjectSet(std::set<scene_rdl2::rdl2::SceneObject*> objSet)
+    {
+        unsigned hash = 0;
+        for (auto& obj : objSet)
+            hash += repeatableStringHash(obj->getName());
+        return hash;
+    }
+}
 namespace hdMoonray {
 
 using scene_rdl2::logging::Logger;
@@ -609,15 +640,10 @@ RenderDelegate::updateAssignmentFromCategories(
     }
     std::swap(sets[CategoryType::ShadowLink], noShadowSet);}
 
-    // hash value only depends on the set of categories, not their order:
-    // This is assuming the hashes do not collide, which I have found to be reliable.
-    size_t hash[CategoryType::COUNT];
+    // compute a hash for each set
+    unsigned hash[CategoryType::COUNT];
     for (size_t i = 0; i < CategoryType::COUNT; ++i) {
-        // I could not get std::hash to work, also this insures order does not matter
-        size_t t = 0;
-        for (scene_rdl2::rdl2::SceneObject* sceneObject : sets[i])
-            t += reinterpret_cast<size_t>(sceneObject);
-        hash[i] = t;
+        hash[i] = hashObjectSet(sets[i]);
     }
 
     // Lock is needed so each set is only created once
@@ -627,9 +653,10 @@ RenderDelegate::updateAssignmentFromCategories(
         // must be set to a valid LightSet object, even if empty (MOONRAY-4854)
         assignment.mLightSet = emptyLightSet();
     } else {
-        scene_rdl2::rdl2::LightSet*& set = mLightSets[hash[CategoryType::LightLink]];
+        unsigned h = hash[CategoryType::LightLink];
+        scene_rdl2::rdl2::LightSet*& set = mLightSets[h];
         if (not set) {
-            char name[20]; snprintf(name, 20, "LightSet%d", int(mLightSets.size()));
+            char name[20]; snprintf(name, 20, "LightSet%06X", h);
             set = createSceneObject("LightSet", name)->asA<scene_rdl2::rdl2::LightSet>();
             UpdateGuard guard(set);
             for (auto& i : sets[CategoryType::LightLink])
@@ -640,9 +667,10 @@ RenderDelegate::updateAssignmentFromCategories(
     if (sets[CategoryType::ShadowLink].empty()) {
         assignment.mShadowSet = nullptr;
     } else {
-        scene_rdl2::rdl2::ShadowSet*& set = mShadowSets[hash[CategoryType::ShadowLink]];
+        unsigned h = hash[CategoryType::ShadowLink];
+        scene_rdl2::rdl2::ShadowSet*& set = mShadowSets[h];
         if (not set) {
-            char name[20]; snprintf(name, 20, "ShadowSet%d", int(mShadowSets.size()));
+            char name[20]; snprintf(name, 20, "ShadowSet%06X", h);
             set = createSceneObject("ShadowSet", name)->asA<scene_rdl2::rdl2::ShadowSet>();
             UpdateGuard guard(set);
             for (auto& i : sets[CategoryType::ShadowLink])
@@ -653,9 +681,10 @@ RenderDelegate::updateAssignmentFromCategories(
     if (sets[CategoryType::FilterLink].empty()) {
         assignment.mLightFilterSet = nullptr;
     } else {
-        scene_rdl2::rdl2::LightFilterSet*& set = mLightFilterSets[hash[CategoryType::FilterLink]];
+        unsigned h = hash[CategoryType::FilterLink];
+        scene_rdl2::rdl2::LightFilterSet*& set = mLightFilterSets[h];
         if (not set) {
-            char name[20]; snprintf(name, 20, "LightFilterSet%d", int(mLightFilterSets.size()));
+            char name[20]; snprintf(name, 20, "LightFilterSet%06X", h);
             set = createSceneObject("LightFilterSet", name)->asA<scene_rdl2::rdl2::LightFilterSet>();
             UpdateGuard guard(set);
             for (auto& i : sets[CategoryType::FilterLink])

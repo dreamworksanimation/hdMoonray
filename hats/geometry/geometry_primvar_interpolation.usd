@@ -1,0 +1,108 @@
+#usda 1.0
+
+def Camera "cam"
+{
+    float3 xformOp:translate = (0, 2, 25)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+}
+
+def Mesh "constant"
+{
+    float3 xformOp:translate = (-1.2, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    int[] faceVertexCounts = [3, 3]
+    int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
+    point3f[] points = [(-1, 0, 0), (1, 0, 0), (1, 1, 0), (-1, 1, 0)] (
+        interpolation = "vertex"
+    )
+    color3f[] primvars:displayColor = [(1, 0, 0)] (
+        interpolation = "constant"
+    )
+
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "uniform"
+{
+    float3 xformOp:translate = (1.2, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    int[] faceVertexCounts = [3, 3]
+    int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
+    point3f[] points = [(-1, 0, 0), (1, 0, 0), (1, 1, 0), (-1, 1, 0)] (
+        interpolation = "vertex"
+    )
+    color3f[] primvars:displayColor = [(1, 0, 0), (0,0,1)] (
+        interpolation = "uniform"
+    )
+
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "varying"
+{
+    float3 xformOp:translate = (-1.2, 1.5, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    int[] faceVertexCounts = [3, 3]
+    int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
+    point3f[] points = [(-1, 0, 0), (1, 0, 0), (1, 1, 0), (-1, 1, 0)] (
+        interpolation = "vertex"
+    )
+    color3f[] primvars:displayColor = [(1, 0, 0), (0,1,0), (0,0,1), (1,0,1)] (
+        interpolation = "varying"
+    )
+
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "vertex"
+{
+    float3 xformOp:translate = (1.2, 1.5, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    int[] faceVertexCounts = [3, 3]
+    int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
+    point3f[] points = [(-1, 0, 0), (1, 0, 0), (1, 1, 0), (-1, 1, 0)] (
+        interpolation = "vertex"
+    )
+    color3f[] primvars:displayColor = [(1, 0, 0), (0,1,0), (0,0,1), (1,0,1)] (
+        interpolation = "vertex"
+    )
+
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "faceVarying"
+{
+    float3 xformOp:translate = (-1.2, 3.0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    int[] faceVertexCounts = [3, 3]
+    int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
+    point3f[] points = [(-1, 0, 0), (1, 0, 0), (1, 1, 0), (-1, 1, 0)] (
+        interpolation = "vertex"
+    )
+    color3f[] primvars:displayColor = [(1, 0, 0), (0,1,0), (0,0,1),
+                                       (1,0,1),   (1,1,0),  (0,0,1)] (
+        interpolation = "faceVarying"
+    )
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "invalid"
+{
+ float3 xformOp:translate = (1.2, 3.0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    int[] faceVertexCounts = [3, 3]
+    int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
+    point3f[] points = [(-1, 0, 0), (1, 0, 0), (1, 1, 0), (-1, 1, 0)] (
+        interpolation = "vertex"
+    )
+    color3f[] primvars:displayColor = [(1, 0, 0), (0,1,0), (0,0,1), (1,0,1)] (
+        interpolation = "faceVarying"
+    )
+    uniform token subdivisionScheme = "none"
+}

@@ -1,0 +1,85 @@
+#usda 1.0
+
+def Camera "camera"
+{
+    matrix4d xformOp:transform = ( (1, 0, 0, 0),
+                                   (0, 1, 0, 0),
+                                   (0, 0, 1, 0),
+                                   (0, 0, 20, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+
+    float focalLength = 300;
+    float horizontalAperture = 240;
+    float verticalAperture = 240
+    float2 clippingRange = (0.01, 10000)
+}
+def Mesh "floor" 
+{
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+    
+    matrix4d xformOp:transform = ( (20, 0, 0, 0),
+                                   ( 0, 20, 0, 0),
+                                   ( 0, 0, 20, 0),
+                                   ( 0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    rel material:binding = </surface>
+}
+
+def Mesh "wall" 
+{
+    float3[] extent = [(-0.5, 0, -0.5), (0.5, 0, 0.5)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 3, 2]
+    point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+
+    matrix4d xformOp:transform = ( (20, 0, 0, 0),
+                                   (0, 0, 1, 0),
+                                   (0, -10, 0, 0),
+                                   (0, 5, -10, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    rel material:binding = </surface>
+}
+
+def Material "surface"
+{
+    color4f outputs:moonray:surface.connect = <baseMtl.outputs:surface>
+
+    def Shader "baseMtl"
+    {
+        uniform token info:id = "BaseMaterial"
+        color4f outputs:surface
+    }
+}
+
+def MoonrayLightFilter "vdb"
+{
+    uniform token moonray:class = "VdbLightFilter" 
+    double3 xformOp:scale = (0.02, 0.05, 0.01)
+    double3 xformOp:translate = (0, 1, -8)
+    token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    asset moonray:vdb_map = @/work/gshad/moonshine_test/rats_data/light/filter/vdb/textures/torus.vdb@    
+    float[] moonray:density_remap_outputs = [ 0.0, 0.1, 0.2, 0.5, 1.0]
+    float[] moonray:density_remap_inputs = [ 0.0, 0.25, 0.5, 0.75, 1.0 ]
+    int[] moonray:density_remap_interpolation_types = [ 1, 1, 1, 1, 1 ]
+    bool moonray:density_rescale_enable = true
+    string moonray:density_grid_name = "density"
+    int moonray:vdb_interpolation_type = 2
+    bool moonray:invert_density = true
+}
+
+def DiskLight "spot"
+{
+    uniform token moonray:class = "SpotLight"
+    matrix4d xformOp:transform = ( (0, 0, 1, 0),
+                                   (1, 0, 0, 0),
+                                   (0, 1, 0, 0),
+                                   (0, 9, -8, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    float inputs:intensity = 0.2
+    float inputs:shaping:cone:angle = 45
+    bool inputs:normalize = true
+    append rel light:filters = </vdb>
+}

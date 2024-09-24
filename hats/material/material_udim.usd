@@ -1,0 +1,105 @@
+#usda 1.0
+
+def Camera "camera"
+{
+    matrix4d xformOp:transform = ( (1, 0, 0, 0),
+                                   (0, 1, 0, 0),
+                                   (0, 0, 1, 0),
+                                   (0, 0, 8.75, 1) )
+
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+
+    float focalLength = 500;
+    float horizontalAperture = 240;
+    float verticalAperture = 240
+    float2 clippingRange = (1, 10000)
+}
+
+def RectLight "key"
+{
+    matrix4d xformOp:transform = ( (0.98480775301220802, 0, 0.17364817766693033, 0),
+                                   (0.030153689607045803, 0.98480775301220802, -0.17101007166283433, 0),
+                                   (-0.17101007166283433, 0.17364817766693033, 0.9698463103929541, 0),
+                                   (-17.101007166283434, 17.364817766693033, 96.984631039295408, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    float intensity = 12
+    float inputs:intensity = 12
+    float width = 50
+    float inputs:width = 50
+    float height = 50
+    float inputs:height = 50
+    bool normalize = true
+    bool inputs:normalize = true
+}
+
+def "plane1" ( payload = @/work/rd/raas/hydra/rats/data/plane_xz_unit.usd@ )
+{
+    matrix4d xformOp:transform = ( (2, 0, 0, 0),
+                                   (0, 0, 1, 0),
+                                   (0, 2, 0, 0),
+                                   (-1, 1, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    over "_" {
+        float2[] primvars:uv = [(0, 4), (4, 4), (4, 0), (0, 0)]
+    }
+    rel material:binding = </surfacing_plane1>
+}
+
+def "plane2" ( payload = @/work/rd/raas/hydra/rats/data/plane_xz_unit.usd@ )
+{
+    matrix4d xformOp:transform = ( (2, 0, 0, 0),
+                                   (0, 0, 1, 0),
+                                   (0, 2, 0, 0),
+                                   (1, -1, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+    over "_" {
+         float2[] primvars:uv = [(0, 4), (4, 4), (4, 0), (0, 0)]
+    }
+    rel material:binding = </surfacing_plane2>
+}
+
+def Material "surfacing_plane1"
+{
+        color4f outputs:moonray:surface.connect = <planeMtl.outputs:surface>
+
+        def Shader "planeMtl"
+        {
+            uniform token info:id = "BaseMaterial"
+            color4f outputs:surface
+            color3f inputs:diffuse_color.connect = <../planeMap.outputs:out>
+            float inputs:specular_factor = 0.02
+            float inputs:specular_roughness = 0.54772255750517
+            float inputs:directional_diffuse_roughness = 0.547723
+        }
+
+        def Shader "planeMap"
+        {
+            uniform token info:id = "ImageMap"
+            color3f outputs:out
+            asset inputs:texture = "/work/gshad/moonshine_test/rats_data/map/udim/udim/rgb_checker_black_<UDIM>.exr"
+            bool inputs:wrap_around = false
+        }
+}
+
+def Material "surfacing_plane2"
+{
+        color4f outputs:moonray:surface.connect = <planeMtl.outputs:surface>
+
+        def Shader "planeMtl"
+        {
+            uniform token info:id = "BaseMaterial"
+            color4f outputs:surface
+            color3f inputs:diffuse_color.connect = <../planeMap.outputs:out>
+            float inputs:specular_factor = 0.02
+            float inputs:specular_roughness = 0.54772255750517
+            float inputs:directional_diffuse_roughness = 0.547723
+        }
+
+        def Shader "planeMap"
+        {
+            uniform token info:id = "ImageMap"
+            color3f outputs:out
+            asset inputs:texture = "/work/gshad/moonshine_test/rats_data/map/udim/udim/rgb_checker_black_udim.exr"
+            bool inputs:wrap_around = false
+        }
+}

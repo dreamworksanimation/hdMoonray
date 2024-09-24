@@ -1,0 +1,106 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+AttributeMap("displayColor") {
+    ["default_value"] = bind(undef(), Rgb(0.5, 0.5, 0.5)),
+    ["primitive_attribute_name"] = "displayColor",
+}
+
+AttributeMap("displayOpacity") {
+    ["primitive_attribute_name"] = "displayOpacity",
+    ["primitive_attribute_type"] = "float",
+}
+
+RdlMeshGeometry("/group1/cylinder") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 2.2204460492503131e-16, -1, 0, 0, 1, 2.2204460492503131e-16, 0, 0, 0, 0, 1), Mat4(1, 0, 0, 0, 0, 2.2204460492503131e-16, -1, 0, 0, 1, 2.2204460492503131e-16, 0, 0, 0, 0, 1)),
+    ["face_vertex_count"] = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+    ["vertices_by_index"] = { 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6, 3, 0, 4, 7, 4, 5, 9, 8, 5, 6, 10, 9, 6, 7, 11, 10, 7, 4, 8, 11, 8, 9, 13, 12, 9, 10, 14, 13, 10, 11, 15, 14, 11, 8, 12, 15, 12, 13, 17, 16, 13, 14, 18, 17, 14, 15, 19, 18, 15, 12, 16, 19},
+    ["vertex_list_0"] = { Vec3(-1, 0, -6), Vec3(0, -1, -6), Vec3(1, 0, -6), Vec3(0, 1, -6), Vec3(-1, 0, -0.200015426), Vec3(-0.399992317, -1, -0.600007713), Vec3(0.200015426, 0, -1), Vec3(-0.399992317, 1, -0.600007713), Vec3(-0.500009656, 0, 0.499990374), Vec3(0, -1, 0), Vec3(0.500009656, 0, -0.499990374), Vec3(0, 1, 0), Vec3(0.199976891, 0, 1), Vec3(0.599988461, -1, 0.400011569), Vec3(1, 0, -0.199976891), Vec3(0.599988461, 1, 0.400011569), Vec3(5.99986553, 0, 1.00009632), Vec3(5.99988461, -1, 0.000115513802), Vec3(5.99990368, 0, -0.999865234), Vec3(5.99988461, 1, 0.000115513802)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/group1/cylinder.primvars:displayColor"), UserData("/group1/cylinder.primvars:primId")},
+}
+
+RdlMeshGeometry("/group1/skeleton") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 2.2204460492503131e-16, -1, 0, 0, 1, 2.2204460492503131e-16, 0, 0, 0, 0, 1), Mat4(1, 0, 0, 0, 0, 2.2204460492503131e-16, -1, 0, 0, 1, 2.2204460492503131e-16, 0, 0, 0, 0, 1)),
+    ["face_vertex_count"] = { 3, 3, 3, 3, 3, 3, 3, 3},
+    ["vertices_by_index"] = { 0, 2, 1, 0, 3, 2, 0, 4, 3, 0, 1, 4, 5, 7, 6, 5, 8, 7, 5, 9, 8, 5, 6, 9},
+    ["vertex_list_0"] = { Vec3(0, 0, 0), Vec3(0.600000024, 0.600000024, -6), Vec3(0.600000024, -0.600000024, -6), Vec3(-0.600000024, -0.600000024, -6), Vec3(-0.600000024, 0.600000024, -6), Vec3(5.99988461, 0, 0.000115513802), Vec3(1.15513803e-05, 0.600000024, -0.599988461), Vec3(1.15513803e-05, -0.600000024, -0.599988461), Vec3(-1.15513803e-05, -0.600000024, 0.599988461), Vec3(-1.15513803e-05, 0.600000024, 0.599988461)},
+    ["is_subd"] = false,
+    ["primitive_attributes"] = { UserData("/group1/skeleton.primvars:displayColor"), UserData("/group1/skeleton.primvars:displayOpacity"), UserData("/group1/skeleton.primvars:primId")},
+    ["smooth_normal"] = false,
+}
+
+GeometrySet("allGeometry") {
+    RdlMeshGeometry("/group1/cylinder"),
+    RdlMeshGeometry("/group1/skeleton"),
+}
+
+Layer("defaultLayer") {
+    {RdlMeshGeometry("/group1/cylinder"), "", UsdPreviewSurface("defaultMaterial"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+    {RdlMeshGeometry("/group1/skeleton"), "", UsdPreviewSurface("defaultMaterial"), LightSet("LightSet0E11AB"), undef(), undef(), undef(), undef(), undef()},
+}
+
+UsdPreviewSurface("defaultMaterial") {
+    ["diffuseColor"] = bind(AttributeMap("displayColor"), Rgb(1, 1, 1)),
+    ["roughness"] = bind(undef(), 0.300000012),
+    ["opacity"] = bind(AttributeMap("displayOpacity"), 1),
+}
+
+EnvLight("defaultLight") {
+    ["max_shadow_distance"] = 100,
+}
+
+LightSet("LightSet0E11AB") {
+    EnvLight("defaultLight"),
+}
+
+PerspectiveCamera("/app_scene/free_cam") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.9999423027038574, -2.9999422430992126, 27.995246887207031, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.9999423027038574, -2.9999422430992126, 27.995246887207031, 1)),
+    ["far"] = 1000000,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(50, 50),
+    ["film_width_aperture"] = 20.9549999,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.9999423027038574, -2.9999422430992126, 27.995246887207031, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.9999423027038574, -2.9999422430992126, 27.995246887207031, 1)),
+    ["far"] = 1000000,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(50, 50),
+    ["film_width_aperture"] = 20.9549999,
+}
+
+UserData("/group1/skeleton.primvars:displayColor") {
+    ["color_key"] = "displayColor",
+    ["color_values_0"] = { Rgb(0.5, 0.5, 0.5)},
+    ["rate"] = "constant",
+}
+
+UserData("/group1/cylinder.primvars:displayColor") {
+    ["color_key"] = "displayColor",
+    ["color_values_0"] = { Rgb(1, 0, 0), Rgb(1, 0, 0), Rgb(1, 0, 0), Rgb(1, 0, 0), Rgb(0.600000024, 0, 0.400000006), Rgb(0.600000024, 0, 0.400000006), Rgb(0.600000024, 0, 0.400000006), Rgb(0.600000024, 0, 0.400000006), Rgb(0.5, 0, 0.5), Rgb(0.5, 0, 0.5), Rgb(0.5, 0, 0.5), Rgb(0.5, 0, 0.5), Rgb(0.400000006, 0, 0.600000024), Rgb(0.400000006, 0, 0.600000024), Rgb(0.400000006, 0, 0.600000024), Rgb(0.400000006, 0, 0.600000024), Rgb(0, 0, 1), Rgb(0, 0, 1), Rgb(0, 0, 1), Rgb(0, 0, 1)},
+    ["rate"] = "vertex",
+}
+
+UserData("/group1/skeleton.primvars:displayOpacity") {
+    ["float_key"] = "displayOpacity",
+    ["float_values_0"] = { 1},
+    ["rate"] = "constant",
+}
+
+UserData("/group1/cylinder.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 0},
+    ["rate"] = "constant",
+}
+
+UserData("/group1/skeleton.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 1},
+    ["rate"] = "constant",
+}

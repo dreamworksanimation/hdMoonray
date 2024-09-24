@@ -1,0 +1,95 @@
+SceneVariables {
+    ["camera"] = PerspectiveCamera("primaryCamera"),
+    ["layer"] = Layer("defaultLayer"),
+    ["enable_motion_blur"] = false,
+}
+
+RdlMeshGeometry("/floor") {
+    ["node_xform"] = blur(Mat4(20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1), Mat4(20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/floor.primvars:primId")},
+}
+
+RdlMeshGeometry("/wall") {
+    ["node_xform"] = blur(Mat4(20, 0, 0, 0, 0, 0, 1, 0, 0, -10, 0, 0, 0, 5, -10, 1), Mat4(20, 0, 0, 0, 0, 0, 1, 0, 0, -10, 0, 0, 0, 5, -10, 1)),
+    ["face_vertex_count"] = { 4},
+    ["vertices_by_index"] = { 0, 1, 3, 2},
+    ["vertex_list_0"] = { Vec3(-0.5, 0, 0.5), Vec3(0.5, 0, 0.5), Vec3(-0.5, 0, -0.5), Vec3(0.5, 0, -0.5)},
+    ["subd_fvar_linear"] = "corners plus1",
+    ["primitive_attributes"] = { UserData("/wall.primvars:primId")},
+}
+
+GeometrySet("allGeometry") {
+    RdlMeshGeometry("/floor"),
+    RdlMeshGeometry("/wall"),
+}
+
+Layer("defaultLayer") {
+    {RdlMeshGeometry("/floor"), "", BaseMaterial("/surface/baseMtl"), LightSet("LightSet164831"), undef(), undef(), LightFilterSet("LightFilterSet0FE9B"), undef(), undef()},
+    {RdlMeshGeometry("/wall"), "", BaseMaterial("/surface/baseMtl"), LightSet("LightSet164831"), undef(), undef(), LightFilterSet("LightFilterSet0FE9B"), undef(), undef()},
+}
+
+BaseMaterial("/surface/baseMtl") {
+}
+
+SpotLight("/spot") {
+    ["node_xform"] = blur(Mat4(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 9, -8, 1), Mat4(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 9, -8, 1)),
+    ["intensity"] = 0.200000003,
+    ["light_filters"] = { VdbLightFilter("/vdb")},
+    ["lens_radius"] = 0.5,
+    ["outer_cone_angle"] = 90,
+    ["inner_cone_angle"] = 90,
+}
+
+LightFilterSet("LightFilterSet0FE9B") {
+    VdbLightFilter("/vdb"),
+}
+
+LightSet("LightSet164831") {
+    SpotLight("/spot"),
+}
+
+PerspectiveCamera("/camera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1)),
+    ["near"] = 0.00999999978,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(300, 300),
+    ["film_width_aperture"] = 240,
+}
+
+PerspectiveCamera("primaryCamera") {
+    ["node_xform"] = blur(Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1), Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 20, 1)),
+    ["near"] = 0.00999999978,
+    ["mb_shutter_open"] = 0,
+    ["mb_shutter_close"] = 0,
+    ["focal"] = blur(300, 300),
+    ["film_width_aperture"] = 240,
+}
+
+UserData("/wall.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 1},
+    ["rate"] = "constant",
+}
+
+VdbLightFilter("/vdb") {
+    ["node_xform"] = blur(Mat4(0.02, 0, 0, 0, 0, 0.050000000000000003, 0, 0, 0, 0, 0.01, 0, 0, 1, -8, 1), Mat4(0.02, 0, 0, 0, 0, 0.050000000000000003, 0, 0, 0, 0, 0.01, 0, 0, 1, -8, 1)),
+    ["vdb_map"] = "/work/gshad/moonshine_test/rats_data/light/filter/vdb/textures/torus.vdb",
+    ["density_grid_name"] = "density",
+    ["density_rescale_enable"] = true,
+    ["density_remap_inputs"] = { 0, 0.25, 0.5, 0.75, 1},
+    ["density_remap_outputs"] = { 0, 0.100000001, 0.200000003, 0.5, 1},
+    ["density_remap_interpolation_types"] = { 1, 1, 1, 1, 1},
+    ["vdb_interpolation_type"] = "quadratic",
+    ["invert_density"] = true,
+}
+
+UserData("/floor.primvars:primId") {
+    ["float_key"] = "primId",
+    ["float_values_0"] = { 0},
+    ["rate"] = "constant",
+}

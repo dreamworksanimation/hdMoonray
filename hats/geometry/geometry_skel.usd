@@ -1,0 +1,167 @@
+#usda 1.0
+(
+    defaultPrim = "group1"
+    endTimeCode = 10
+    startTimeCode = 1
+    upAxis = "Y"
+)
+
+def SkelRoot "group1" {
+    rel skel:skeleton = <skeleton>
+    rel skel:animationSource = <animation>
+
+    float xformOp:rotateX = -90
+    uniform token[] xformOpOrder = ["xformOp:rotateX"]
+
+    def Skeleton "skeleton"
+    {
+        uniform token purpose = "guide"
+        uniform token[] joints = ["joint1", "joint1/joint2", "joint1/joint2/joint3"]
+        uniform matrix4d[] restTransforms = [
+            ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, -6, 1) ),
+            ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 6, 1) ),
+            ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 6, 1) )
+        ]
+        uniform matrix4d[] bindTransforms = [
+            ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, -6, 1) ),
+            ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) ),
+            ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 6, 1) )
+        ]
+    }
+
+    def SkelAnimation "animation"
+    {
+        uniform token[] joints = ["joint1/joint2"]
+        quatf[] rotations = [(1, 0, 0, 0)]
+        quatf[] rotations.timeSamples = {
+            0: [(.7071, 0, .7071, 0)],
+            10: [(1, 0, 0, 0)],
+        }
+        half3[] scales = [(1, 1, 1)]
+        float3[] translations = [(0, 0, 6)]
+    }
+
+    def Mesh "cylinder" (
+        prepend apiSchemas = ["SkelBindingAPI"]
+    )
+    {
+        uniform bool doubleSided = 1
+        float3[] extent = [(-1, -0.86602545, -6), (1, 0.86602545, 6)]
+        int[] faceVertexCounts = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [
+            0, 1, 5, 4,
+            1, 2, 6, 5,
+            2, 3, 7, 6,
+            3, 0, 4, 7,
+            4, 5, 9, 8,
+            5, 6,10, 9,
+            6, 7,11,10,
+            7, 4, 8,11,
+            8, 9,13,12,
+            9,10,14,13,
+            10,11,15,14,
+            11,8,12,15,
+            12,13,17,16,
+            13,14,18,17,
+            14,15,19,18,
+            15,12,16,19
+        ]
+        point3f[] points = [
+            (-1, 0, -6),
+            (0, -1, -6),
+            (1, 0, -6),
+            (0, 1, -6),
+            (-1, 0, -1),
+            (0, -1, -1),
+            (1, 0, -1),
+            (0, 1, -1),
+            (-1, 0, 0),
+            (0, -1, 0),
+            (1, 0, 0),
+            (0, 1, 0),
+            (-1, 0, 1),
+            (0, -1, 1),
+            (1, 0, 1),
+            (0, 1, 1),
+            (-1, 0, 6),
+            (0, -1, 6),
+            (1, 0, 6),
+            (0, 1, 6)
+        ]
+        color3f[] primvars:displayColor = [
+            (1, 0, 0),
+            (1, 0, 0),
+            (1, 0, 0),
+            (1, 0, 0),
+            (.6,0,.4),
+            (.6,0,.4),
+            (.6,0,.4),
+            (.6,0,.4),
+            (.5,0,.5),
+            (.5,0,.5),
+            (.5,0,.5),
+            (.5,0,.5),
+            (.4,0,.6),
+            (.4,0,.6),
+            (.4,0,.6),
+            (.4,0,.6),
+            (0, 0, 1),
+            (0, 0, 1),
+            (0, 0, 1),
+            (0, 0, 1)
+        ] (
+            interpolation = "vertex"
+        )
+        int[] primvars:skel:jointIndices = [
+            0, 0,
+            0, 0,
+            0, 0,
+            0, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 1,
+            1, 1,
+            1, 1,
+            1, 1,
+        ] (
+            elementSize = 2
+            interpolation = "vertex"
+        )
+        float[] primvars:skel:jointWeights = [
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+            0.4, 0.6,
+            0.4, 0.6,
+            0.4, 0.6,
+            0.4, 0.6,
+            0.5, 0.5,
+            0.5, 0.5,
+            0.5, 0.5,
+            0.5, 0.5,
+            0.6, 0.4,
+            0.6, 0.4,
+            0.6, 0.4,
+            0.6, 0.4,
+            1, 0,
+            1, 0,
+            1, 0,
+            1, 0,
+        ] (
+            elementSize = 2
+            interpolation = "vertex"
+        )
+    }
+}
+

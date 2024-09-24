@@ -1,0 +1,248 @@
+#usda 1.0
+(
+    defaultPrim = "ground"
+    endTimeCode = 6
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 4
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Xform "ground" (
+    prepend apiSchemas = ["MaterialBindingAPI"]
+    kind = "component"
+)
+{
+    rel material:binding = </materials/usdpreviewsurfaceground>
+    custom bool moonray:mb
+    bool moonray:mb.timeSamples = {
+        4: 1,
+        5: 1,
+        6: 1,
+    }
+    custom int moonray:visible_in_camera
+    int moonray:visible_in_camera.timeSamples = {
+        4: 1,
+        5: 1,
+        6: 1,
+    }
+    matrix4d xformOp:transform:xform = ( (100, 0, 0, 0), (0, 100, 0, 0), (0, 0, 100, 0), (0, -1, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:xform"]
+
+    def Mesh "mesh_0"
+    {
+        float3[] extent = [(-5, 0, -5), (5, 0, 5)]
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 3, 2]
+        custom bool moonray:mb
+        bool moonray:mb.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        custom int moonray:visible_in_camera
+        int moonray:visible_in_camera.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        uniform token orientation = "leftHanded"
+        point3f[] points = [(-5, 0, -5), (5, 0, -5), (-5, 0, 5), (5, 0, 5)] (
+            interpolation = "vertex"
+        )
+        uniform token subdivisionScheme = "none"
+    }
+}
+
+def Scope "materials"
+{
+    custom bool moonray:mb
+    bool moonray:mb.timeSamples = {
+        4: 1,
+        5: 1,
+        6: 1,
+    }
+    custom int moonray:visible_in_camera
+    int moonray:visible_in_camera.timeSamples = {
+        4: 1,
+        5: 1,
+        6: 1,
+    }
+
+    def Material "usdpreviewsurfaceground"
+    {
+        custom bool moonray:mb
+        bool moonray:mb.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        custom int moonray:visible_in_camera
+        int moonray:visible_in_camera.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        token outputs:displacement.connect = </materials/usdpreviewsurfaceground/usdpreviewsurfaceground.outputs:displacement>
+        token outputs:surface.connect = </materials/usdpreviewsurfaceground/usdpreviewsurfaceground.outputs:surface>
+
+        def Shader "usdpreviewsurfaceground"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            custom bool moonray:mb
+            bool moonray:mb.timeSamples = {
+                4: 1,
+                5: 1,
+                6: 1,
+            }
+            custom int moonray:visible_in_camera
+            int moonray:visible_in_camera.timeSamples = {
+                4: 1,
+                5: 1,
+                6: 1,
+            }
+            token outputs:displacement
+            token outputs:surface
+        }
+    }
+
+    def Material "usdpreviewsurface1"
+    {
+        custom bool moonray:mb
+        bool moonray:mb.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        custom int moonray:visible_in_camera
+        int moonray:visible_in_camera.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        token outputs:displacement.connect = </materials/usdpreviewsurface1/usdpreviewsurface1.outputs:displacement>
+        token outputs:surface.connect = </materials/usdpreviewsurface1/usdpreviewsurface1.outputs:surface>
+
+        def Shader "usdpreviewsurface1"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:emissiveColor = (1, 1, 1)
+            custom bool moonray:mb
+            bool moonray:mb.timeSamples = {
+                4: 1,
+                5: 1,
+                6: 1,
+            }
+            custom int moonray:visible_in_camera
+            int moonray:visible_in_camera.timeSamples = {
+                4: 1,
+                5: 1,
+                6: 1,
+            }
+            token outputs:displacement
+            token outputs:surface
+        }
+    }
+}
+
+def Xform "lights"
+{
+    custom bool moonray:mb
+    bool moonray:mb.timeSamples = {
+        4: 1,
+        5: 1,
+        6: 1,
+    }
+    custom int moonray:visible_in_camera
+    int moonray:visible_in_camera.timeSamples = {
+        4: 1,
+        5: 1,
+        6: 1,
+    }
+
+    def RectLight "light1" (
+        prepend apiSchemas = ["KarmaLightSettingsAPI", "HoudiniViewportGuideAPI"]
+    )
+    {
+        bool houdini:inviewermenu = 1
+        color3f inputs:color = (1, 1, 1)
+        float inputs:diffuse = 1
+        bool inputs:enableColorTemperature = 0
+        float inputs:exposure = 0
+        float inputs:height = 1
+        float inputs:intensity = 5
+        bool inputs:normalize = 0
+        float inputs:specular = 1
+        asset inputs:texture:file = @@
+        float inputs:width = 1
+        bool karma:light:renderlightgeo = 1
+        custom bool moonray:mb
+        bool moonray:mb.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        custom int moonray:visible_in_camera
+        int moonray:visible_in_camera.timeSamples = {
+            4: 1,
+            5: 1,
+            6: 1,
+        }
+        matrix4d xformOp:transform.timeSamples = {
+            4: ( (0.4999999999999998, -0.8660254037844387, 0, 0), (-0.8660254037844387, -0.4999999999999998, 0, 0), (0, 0, -1, 0), (-1.666666666666667, 0, 0, 1) ),
+            5: ( (0.9396926207859083, -0.3420201433256689, 0, 0), (-0.3420201433256689, -0.9396926207859083, 0, 0), (0, 0, -1, 0), (-0.5555555555555554, 0, 0, 1) ),
+            6: ( (0.9396926207859084, 0.34202014332566866, 0, 0), (0.34202014332566866, -0.9396926207859084, 0, 0), (0, 0, -1, 0), (0.5555555555555554, 0, 0, 1) ),
+        }
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+    }
+}
+
+def Camera "camera" (
+    prepend apiSchemas = ["HoudiniCameraPlateAPI", "HoudiniViewportGuideAPI"]
+)
+{
+    float2 clippingRange = (1, 1000000)
+    float exposure = 0
+    float focalLength.timeSamples = {
+        4: 0.5,
+        5: 0.5,
+        6: 0.5,
+    }
+    float focusDistance = 5
+    float fStop = 0
+    float horizontalAperture.timeSamples = {
+        4: 0.20955,
+        5: 0.20955,
+        6: 0.20955,
+    }
+    float horizontalApertureOffset.timeSamples = {
+        4: 0,
+        5: 0,
+        6: 0,
+    }
+    asset houdini:backgroundimage = @@
+    asset houdini:foregroundimage = @@
+    float houdini:guidescale.timeSamples = {
+        4: 1,
+        5: 1,
+        6: 1,
+    }
+    bool houdini:inviewermenu = 1
+    token projection = "perspective"
+    double shutter:close = 0.25
+    double shutter:open = -0.25
+    float verticalAperture.timeSamples = {
+        4: 0.11787187,
+        5: 0.11787187,
+        6: 0.11787187,
+    }
+    float verticalApertureOffset.timeSamples = {
+        4: 0,
+        5: 0,
+        6: 0,
+    }
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 10, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
