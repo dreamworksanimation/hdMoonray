@@ -6,13 +6,14 @@ not work outside of the DWA studio environment.
 This directory contains the RaTS tests for hdMoonRay.  The RaTS tests are not in a
 separate package like the regular MoonRay RaTS tests.
 
-The RaTS tests must currently be run on a teal-class machine (e.g. tealsnip) for the
+:warning: The RaTS tests must currently be run on a teal-class machine (e.g. tealsnip) using CentOS 7 for the
 canonicals to match correctly.
 
 If you want to run hdMoonRay RaTS against a local MoonRay build, make sure you
 first build MoonRay (and possibly scene_rdl2) as variant 3, e.g.:
 
     rez-build -i --variants 3
+    # os-CentOS-7 opt_level-optdebug refplat-vfx2022.0 gcc-9.3.x.1
 
 Also be sure to set REZ_PACKAGES_PATH to the location of your local moonray build
 so the hdmoonray build picks it up.
@@ -25,6 +26,7 @@ Build hdMoonRay variant 6, e.g.:
     rez-env buildtools
     cd hdmoonray
     rez-build -i --variants 6
+    # os-CentOS-7 opt_level-optdebug usd_core_dwa_plugin moonshine_usd usd_imaging-0.22.5 moonshine_dwa houdini_dwa-19 python-3.9 gcc refplat-vfx2022
 
 ### Running
 
@@ -38,11 +40,11 @@ To run the RaTS tests, use the following rez-env:
     rez2
     rez-env hdMoonray rats opt_level-optdebug usd_core_dwa_plugin moonshine_usd usd_imaging-0.22.5 moonshine_dwa houdini_dwa-19 python-3.9 gcc refplat-vfx2022
 
-Then, use the normal RaTS commands from the hdmoonray rez install dir, e.g.:
+Then, use the normal RaTS commands **from the hdmoonray rez install dir**, e.g.:
 
     rats -a -c vectorized
 
-Currently only the vectorized tests have updated canonicals.
+:warning: Currently only the vectorized tests have updated canonicals, scalar is not currently supported
 
 ### Running with rez-test
 
@@ -56,7 +58,7 @@ discover and use locally-built moonray packages.
 
 ### Finishing up
 
-Ensure there are no zombie hdmoonray processes by running 'top'.
+Ensure there are no zombie `hdmoonray` processes by running 'top'.
 These can happen if the rats tests were interrupted (e.g. CTRL-C).  Terminate them with
 'kill'.
  
