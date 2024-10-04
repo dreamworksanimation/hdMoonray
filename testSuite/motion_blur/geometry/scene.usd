@@ -28,9 +28,9 @@ def Xform "grid_node_xform" (
     {
         float3[] extent = [(-1, -1, 0), (1, 1, 0)]
         int[] faceVertexCounts = [4]
-        int[] faceVertexIndices = [2, 3, 1, 0]
+        int[] faceVertexIndices = [0, 1, 3, 2]
         rel material:binding = </materials/usdpreviewsurface1>
-        uniform token orientation = "rightHanded"
+        uniform token orientation = "leftHanded"
         point3f[] points = [(-1, -1, 0), (1, -1, 0), (-1, 1, 0), (1, 1, 0)] (
             interpolation = "vertex"
         )
@@ -64,10 +64,10 @@ def Xform "grid_frame_delta" (
             5: [4],
         }
         int[] faceVertexIndices.timeSamples = {
-            5: [2, 3, 1, 0],
+            5: [0, 1, 3, 2],
         }
         rel material:binding = </materials/usdpreviewsurface1>
-        uniform token orientation = "rightHanded"
+        uniform token orientation = "leftHanded"
         point3f[] points (
             interpolation = "vertex"
         )
@@ -104,9 +104,9 @@ def Xform "grid_velocity" (
     {
         float3[] extent = [(-1, -1, 0), (1, 1, 0)]
         int[] faceVertexCounts = [4]
-        int[] faceVertexIndices = [2, 3, 1, 0]
+        int[] faceVertexIndices = [0, 1, 3, 2]
         rel material:binding = </materials/usdpreviewsurface1>
-        uniform token orientation = "rightHanded"
+        uniform token orientation = "leftHanded"
         point3f[] points = [(-1, -1, 0), (1, -1, 0), (-1, 1, 0), (1, 1, 0)] (
             interpolation = "vertex"
         )
@@ -139,9 +139,9 @@ def Xform "grid_acceleration" (
         )
         float3[] extent = [(-1, -1, 0), (1, 1, 0)]
         int[] faceVertexCounts = [4]
-        int[] faceVertexIndices = [2, 3, 1, 0]
+        int[] faceVertexIndices = [0, 1, 3, 2]
         rel material:binding = </materials/usdpreviewsurface1>
-        uniform token orientation = "rightHanded"
+        uniform token orientation = "leftHanded"
         point3f[] points = [(-1, -1, 0), (1, -1, 0), (-1, 1, 0), (1, 1, 0)] (
             interpolation = "vertex"
         )
@@ -178,10 +178,10 @@ def Xform "grid_hermite" (
             5: [4],
         }
         int[] faceVertexIndices.timeSamples = {
-            5: [2, 3, 1, 0],
+            5: [0, 1, 3, 2],
         }
         rel material:binding = </materials/usdpreviewsurface1>
-        uniform token orientation = "rightHanded"
+        uniform token orientation = "leftHanded"
         point3f[] points (
             interpolation = "vertex"
         )
