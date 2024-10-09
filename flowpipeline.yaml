@@ -548,6 +548,7 @@ package-configurations:
     environment:
       BROKEN_CUSTOM_ARGS_RATS: 1
       BROKEN_CUSTOM_ARGS_UNITTESTS: 1
+      REZ_ALTERNATE_CONFIGURATION: CI
     packages_path:
     - /rel/ci_builds/Moonbase/HPBP-Moonbase-CI/main/packages
     - /rel/rez/dwa
