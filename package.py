@@ -58,6 +58,7 @@ variants = [
     ['os-rocky-9', 'refplat-vfx2023.0', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.10'],
     ['os-rocky-9', 'refplat-vfx2023.0', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.10'],
 ]
+conf_CI_variants = list(filter(lambda v: 'os-CentOS-7' in v, variants))
 
 sconsTargets = {
     'refplat-vfx2021.0': ['@install'] + unittestflags + ratsflags,
