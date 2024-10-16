@@ -533,19 +533,6 @@ RenderDelegate::defaultVolumeShader()
     return mDefaultVolumeShader;
 }
 
-scene_rdl2::rdl2::LightSet*
-RenderDelegate::emptyLightSet()
-{
-    if (not mEmptyLightSet) {
-        std::lock_guard<std::mutex> lock(mCreateMutex);
-        if (not mEmptyLightSet) {
-            scene_rdl2::rdl2::SceneContext& wsc = acquireSceneContext();
-            mEmptyLightSet = wsc.createSceneObject("LightSet", "emptyLightSet")->asA<scene_rdl2::rdl2::LightSet>();
-        }
-    }
-    return mEmptyLightSet;
-}
-
 // synchronous layer modifications
 int
 RenderDelegate::assign(scene_rdl2::rdl2::Geometry* geometry,
@@ -651,7 +638,11 @@ RenderDelegate::updateAssignmentFromCategories(
 
     if (sets[CategoryType::LightLink].empty()) {
         // must be set to a valid LightSet object, even if empty (MOONRAY-4854)
-        assignment.mLightSet = emptyLightSet();
+        if (not mEmptyLightSet) {
+            scene_rdl2::rdl2::SceneContext& wsc = acquireSceneContext();
+            mEmptyLightSet = wsc.createSceneObject("LightSet", "emptyLightSet")->asA<scene_rdl2::rdl2::LightSet>();
+        }
+        assignment.mLightSet = mEmptyLightSet;
     } else {
         unsigned h = hash[CategoryType::LightLink];
         scene_rdl2::rdl2::LightSet*& set = mLightSets[h];
