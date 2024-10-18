@@ -40,9 +40,6 @@ private:
     const std::string& rdlClassName(const pxr::SdfPath& id,
                                     pxr::HdSceneDelegate *sceneDelegate);
 
-    void setGeometry(pxr::HdSceneDelegate *sceneDelegate,
-                     RenderDelegate& renderDelegate,
-                     pxr::SdfPath geomPath);
     void syncXform(const pxr::SdfPath& id,
                    pxr::HdSceneDelegate *sceneDelegate);
     void syncParams(const pxr::SdfPath& id,

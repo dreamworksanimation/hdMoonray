@@ -11,22 +11,18 @@
 
 #include <scene_rdl2/scene/rdl2/SceneObject.h>
 
-#include "Geometry.h"
+#include "GeometryMixin.h"
 #include "MurmurHash3.h"
 
 #include <mutex>
 
 namespace hdMoonray {
 
-class Geometry;
-
 class Instancer: public pxr::HdInstancer
 {
 public:
     Instancer(pxr::HdSceneDelegate* delegate,
-              const pxr::SdfPath& id
-              INSTANCERID(const pxr::SdfPath&)
-    );
+              const pxr::SdfPath& id);
     ~Instancer();
 
     // Hydra instancers are stored "backwards", the prototype knows what instance it
@@ -38,7 +34,7 @@ public:
     // prototype in this call.
     void makeInstanceGeometry(const pxr::SdfPath& prototypeId,
                               scene_rdl2::rdl2::Geometry* prototype,
-                              Geometry* geometry, size_t level,
+                              GeometryMixin* geometry, size_t level,
                               size_t childCount = 1);
 
 #if PXR_VERSION < 2102

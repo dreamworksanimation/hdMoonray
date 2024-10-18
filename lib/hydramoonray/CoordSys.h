@@ -28,7 +28,6 @@ public:
               pxr::HdRenderParam*   renderParam,
               pxr::HdDirtyBits*     dirtyBits) override;
 
-    /// Guess at the binding based on geometry and coordSys name, to work around Hydra failings
     static scene_rdl2::rdl2::SceneObject* getBinding(
         pxr::HdSceneDelegate*, RenderDelegate&,
         const pxr::SdfPath& geomPath, pxr::TfToken name);

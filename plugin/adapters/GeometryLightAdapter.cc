@@ -12,7 +12,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 namespace {
     TfToken geometryLightToken("geometryLight");
-    TfToken geometryToken("geometry");
+    TfToken geometryToken("inputs:geometry");
 }
 
 TF_REGISTRY_FUNCTION(TfType)

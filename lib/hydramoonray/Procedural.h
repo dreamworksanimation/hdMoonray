@@ -2,17 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #pragma once
+#include "GeometryMixin.h"
 
-#include "Geometry.h"
+// Handles any Moonray geometry shader : the RDL class name should be specified by
+// procedural:class. Arbitrary RDL2 attribute "xyz" can be set by USD attribute 
+// procedural:xyz.
+//
+// Requires an adapter to work with usdImaging : the adapter should override
+// get(TfToken("parts")) to return a perPartMaterials ( == vector<pair<SdfPath,SdfPath>>)
+// where each entry is the id of a part and the id of a material.
 
 namespace hdMoonray {
 
-class Procedural final : public pxr::HdRprim, public Geometry
+class Procedural final : public pxr::HdRprim, public GeometryMixin
 {
 public:
-    explicit Procedural(pxr::SdfPath const& id INSTANCERID(const pxr::SdfPath&));
-    const std::string& className(pxr::HdSceneDelegate* sceneDelegate) const override;
-
+    explicit Procedural(pxr::SdfPath const& id);
+    
     pxr::HdDirtyBits GetInitialDirtyBitsMask() const override;
 
     void Sync(pxr::HdSceneDelegate* sceneDelegate,
@@ -25,17 +31,20 @@ public:
     const pxr::TfTokenVector& GetBuiltinPrimvarNames() const override;
 
 protected:
-    // Initialize one of the reprs, called before Sync()
-    void _InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits) override;
 
-    // Expand dirty bits to what Sync() actually needs
+    // Hydra overrides
+    void _InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits) override;
     pxr::HdDirtyBits _PropagateDirtyBits(pxr::HdDirtyBits bits) const override { return bits; }
 
+    // GeometryMixin overrides
+    void syncAttributes(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& renderDelegate,
+                        pxr::HdDirtyBits* dirtyBits, const pxr::TfToken& reprToken) override;
+    bool supportsUserData() override;
+
 private:
-    std::string mClassName;
     Procedural(const Procedural&)             = delete;
     Procedural &operator =(const Procedural&) = delete;
-    bool hasPrimitiveAttributes = false;
+
 };
 
 }

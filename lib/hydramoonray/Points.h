@@ -3,17 +3,15 @@
 
 #pragma once
 
-#include "Geometry.h"
-
+#include "GeometryMixin.h"
 #include <pxr/imaging/hd/points.h>
 
 namespace hdMoonray {
 
-class Points final : public pxr::HdPoints, public Geometry
+class Points final : public pxr::HdPoints, public GeometryMixin
 {
 public:
-    explicit Points(pxr::SdfPath const& id INSTANCERID(const pxr::SdfPath&));
-    const std::string& className(pxr::HdSceneDelegate* sceneDelegate) const override;
+    explicit Points(pxr::SdfPath const& id);
 
     /// Dirty bits to pass to first call to Sync()
     pxr::HdDirtyBits GetInitialDirtyBitsMask() const override;
@@ -27,14 +25,16 @@ public:
     void Finalize(pxr::HdRenderParam* renderParam) override;
 
 protected:
-    // Initialize one of the reprs, called before Sync()
-    void _InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits) override {}
 
-    // Expand dirty bits to what Sync() actually needs
+    // Hydra overrides
+    void _InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits) override {}
     pxr::HdDirtyBits _PropagateDirtyBits(pxr::HdDirtyBits bits) const override { return bits; }
 
+    // GeometryMixin overrides
+    void primvarChanged(pxr::HdSceneDelegate *sceneDelegate, RenderDelegate& renderDelegate,
+                        const pxr::TfToken& name,  const pxr::VtValue& value,
+                        const pxr::HdInterpolation& interp, const pxr::TfToken& role);
 private:
-    // This class does not support copying.
     Points(const Points&)             = delete;
     Points &operator =(const Points&) = delete;
 };

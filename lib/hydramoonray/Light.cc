@@ -3,7 +3,7 @@
 
 #include "Light.h"
 #include "LightFilter.h"
-#include "Geometry.h"
+#include "Mesh.h"
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
 #include "HdmLog.h"
@@ -30,7 +30,7 @@ pxr::TfToken moonrayClassToken("moonray:class");
 pxr::TfToken spotLightToken("SpotLight");
 pxr::TfToken rectLightToken("RectLight");
 pxr::TfToken geometryLightToken("geometryLight");
-pxr::TfToken geometryToken("geometry");
+pxr::TfToken geometryToken("inputs:geometry");
 pxr::TfToken moonrayGeometryToken("moonray:geometry");
 
 const std::string&
@@ -163,20 +163,6 @@ Light::setOn(bool value, RenderDelegate& renderDelegate) {
     }
 }
 
-void
-Light::setGeometry(pxr::HdSceneDelegate *sceneDelegate,
-                   RenderDelegate& renderDelegate,
-                   pxr::SdfPath geomPath)
-{
-    // ! not safe, because geom may not use the same delegate
-    geomPath.ReplacePrefix(pxr::SdfPath::AbsoluteRootPath(), sceneDelegate->GetDelegateID());
-    SceneObject* so = Geometry::createGeometry(sceneDelegate, renderDelegate, geomPath);
-    mLight->set("geometry", so);
-    if (not so) {
-        Logger::error(GetId(), ".geometry: ", geomPath, " not found");
-    }
-}
-
 pxr::GfVec3f
 colorTemperatureToRGB(float kelvin)
 {
@@ -217,35 +203,30 @@ Light::syncParams(const pxr::SdfPath& id,
         if (attrName == "on" || attrName == "node_xform" || attrName == "intensity") continue;
 
         if (attrName == "geometry") {
-
-#if PXR_VERSION >= 2011
-            // in 0.20.11+ we can re-implement Get in the adapter to return
-            // the path value of "rel geometry" (HDM-12)
+            // geometry light support is not reliable in this version of Hydra, since access to
+            // a geometry prim from a light is not anticipated. Correct solution is to use a
+            // Mesh prim with LightAPI applied
             pxr::VtValue relval = sceneDelegate->Get(id, geometryToken);
+            // This relies on our custom GeometryLight adapter, which returns a path taken from
+            // the rel geometry property. It can be broken by the pxr adapter taking precedence,
+            // which will simply report that GeometryLight is not supported yet.
             if (relval.IsHolding<pxr::SdfPath>()) {
-                setGeometry(sceneDelegate,
-                            renderDelegate,
-                            relval.UncheckedGet<pxr::SdfPath>());
-                continue;
-            }
-#endif
-            // if rel geometry cannot be fetched, try "string moonray:geometry"
-            // (a workaround for pre-0.20.11 versions)
-            // this can be either an SdfPath or a string (see HDM-105)
-            pxr::VtValue val = sceneDelegate->GetLightParamValue(id, moonrayGeometryToken);
-            pxr::SdfPath geomPath;
-            if (val.IsHolding<pxr::SdfPath>()) {
-                geomPath = val.UncheckedGet<pxr::SdfPath>();
-            } else if (val.IsHolding<std::string>()) {
-                geomPath = pxr::SdfPath(val.UncheckedGet<std::string>());
-            } else if (val.IsEmpty()) {
-                // no value specified
-                continue;
-            } else {
-                Logger::error(id, ": Illegal type ", val.GetTypeName(), " for moonray:geometry attribute.");
-                continue;
-            }
-            setGeometry(sceneDelegate, renderDelegate, geomPath);
+                // Given the path from rel geometry, we need to get the corresponding rprim, and
+                // thence the RDL geometry object. This implementation is not safe, because it
+                // assumes that the geom uses the same delegate as the light, but I don't think 
+                // there is an alternative in Hydra 1
+                pxr::SdfPath geomPath = relval.UncheckedGet<pxr::SdfPath>();
+                geomPath.ReplacePrefix(pxr::SdfPath::AbsoluteRootPath(), sceneDelegate->GetDelegateID());
+                pxr::HdRprim* prim = const_cast<pxr::HdRprim*>(sceneDelegate->GetRenderIndex().GetRprim(geomPath));
+                Mesh* mesh = dynamic_cast<Mesh*>(prim);
+                if (mesh) {
+                    // geometry sync should not be running in parallel with light sync
+                    scene_rdl2::rdl2::SceneObject* geom = mesh->geometryForMeshLight(renderDelegate);
+                    if (geom) {
+                        mLight->set("geometry",geom);
+                    } 
+                } 
+            } 
             continue;
         }
 

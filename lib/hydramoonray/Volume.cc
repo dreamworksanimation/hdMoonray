@@ -4,143 +4,126 @@
 #include "Volume.h"
 #include "RenderDelegate.h"
 #include "HdmLog.h"
-
 #include "pxr/usd/sdf/types.h" // for SdfAssetPath
-
 #include <scene_rdl2/scene/rdl2/Geometry.h>
-
 #include <iostream>
 
+using namespace pxr;
+
 namespace {
-static const pxr::TfToken fieldNameToken("fieldName");
-static const pxr::TfToken fieldIndexToken("fieldIndex");
-static const pxr::TfToken densityToken("density");
-static const pxr::TfToken velocityToken("velocity");
+    
+const std::string rdlClassVdb("VdbGeometry");
+const std::string rdlAttrModel("model");
+
 }
 
 namespace hdMoonray {
 
 using scene_rdl2::logging::Logger;
 
-Volume::Volume(pxr::SdfPath const& id INSTANCERID(const pxr::SdfPath& iid)):
-    pxr::HdVolume(id INSTANCERID(iid)), Geometry(this) { }
-
-const std::string&
-Volume::className(pxr::HdSceneDelegate* sceneDelegate) const {
-    static const std::string r("VdbGeometry");
-    return r;
-}
+Volume::Volume(SdfPath const& id) :
+    HdVolume(id), 
+    GeometryMixin(this) 
+{}
 
 void
-Volume::Finalize(pxr::HdRenderParam* renderParam)
+Volume::Finalize(HdRenderParam* renderParam)
 {
-    // std::cout << GetId() << " finalize\n";
-    finalize(RenderDelegate::get(renderParam));
+    // causes geometry to be hidden
+    resetGeometryObject(RenderDelegate::get(renderParam));
 }
 
-pxr::HdDirtyBits
+HdDirtyBits
 Volume::GetInitialDirtyBitsMask() const
 {
-    return pxr::HdChangeTracker::AllDirty;
+    return HdChangeTracker::AllDirty;
 }
 
-/// Update the data identified by dirtyBits. Must not query other data.
-void
-Volume::Sync(pxr::HdSceneDelegate* sceneDelegate,
-             pxr::HdRenderParam*   renderParam,
-             pxr::HdDirtyBits*     dirtyBits,
-             const pxr::TfToken&   reprToken)
+void 
+Volume::syncAttributes(HdSceneDelegate* sceneDelegate, 
+                            RenderDelegate& renderDelegate,
+                            HdDirtyBits* dirtyBits,
+                            const TfToken& reprToken)
 {
-    const pxr::SdfPath& id = GetId();
-    hdmLogSyncStart("Volume", id, dirtyBits);
-
-    RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
-
-    if (renderDelegate.getPruneVolume()){
-        setPruned(true);
-    }else{
-        setPruned(false);
-    }
-
-    if (pxr::HdChangeTracker::IsVisibilityDirty(*dirtyBits, id))
-        _UpdateVisibility(sceneDelegate, dirtyBits);
-    Geometry::DirtyPrimvars dirtyPrimvars(getDirtyPrimvars(sceneDelegate, renderDelegate, dirtyBits));
-
-    if (not syncCreateGeometry(sceneDelegate, renderDelegate, dirtyBits, reprToken))
-        return;
-
-    // Geometry::DirtyPrimvars dirtyPrimvars(getDirtyPrimvars(sceneDelegate, renderDelegate, dirtyBits)); // unused
-
-    {   UpdateGuard guard(renderDelegate, geometry());
-        setCommonAttributes(sceneDelegate, renderDelegate, dirtyBits, dirtyPrimvars);
-
-        if (*dirtyBits & pxr::HdChangeTracker::DirtyVolumeField) {
-            auto fields(sceneDelegate->GetVolumeFieldDescriptors(id));
-            const std::string* filePath = nullptr;
-            for (auto& desc: fields) {
-                if (const OpenVdbAsset* const field =
-                    dynamic_cast<OpenVdbAsset*>(sceneDelegate->GetRenderIndex().GetBprim(
-                                                    desc.fieldPrimType, desc.fieldId))) {
-                    if (desc.fieldName == densityToken || desc.fieldName == velocityToken) {
-                        const std::string attributeName = desc.fieldName.GetString() + "_grid";
-                        const std::string& grid = field->name().GetString();
-                        int index = field->index();
-                        if (index > 0) {
-                            char buf[13]; snprintf(buf, 13, "[%d]", index);
-                            geometry()->set(attributeName, grid + buf);
-                        } else {
-                            geometry()->set(attributeName, grid);
-                        }
-                    }
-                    const std::string& fp = field->filePath();
-                    if (not fp.empty()) {
-                        if (filePath && *filePath != fp) {
-                            Logger::error(id, " all fields must use same vdb file");
-                            break;
-                        }
-                        filePath = &fp;
-                    }
+    static const TfToken densityToken("density");
+    static const TfToken velocityToken("velocity");
+    
+    auto fields(sceneDelegate->GetVolumeFieldDescriptors(GetId()));
+    const std::string* filePath = nullptr;
+    for (auto& desc: fields) {
+        const OpenVdbAsset* const field =
+            dynamic_cast<OpenVdbAsset*>(sceneDelegate->GetRenderIndex().GetBprim(
+                                            desc.fieldPrimType, desc.fieldId));
+        if (!field) continue;
+           
+        if (desc.fieldName == densityToken || 
+            desc.fieldName == velocityToken) {
+                
+            const std::string attributeName = desc.fieldName.GetString() + "_grid";
+            std::string grid(field->name().GetString());
+            if (field->index() > 0) {
+                grid += "[" + std::to_string(field->index()) + "]";
+            }
+            geometry()->set(attributeName, grid);
+                    
+            const std::string& fp = field->filePath();
+            if (not fp.empty()) {
+                if (filePath && *filePath != fp) {
+                    Logger::error(GetId(), " all fields must use same vdb file");
+                    break;
                 }
-                if (filePath) {
-                    geometry()->set("model", *filePath);
-                }
+                filePath = &fp;
+            }
+            if (filePath) {
+                geometry()->set(rdlAttrModel, *filePath);
             }
         }
     }
 
-
-#if PXR_VERSION >= 2102
-    _UpdateInstancer(sceneDelegate, dirtyBits);
-#endif
-#if PXR_VERSION < 2105
-    if (*dirtyBits & pxr::HdChangeTracker::DirtyMaterialId) {
-        _SetMaterialId(sceneDelegate->GetRenderIndex().GetChangeTracker(), sceneDelegate->GetMaterialId(id));
-    }
-#endif
-    assign(sceneDelegate, renderDelegate, dirtyBits, true);
-
-    *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
-    hdmLogSyncEnd(id);
+    // base class handles transform and double-sided
+    GeometryMixin::syncAttributes(sceneDelegate, renderDelegate, dirtyBits, reprToken);
+   
 }
 
+void
+Volume::Sync(HdSceneDelegate* sceneDelegate,
+             HdRenderParam*   renderParam,
+             HdDirtyBits*     dirtyBits,
+             const TfToken&   reprToken)
+{
+    hdmLogSyncStart("Volume", GetId(), dirtyBits);   
+    RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
+    
+    _UpdateVisibility(sceneDelegate, dirtyBits);
+    _UpdateInstancer(sceneDelegate, dirtyBits);
+    
+    syncAll(rdlClassVdb, sceneDelegate, renderDelegate, dirtyBits, reprToken);
+    
+    hdmLogSyncEnd(GetId());
+}
 
 void
-OpenVdbAsset::Sync(pxr::HdSceneDelegate *sceneDelegate,
-                   pxr::HdRenderParam   *renderParam,
-                   pxr::HdDirtyBits     *dirtyBits)
+OpenVdbAsset::Sync(HdSceneDelegate *sceneDelegate,
+                   HdRenderParam   *renderParam,
+                   HdDirtyBits     *dirtyBits)
 {
-    const pxr::SdfPath& id = GetId();
+    const TfToken fieldNameToken("fieldName");
+    const TfToken fieldIndexToken("fieldIndex");
+
+    const SdfPath& id = GetId();
+    hdmLogSyncStart("OpenVdbAsset", id, dirtyBits);
 
     if (*dirtyBits & DirtyParams) {
-        pxr::VtValue v;
-        v = sceneDelegate->Get(id, pxr::HdFieldTokens->filePath);
-        mFilePath = v.Get<pxr::SdfAssetPath>().GetResolvedPath();
+        VtValue v;
+        v = sceneDelegate->Get(id, HdFieldTokens->filePath);
+        mFilePath = v.Get<SdfAssetPath>().GetResolvedPath();
         v = sceneDelegate->Get(id, fieldNameToken);
-        mName = v.Get<pxr::TfToken>();
+        mName = v.Get<TfToken>();
         v = sceneDelegate->GetLightParamValue(id, fieldIndexToken);
         mIndex = (not v.IsEmpty()) ? v.Get<int>() : -1;
     }
     *dirtyBits = Clean;
+    hdmLogSyncEnd(id);
 }
 
 }

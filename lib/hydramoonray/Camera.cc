@@ -8,7 +8,7 @@
 // cameras to a single primary camera. This may be fixed now and can be removed.
 
 #include "Camera.h"
-#include "Geometry.h"
+#include "GeometryMixin.h"
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
 #include "HdmLog.h"
@@ -286,23 +286,6 @@ Camera::updateCamera(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& render
 
             pxr::VtValue val = sceneDelegate->GetCameraParamValue(id, pxr::TfToken("moonray:"+attrName));
             if (not val.IsEmpty()) {
-
-                if (attrName == "geometry") {
-                    // GetCameraParam cannot read 'rel' properties, so
-                    // geometry for a BakeCamera must be defined as a string
-                    if (val.IsHolding<pxr::SdfPath>()) {
-                        pxr::SdfPath geomPath = val.UncheckedGet<pxr::SdfPath>();
-                        // ! not safe, because geom may not use the same delegate
-                        geomPath.ReplacePrefix(pxr::SdfPath::AbsoluteRootPath(), sceneDelegate->GetDelegateID());
-                        SceneObject* so = Geometry::createGeometry(sceneDelegate, renderDelegate, geomPath);
-                        mCamera->set("geometry", so);
-                        if (not so) {
-                            Logger::error(GetId(), ".geometry: ", geomPath, " not found");
-                        }
-                        continue;
-                    }
-                }
-
                 ValueConverter::setAttribute(mCamera, *it, val);
             }
             // Fixme: if value is not set it should be reset to default

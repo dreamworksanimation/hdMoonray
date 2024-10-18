@@ -5,7 +5,7 @@
 
 #include "CoordSys.h"
 #include "Camera.h"
-#include "Geometry.h"
+#include "GeometryMixin.h"
 #include "RenderDelegate.h"
 #include "HdmLog.h"
 
@@ -50,7 +50,7 @@ CoordSys::Sync(pxr::HdSceneDelegate* sceneDelegate,
                pxr::HdDirtyBits*     dirtyBits)
 {
     const pxr::SdfPath &id = GetId();
-    hdmLogSyncStart("Camera", id, dirtyBits);
+    hdmLogSyncStart("Coordsys", id, dirtyBits);
     *dirtyBits = 0;
     hdmLogSyncEnd(id);
 }
@@ -60,61 +60,7 @@ CoordSys::getBinding(
     pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& renderDelegate,
     const pxr::SdfPath& geomPath, pxr::TfToken name)
 {
-#if 0
-    // For reference, this is how to find the CoordSys object. This does not work for
-    // instanced objects (may be fixed in Hydra for usd-21). Also it is unclear what
-    // coordSys->getBinding() (which is nyi) should do as it only has the affine transform
-    // available, no projections and it does not have the name of the linked object.
-    // A dummy object could be created, or this function's api altered to return
-    // the projection so it can be directly stored in the shader. Projectors may still
-    // require the alternative "guess" code.
-    pxr::HdIdVectorSharedPtr bindings(sceneDelegate->GetCoordSysBindings(geomPath));
-    if (bindings) {
-        for (const pxr::SdfPath& path : *bindings) {
-            auto coordSys = static_cast<hdMoonray::CoordSys*>(
-                sceneDelegate->GetRenderIndex().GetSprim(pxr::HdPrimTypeTokens->coordSys, path));
-            if (coordSys && coordSys->GetName() == name) {
-                return coordSys->getBinding(sceneDelegate, renderDelegate);
-            }
-        }
-    }
-
-#else // "guess" at the linked object. Very fragile especially for instanced geometry
-
-    // Back up to parent of "Geometry" or "Looks"
-    pxr::SdfPath base = geomPath.GetParentPath();
-    for (;;) {
-        if (base.GetPathElementCount() < 2) {
-            base = geomPath.GetParentPath();
-            break;
-        }
-        pxr::TfToken nameToken = base.GetNameToken();
-        base = base.GetParentPath();
-        if (nameToken == GeometryToken || nameToken == LooksToken) break;
-    }
-
-    // search for Cameras
-    pxr::SdfPathVector sprims =
-        sceneDelegate->GetRenderIndex().GetSprimSubtree(pxr::HdPrimTypeTokens->camera, base);
-    for (auto&& path : sprims) {
-        if (match(path, name)) {
-            scene_rdl2::rdl2::SceneObject* sceneObject =
-                Camera::createCamera(sceneDelegate, renderDelegate, path);
-            if (sceneObject) return sceneObject;
-        }
-    }
-
-    // search for Geometry objects, also for xform parents of Geometry
-    pxr::SdfPathVector rprims = sceneDelegate->GetRenderIndex().GetRprimSubtree(base);
-    for (auto&& path : rprims) {
-        if (match(path, name) || match(path.GetParentPath(), name)) {
-            scene_rdl2::rdl2::SceneObject* sceneObject =
-                Geometry::createGeometry(sceneDelegate, renderDelegate, path);
-            if (sceneObject) return sceneObject;
-        }
-    }
-#endif
-
+    // coordsys not implemented
     return nullptr;
 }
 

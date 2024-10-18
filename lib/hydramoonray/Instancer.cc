@@ -29,9 +29,8 @@ using scene_rdl2::logging::Logger;
 
 Instancer::Instancer(
     pxr::HdSceneDelegate* delegate,
-    const pxr::SdfPath& id INSTANCERID(pxr::SdfPath const& iid)
-):
-    HdInstancer(delegate, id INSTANCERID(iid))
+    const pxr::SdfPath& id):
+    HdInstancer(delegate, id)
 { }
 
 Instancer::~Instancer()
@@ -114,7 +113,7 @@ Instancer::Sync(pxr::HdSceneDelegate* sceneDelegate,
 // to use a single one if there is a way to incrementally update the references and refIndices.
 void
 Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl2::Geometry* prototype,
-                                Geometry* geometry, size_t level, size_t childCount)
+                                GeometryMixin* geometry, size_t level, size_t childCount)
 {
     const pxr::SdfPath& id = GetId();
     pxr::HdSceneDelegate* sceneDelegate = GetDelegate();
@@ -198,7 +197,7 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
 
         // HDM-130: Moonray InstanceGeometry primvars override primvars on the prototype, which
         // is opposite how USD works. Don't create the primvar if it will override incorrectly.
-        if (geometry->hasPrimvar(name)) continue;
+        if (geometry->isPrimvarUsed(name)) continue;
         // Fixme: this also needs to be done with each intermediate instancer.
 
         const pxr::VtValue& value = p.second.value;

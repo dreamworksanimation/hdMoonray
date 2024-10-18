@@ -3,19 +3,17 @@
 
 #pragma once
 
-#include "Geometry.h"
-
+#include "GeometryMixin.h"
 #include <pxr/imaging/hd/volume.h>
 #include <pxr/imaging/hd/field.h>
 
 namespace hdMoonray {
 
 /// USD-style volume prim
-class Volume final : public pxr::HdVolume, public Geometry
+class Volume final : public pxr::HdVolume, public GeometryMixin
 {
 public:
-    explicit Volume(pxr::SdfPath const& id INSTANCERID(const pxr::SdfPath& iid));
-    const std::string& className(pxr::HdSceneDelegate* sceneDelegate) const override;
+    explicit Volume(pxr::SdfPath const& id);
 
     pxr::HdDirtyBits GetInitialDirtyBitsMask() const override;
 
@@ -27,14 +25,19 @@ public:
     void Finalize(pxr::HdRenderParam* renderParam) override;
 
 protected:
-    // Initialize one of the reprs, called before Sync()
+    
+    // Hydra overrides
     void _InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits) override {}
-
-    // Expand dirty bits to what Sync() actually needs
     pxr::HdDirtyBits _PropagateDirtyBits(pxr::HdDirtyBits bits) const override { return bits; }
 
+    // GeometryMixin overrides
+    void syncAttributes(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& renderDelegate,
+                        pxr::HdDirtyBits* dirtyBits, const pxr::TfToken& reprToken) override;
+    
+    bool isVolume() override { return true; }
+    bool supportsUserData() override { return false; }
+
 private:
-    // This class does not support copying.
     Volume(const Volume&)             = delete;
     Volume &operator =(const Volume&) = delete;
 };
@@ -44,11 +47,15 @@ class OpenVdbAsset final : public pxr::HdField
 {
 public:
     OpenVdbAsset(const pxr::SdfPath& id): pxr::HdField(id) {}
+
     void Sync(pxr::HdSceneDelegate*, pxr::HdRenderParam*, pxr::HdDirtyBits*) override;
+    
     pxr::HdDirtyBits GetInitialDirtyBitsMask() const override { return DirtyBits::AllDirty; }
+    
     const std::string& filePath() const { return mFilePath; }
     pxr::TfToken name() const { return mName; }
     int index() const { return mIndex; }
+
 private:
     std::string mFilePath;
     pxr::TfToken mName;

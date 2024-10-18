@@ -3,19 +3,17 @@
 
 #pragma once
 
-#include "Geometry.h"
-
+#include "GeometryMixin.h"
 #include <pxr/imaging/hd/mesh.h>
 
 namespace hdMoonray {
 
 /// A representation of a subdivision surface or poly-mesh object.
 
-class Mesh final : public pxr::HdMesh, public Geometry
+class Mesh final : public pxr::HdMesh, public GeometryMixin
 {
 public:
-    explicit Mesh(pxr::SdfPath const& id INSTANCERID(const pxr::SdfPath&));
-    const std::string& className(pxr::HdSceneDelegate* sceneDelegate) const override;
+    explicit Mesh(pxr::SdfPath const& id);
 
     /// Dirty bits to pass to first call to Sync()
     pxr::HdDirtyBits GetInitialDirtyBitsMask() const override;
@@ -28,24 +26,32 @@ public:
 
     void Finalize(pxr::HdRenderParam* renderParam) override;
 
+    // used to get the geometry associated with a MeshLight
+    // not threadsafe, use with caution
+    scene_rdl2::rdl2::Geometry* geometryForMeshLight(const RenderDelegate& renderDelegate);
+
 protected:
-    // Initialize one of the reprs, called before Sync()
+    // Hydra overrides
     void _InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits) override;
-
-    // Expand dirty bits to what Sync() actually needs
     pxr::HdDirtyBits _PropagateDirtyBits(pxr::HdDirtyBits bits) const override;
-    bool isSubdiv(RenderDelegate& renderDelegate);
-    void updateCryptomatte(RenderDelegate& renderDelegate);
 
-
+    // GeometryMixin overrides
+    void syncAttributes(pxr::HdSceneDelegate* sceneDelegate, RenderDelegate& renderDelegate,
+                        pxr::HdDirtyBits* dirtyBits, const pxr::TfToken& reprToken) override;
+    void primvarChanged(pxr::HdSceneDelegate *sceneDelegate, RenderDelegate& renderDelegate,
+                        const pxr::TfToken& name,  const pxr::VtValue& value,
+                        const pxr::HdInterpolation& interp, const pxr::TfToken& role) override;
 private:
-    // cached values that are combined to produce some settings
-    enum SubdivType {NONE = 0, CATCLARK, BILINEAR};
-    bool mFlip = false; // leftHanded orientation
-    bool mSubd = true; // RdlMeshGeometry default is_subd value
-    // This class does not support copying.
     Mesh(const Mesh&)             = delete;
     Mesh &operator =(const Mesh&) = delete;
+
+    void syncTopology(const pxr::HdMeshTopology& topology);
+    void syncSubdivScheme(const pxr::HdMeshTopology& topology,
+                        pxr::HdSceneDelegate *sceneDelegate,
+                        const RenderDelegate& renderDelegate,
+                        const pxr::TfToken& reprToken);
+    void syncSubdivTags(const pxr::PxOsdSubdivTags& tags);
+    void syncCryptomatteUserData(RenderDelegate& renderDelegate);
 };
 
 }

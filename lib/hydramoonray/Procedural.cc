@@ -1,115 +1,92 @@
 // Copyright 2023-2024 DreamWorks Animation LLC
 // SPDX-License-Identifier: Apache-2.0
 
+// Handles any Moonray geometry shader : the RDL class name should be specified by
+// procedural:class. Arbitrary RDL2 attribute "xyz" can be set by USD attribute 
+// procedural:xyz. primvars:moonray:xyz should also work, and will override procedural:xyz
+//
+// handles parts, represented by (mis)using GeometrySubset, via ProceduralAdapter.
+// Translates primvars to UserData, but only if the RDL class has the
+// "primitive_attributes" attribute
+
 #include "Procedural.h"
 #include "RenderDelegate.h"
 #include "ValueConverter.h"
 #include "HdmLog.h"
-
 #include <scene_rdl2/scene/rdl2/Geometry.h>
-
 #include <iostream>
 
+using namespace pxr;
+
+namespace {
+
+    const std::string rdlAttrPrimitiveAttributes("primitive_attributes");
+
+}
 namespace hdMoonray {
 
-static pxr::TfToken partsToken("parts");
-
-using PartMaterial = std::pair<pxr::SdfPath, pxr::SdfPath>;
+using PartMaterial = std::pair<SdfPath, SdfPath>;
 using PerPartMaterials = std::vector<PartMaterial>;
 
 using scene_rdl2::logging::Logger;
 
-Procedural::Procedural(pxr::SdfPath const& id INSTANCERID(const pxr::SdfPath& iid)):
-    pxr::HdRprim(id INSTANCERID(iid)), Geometry(this) {}
-
-const std::string&
-Procedural::className(pxr::HdSceneDelegate* sceneDelegate) const
-{
-    static const pxr::TfToken classToken("procedural:class");
-    pxr::VtValue v(get(classToken, sceneDelegate));
-    if (v.IsHolding<pxr::TfToken>()) {
-        const pxr::TfToken& sceneClass = v.Get<pxr::TfToken>();
-        return sceneClass.GetString();
-    } else {
-        Logger::error(GetId(), ": missing procedural:class");
-        static const std::string BoxGeometry("BoxGeometry");
-        return BoxGeometry;
-    }
-}
+Procedural::Procedural(SdfPath const& id) :
+    HdRprim(id), 
+    GeometryMixin(this) 
+{}
 
 void
-Procedural::Finalize(pxr::HdRenderParam* renderParam)
+Procedural::Finalize(HdRenderParam* renderParam)
 {
-    // std::cout << GetId() << " finalize\n";
-    finalize(RenderDelegate::get(renderParam));
+    // causes geometry to be hidden
+    resetGeometryObject(RenderDelegate::get(renderParam));
 }
 
-pxr::HdDirtyBits
+HdDirtyBits
 Procedural::GetInitialDirtyBitsMask() const
 {
-    return pxr::HdChangeTracker::AllDirty;
+    return HdChangeTracker::AllDirty;
 }
 
 // This seems to be a GL thing to set up a shader. Sync is not called.
 void
-Procedural::_InitRepr(pxr::TfToken const &reprToken, pxr::HdDirtyBits *dirtyBits)
+Procedural::_InitRepr(TfToken const &reprToken, HdDirtyBits *dirtyBits)
 {
     // doing this seems to cause Sync() to be called:
-    *dirtyBits |= pxr::HdChangeTracker::DirtyRepr;
+    *dirtyBits |= HdChangeTracker::DirtyRepr;
 }
 
-/// Update the data identified by dirtyBits. Must not query other data.
 void
-Procedural::Sync(pxr::HdSceneDelegate* sceneDelegate,
-             pxr::HdRenderParam*   renderParam,
-             pxr::HdDirtyBits*     dirtyBits,
-             const pxr::TfToken&   reprToken)
+Procedural::syncAttributes(HdSceneDelegate* sceneDelegate, 
+                           RenderDelegate& renderDelegate,
+                           HdDirtyBits* dirtyBits,
+                           const TfToken& reprToken)
 {
-    const pxr::SdfPath& id = GetId();
-    hdmLogSyncStart("Procedural", id, dirtyBits);
-
-    RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
-
-    setPruned(renderDelegate.getPruneProcedural(className(sceneDelegate)));
-   
-    if (pxr::HdChangeTracker::IsVisibilityDirty(*dirtyBits, id))
-        _UpdateVisibility(sceneDelegate, dirtyBits);
-    Geometry::DirtyPrimvars dirtyPrimvars(getDirtyPrimvars(sceneDelegate, renderDelegate, dirtyBits));
-
-    if (not geometry()) {
-        if (not syncCreateGeometry(sceneDelegate, renderDelegate, dirtyBits, reprToken))
-            return;
-    }
-
-    {   UpdateGuard guard(renderDelegate, geometry());
-        setCommonAttributes(sceneDelegate, renderDelegate, dirtyBits, dirtyPrimvars);
-
-        // copy all the procedural: attributes
-        const scene_rdl2::rdl2::SceneClass& sceneClass = geometry()->getSceneClass();
-        for (auto it = sceneClass.beginAttributes(); it != sceneClass.endAttributes(); ++it) {
-            const std::string& attrName = (*it)->getName();
-            if (attrName == "node_xform") continue; // use Usd xform only
-            if (not attrName.compare(0, 8, "visible_")) continue; // these are done by setVisible()
-            if (attrName == "primitive_attributes") hasPrimitiveAttributes = true;
-            pxr::VtValue val = get(pxr::TfToken("procedural:"+attrName), sceneDelegate);
-            if (!val.IsEmpty()) {
-                ValueConverter::setAttribute(geometry(),*it,val);
-            } else {
+    // sync all attributes "procedural:xyx" to RDL attr xyz
+    const SceneClass& sceneClass = geometry()->getSceneClass();
+    for (auto it = sceneClass.beginAttributes(); 
+              it != sceneClass.endAttributes(); 
+              ++it) {
+        const std::string& attrName = (*it)->getName();
+        const TfToken primvarName("moonray:"+attrName);
+        if (not isPrimvarUsed(primvarName)) {
+            const TfToken proceduralName("procedural:"+attrName);
+            VtValue val = sceneDelegate->Get(GetId(), proceduralName);
+            if (val.IsEmpty()) {
                 ValueConverter::setDefault(geometry(), *it);
+            } else {
+                ValueConverter::setAttribute(geometry(), *it, val);
             }
         }
     }
 
-    if (hasPrimitiveAttributes) { // this crashes if no primitive_attributes attribute
-        updatePrimvars(dirtyPrimvars, renderDelegate);
-    }
-
-    // Populate part lists (base Geometry class will perform actual assignment)
+    // Populate part lists
     partList.clear();
     partMaterials.clear();
     partPaths.clear();
     // ProceduralAdapter will give us a list of parts and materials
-    pxr::VtValue parts = sceneDelegate->Get(id,partsToken);
+    static TfToken partsToken("parts");
+    VtValue parts = sceneDelegate->Get(GetId(), partsToken);
     if (parts.IsHolding<PerPartMaterials>()) {
         const PerPartMaterials& ppm = parts.UncheckedGet<PerPartMaterials>();
         partList.reserve(ppm.size());
@@ -123,25 +100,63 @@ Procedural::Sync(pxr::HdSceneDelegate* sceneDelegate,
         }
     }
 
-#if PXR_VERSION >= 2102
-    _UpdateInstancer(sceneDelegate, dirtyBits);
-#endif
-#if PXR_VERSION < 2105
-    if (*dirtyBits & pxr::HdChangeTracker::DirtyMaterialId) {
-        _SetMaterialId(sceneDelegate->GetRenderIndex().GetChangeTracker(), sceneDelegate->GetMaterialId(id));
-    }
-#endif
-    assign(sceneDelegate, renderDelegate, dirtyBits,
-           not strncmp(geometry()->getSceneClass().getName().c_str(), "OpenVdb", 7));
-
-    *dirtyBits &= ~pxr::HdChangeTracker::AllSceneDirtyBits;
-    hdmLogSyncEnd(id);
+    // base class handles transform and double-sided
+    GeometryMixin::syncAttributes(sceneDelegate, renderDelegate, dirtyBits, reprToken);
 }
 
-const pxr::TfTokenVector&
+bool
+Procedural::supportsUserData() {
+    // check if the geometry supports user data, which means it has
+    // a "primitive_attributes" attribute
+    const SceneClass& sceneClass = geometry()->getSceneClass();
+    // there is no hasAttribute(), but getAttribute() throws if the
+    // attribute doesn't exist
+    try {
+        return sceneClass.getAttribute(rdlAttrPrimitiveAttributes) != nullptr;
+    } catch (...) {
+        return false;
+    }
+}
+
+void
+Procedural::Sync(HdSceneDelegate* sceneDelegate,
+                HdRenderParam*   renderParam,
+                HdDirtyBits*     dirtyBits,
+                const TfToken&   reprToken)
+{
+    hdmLogSyncStart("Procedural", GetId(), dirtyBits);
+    RenderDelegate& renderDelegate(RenderDelegate::get(renderParam));
+
+    // compute class name and check if it has changed
+    // since this forces a complete resync regardless of incoming
+    // dirtyBits, it is a questionable use of the Hydra interface...
+    static const TfToken classToken("procedural:class");
+    VtValue className(sceneDelegate->Get(GetId(),classToken));
+    if (not className.IsHolding<TfToken>()) {
+        Logger::error(GetId(), " : requires procedural:class to be set");
+        return;
+    }
+    const std::string sceneClass = className.UncheckedGet<TfToken>().GetString();
+    if (geometry() && 
+        sceneClass != geometry()->getSceneClass().getName()) {
+        // class has changed, need to clear current object
+        resetGeometryObject(renderDelegate);
+        // force a re-sync of overything
+        *dirtyBits = GetInitialDirtyBitsMask();
+    }
+
+    _UpdateVisibility(sceneDelegate, dirtyBits);
+    _UpdateInstancer(sceneDelegate, dirtyBits);
+    
+    syncAll(sceneClass, sceneDelegate, renderDelegate, dirtyBits, reprToken);
+
+    hdmLogSyncEnd(GetId());
+}
+
+const TfTokenVector&
 Procedural::GetBuiltinPrimvarNames() const
 {
-    static pxr::TfTokenVector none{};
+    static TfTokenVector none{};
     return none;
 }
 

@@ -15,7 +15,7 @@ target_sources(${component}
         BasisCurves.cc
         Camera.cc
         CoordSys.cc
-        Geometry.cc
+        GeometryMixin.cc
         HdmLog.cc
         Instancer.cc
         Light.cc
@@ -25,6 +25,7 @@ target_sources(${component}
         MurmurHash3.cc
         NullRenderer.cc
         Points.cc
+        Primvars.cc
         Procedural.cc
         RenderBuffer.cc
         RenderDelegate.cc
@@ -39,7 +40,7 @@ set_property(TARGET ${component}
         BasisCurves.h
         Camera.h
         CoordSys.h
-        Geometry.h
+        GeometryMixin.h
         HdmLog.h
         Instancer.h
         Light.h

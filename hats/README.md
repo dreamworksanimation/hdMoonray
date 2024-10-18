@@ -11,7 +11,7 @@ This is the process I use to run the tests in the DWA rez environment:
 
 2. In a different shell, rez-env to the newly installed hdMoonray. Include cmake if you don't have a modern version locally.
 
-> rez-env hdMoonray cmake
+> rez-env hdMoonray cmake usd_core_dwa_plugin
 
 You can alter this to select a specific variant.
 In the same shell, cd to the build directory generated in step one:

@@ -261,9 +261,9 @@ RenderDelegate::CreateRenderPass(pxr::HdRenderIndex *renderIndex,
 
 pxr::HdInstancer*
 RenderDelegate::CreateInstancer(pxr::HdSceneDelegate *sceneDelegate,
-                                pxr::SdfPath const& id INSTANCERID(const pxr::SdfPath& iid))
+                                pxr::SdfPath const& id)
 {
-    return new Instancer(sceneDelegate, id INSTANCERID(iid));
+    return new Instancer(sceneDelegate, id);
 }
 
 void
@@ -274,22 +274,21 @@ RenderDelegate::DestroyInstancer(pxr::HdInstancer *instancer)
 
 pxr::HdRprim*
 RenderDelegate::CreateRprim(pxr::TfToken const& typeId,
-                            pxr::SdfPath const& rprimId
-                            INSTANCERID(const pxr::SdfPath& iid))
+                            pxr::SdfPath const& rprimId)
 {
     if (typeId == pxr::HdPrimTypeTokens->mesh) {
-        return new Mesh(rprimId INSTANCERID(iid));
+        return new Mesh(rprimId);
     } else if (typeId == pxr::HdPrimTypeTokens->basisCurves) {
-        return new BasisCurves(rprimId INSTANCERID(iid));
+        return new BasisCurves(rprimId);
     } else  if (typeId == pxr::HdPrimTypeTokens->points) {
-        return new Points(rprimId INSTANCERID(iid));
+        return new Points(rprimId);
     } else  if (typeId == pxr::HdPrimTypeTokens->volume) {
-        auto p = new Volume(rprimId INSTANCERID(iid));
+        auto p = new Volume(rprimId);
         if (not rprimId.IsEmpty())
             mVolumes.insert(p);
         return p;
     } else  if (typeId == proceduralToken) {
-        auto p = new Procedural(rprimId INSTANCERID(iid));
+        auto p = new Procedural(rprimId);
         if (not rprimId.IsEmpty())
             mProcedurals.insert(p);
         return p;
@@ -591,18 +590,19 @@ RenderDelegate::updateAssignmentFromCategories(
     const auto& mCategoryObjects = this->mCategoryObjects; // prevent non-const set operations
 
     // create the default light if there are no lights
-    if (not mNumLights && not mDefaultLight) {
+    if (not mNumLights && not mDefaultLight) {        
         std::lock_guard<std::mutex> lock(mCreateMutex);
         if (not mDefaultLight) {
             scene_rdl2::rdl2::SceneContext& wsc = acquireSceneContext();
-            mDefaultLight = wsc.createSceneObject("EnvLight", "defaultLight")->asA<scene_rdl2::rdl2::Light>();
-            setCategory(mDefaultLight, CategoryType::LightLink, pxr::TfToken());
-            setCategory(mDefaultLight, CategoryType::ShadowLink, pxr::TfToken());
-            UpdateGuard guard(*this, mDefaultLight);
-            mDefaultLight->set("max_shadow_distance", 100.0f);
-            //mDefaultLight->set("sample_upper_hemisphere_only", true);
+            scene_rdl2::rdl2::Light* defaultLight = wsc.createSceneObject("EnvLight", "defaultLight")->asA<scene_rdl2::rdl2::Light>();
+            setCategory(defaultLight, CategoryType::LightLink, pxr::TfToken());
+            setCategory(defaultLight, CategoryType::ShadowLink, pxr::TfToken());
+            UpdateGuard guard(*this, defaultLight);
+            defaultLight->set("max_shadow_distance", 100.0f);
+            //defaultLight->set("sample_upper_hemisphere_only", true);
+            mDefaultLight = defaultLight;
         }
-    }
+    } 
 
     std::set<scene_rdl2::rdl2::SceneObject*> sets[CategoryType::COUNT];
 
