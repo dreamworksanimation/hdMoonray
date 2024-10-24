@@ -126,7 +126,7 @@ Mesh::_InitRepr(TfToken const &reprToken, HdDirtyBits *dirtyBits)
 
 
 scene_rdl2::rdl2::Geometry* 
-Mesh::geometryForMeshLight(const RenderDelegate& renderDelegate)
+Mesh::geometryForMeshLight(RenderDelegate& renderDelegate)
 {
     // MeshLight(GeometryLight) may require the RDL2 geometry
     // object before the Mesh has synced. Since light syncs
@@ -187,7 +187,7 @@ Mesh::syncTopology(const HdMeshTopology& topology)
 void
 Mesh::syncSubdivScheme(const HdMeshTopology& topology,
                        HdSceneDelegate *sceneDelegate,
-                       const RenderDelegate& renderDelegate,
+                       RenderDelegate& renderDelegate,
                        const TfToken& reprToken)
 {
     // sets the subdivision scheme, and related options

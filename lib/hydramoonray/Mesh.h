@@ -28,7 +28,7 @@ public:
 
     // used to get the geometry associated with a MeshLight
     // not threadsafe, use with caution
-    scene_rdl2::rdl2::Geometry* geometryForMeshLight(const RenderDelegate& renderDelegate);
+    scene_rdl2::rdl2::Geometry* geometryForMeshLight(RenderDelegate& renderDelegate);
 
 protected:
     // Hydra overrides
@@ -48,7 +48,7 @@ private:
     void syncTopology(const pxr::HdMeshTopology& topology);
     void syncSubdivScheme(const pxr::HdMeshTopology& topology,
                         pxr::HdSceneDelegate *sceneDelegate,
-                        const RenderDelegate& renderDelegate,
+                        RenderDelegate& renderDelegate,
                         const pxr::TfToken& reprToken);
     void syncSubdivTags(const pxr::PxOsdSubdivTags& tags);
     void syncCryptomatteUserData(RenderDelegate& renderDelegate);
