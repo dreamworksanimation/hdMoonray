@@ -4,11 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  main_CI_RaTS_run:
-    runs-on: [self-hosted, rez]
-    steps:
-      - name: Launch Action
-        uses: CM/cm-actions/pipeline_trigger@main
-        with:
-          pipe_config: 'continuous-integration-against'
-          rez_config: 'rez-2-CI-RaTS-main'
+  call_workflow:
+    uses: dwanim/.github/.github/workflows/Harmony_CICD.yml@master
+    with:
+      pipe_config: 'continuous-integration-against'
+      rez_config: 'rez-2-CI-RaTS-main'
