@@ -56,6 +56,7 @@ private:
     
     int renderOutputIndex(scene_rdl2::rdl2::RenderOutput*) const;
     scene_rdl2::fb_util::RenderBuffer renderBuffer;
+    scene_rdl2::fb_util::RenderBuffer beautyBuffer;
     scene_rdl2::fb_util::HeatMapBuffer heatMapBuffer;
     scene_rdl2::fb_util::FloatBuffer weightBuffer;
     scene_rdl2::fb_util::RenderBuffer renderBufferOdd;

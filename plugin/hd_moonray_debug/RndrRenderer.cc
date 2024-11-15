@@ -168,7 +168,7 @@ RndrRenderer::resolve(scene_rdl2::rdl2::RenderOutput* ro, PixelData& pd)
     mResized = false;
 
     if (isBeauty(ro)) {
-        mRenderContext->snapshotRenderBuffer(&renderBuffer, true, true);
+        mRenderContext->snapshotRenderBuffer(&renderBuffer, true, true, /* usePrimaryAov */false);
         pd.mChannels = 4;
         pd.mWidth = renderBuffer.getWidth();
         pd.mHeight = renderBuffer.getHeight();
@@ -183,7 +183,7 @@ RndrRenderer::resolve(scene_rdl2::rdl2::RenderOutput* ro, PixelData& pd)
     // read other buffers needed to perform snapshot
     if (rod->requiresRenderBuffer(index)) {
         //std::cout << "RenderOutput " << ro->getName() << " needs RenderBuffer\n";
-        mRenderContext->snapshotRenderBuffer(&renderBuffer, true, true);
+        mRenderContext->snapshotRenderBuffer(&renderBuffer, true, true, /* usePrimaryAov */ true);
     }
     if (rod->requiresHeatMap(index)) {
         //std::cout << "RenderOutput " << ro->getName() << " needs HeapMap\n";
@@ -198,9 +198,11 @@ RndrRenderer::resolve(scene_rdl2::rdl2::RenderOutput* ro, PixelData& pd)
         mRenderContext->snapshotRenderBufferOdd(&renderBufferOdd, true, true);
     }
 
+    mRenderContext->snapshotRenderBuffer(&beautyBuffer, true, true, /* usePrimaryAov */ false);
+
     mRenderContext->snapshotRenderOutput(
         &pd.vpb, index,
-        &renderBuffer, &heatMapBuffer, &weightBuffer, &renderBufferOdd,
+        &renderBuffer, &beautyBuffer, &heatMapBuffer, &weightBuffer, &renderBufferOdd,
         true, true);
     pd.mChannels = unsigned(pd.vpb.getFormat()) - unsigned(scene_rdl2::fb_util::VariablePixelBuffer::FLOAT) + 1;
     pd.mWidth = pd.vpb.getWidth();
