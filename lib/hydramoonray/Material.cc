@@ -504,9 +504,9 @@ Material::get(
             sceneDelegate->GetRenderIndex().GetSprim(pxr::HdPrimTypeTokens->material, materialId));
         if (not mtlPrim) {
             Logger::error(geom->GetId(), ".material: ", materialId, " has no moonray or fallback shaders");
-            layerAssignment.mMaterial = renderDelegate.errorMaterial();
+            layerAssignment.mMaterial = volume ? nullptr : renderDelegate.errorMaterial();
             layerAssignment.mDisplacement = nullptr;
-            layerAssignment.mVolumeShader = nullptr;
+            layerAssignment.mVolumeShader = volume ? renderDelegate.defaultVolumeShader() : nullptr;
             return;
         }
         if (mtlPrim->isEnabled()) {
