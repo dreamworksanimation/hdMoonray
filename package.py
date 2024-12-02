@@ -39,6 +39,14 @@ else:
     build_system_pbr = 'cmake_modules-1.0'
 
 variants = [
+    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.10'],
+    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.10'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.3', 'opt_level-optdebug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.7'],
+    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.9'],
+    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.9'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-3.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug', 'python-3.7'],
@@ -49,14 +57,6 @@ variants = [
     ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.9'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-2.7'],
     ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-2.7'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.3', 'opt_level-optdebug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.9'],
-    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.9'],
-    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.10'],
-    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.10'],
 ]
 conf_CI_variants = list(filter(lambda v: 'os-CentOS-7' in v, variants))
 
