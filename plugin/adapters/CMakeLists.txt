@@ -19,7 +19,7 @@ endif()
 
 target_sources(${component}
     PRIVATE
-        GeometryLightAdapter.cc
+        MoonrayMeshLightAdapter.cc
         MoonrayLightFilterAdapter.cc
         ${DwaSpecificSources}
 )

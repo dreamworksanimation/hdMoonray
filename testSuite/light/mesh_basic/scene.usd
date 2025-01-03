@@ -55,7 +55,7 @@ def Mesh "wall"
     color3f[] primvars:displayColor = [(1, 1, 1)] ( interpolation = "uniform" )
 }
 
-def GeometryLight "geomlight"
+def MoonrayMeshLight "geomlight"
 {
     uniform token moonray:class = "MeshLight"
     // this is the correct way to set the geometry

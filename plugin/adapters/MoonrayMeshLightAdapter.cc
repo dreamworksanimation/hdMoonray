@@ -1,11 +1,10 @@
 // Copyright 2023-2024 DreamWorks Animation LLC
 // SPDX-License-Identifier: Apache-2.0
 
-#include "GeometryLightAdapter.h"
+#include "MoonrayMeshLightAdapter.h"
 #include <pxr/usdImaging/usdImaging/delegate.h>
 #include <pxr/usdImaging/usdImaging/indexProxy.h>
 #include <pxr/usdImaging/usdImaging/tokens.h>
-
 #include "pxr/imaging/hd/tokens.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
@@ -17,24 +16,24 @@ namespace {
 
 TF_REGISTRY_FUNCTION(TfType)
 {
-    typedef GeometryLightAdapter Adapter;
+    typedef MoonrayMeshLightAdapter Adapter;
     TfType t = TfType::Define<Adapter, TfType::Bases<Adapter::BaseAdapter> >();
     t.SetFactory< UsdImagingPrimAdapterFactory<Adapter> >();
 }
 
-GeometryLightAdapter::~GeometryLightAdapter()
+MoonrayMeshLightAdapter::~MoonrayMeshLightAdapter()
 {
 }
 
 bool
-GeometryLightAdapter::IsSupported(
+MoonrayMeshLightAdapter::IsSupported(
         UsdImagingIndexProxy const* index) const
 {
     return index->IsSprimTypeSupported(geometryLightToken);
 }
 
 SdfPath
-GeometryLightAdapter::Populate(UsdPrim const& prim,
+MoonrayMeshLightAdapter::Populate(UsdPrim const& prim,
                                UsdImagingIndexProxy* index,
                                UsdImagingInstancerContext const* instancerContext)
 {
@@ -44,19 +43,14 @@ GeometryLightAdapter::Populate(UsdPrim const& prim,
     return prim.GetPath();
 }
 
-// in 0.20.11, the GeometryLight prim can call this function
-// to access the rel property "geometry", which is not
-// otherwise visible to render delegates (HDM-12)
-#if PXR_VERSION >= 2011
+
 VtValue
-GeometryLightAdapter::Get(
+MoonrayMeshLightAdapter::Get(
     UsdPrim const& prim,
     SdfPath const& cachePath,
     TfToken const &key,
-    UsdTimeCode time
-#if PXR_VERSION >= 2105
-    , VtIntArray* outIndices
-#endif
+    UsdTimeCode time, 
+    VtIntArray* outIndices
 ) const
 {
     if (key == geometryToken) {
@@ -75,16 +69,11 @@ GeometryLightAdapter::Get(
             }
         }
     }
-    return BaseAdapter::Get(prim, cachePath, key, time
-#if PXR_VERSION >= 2105
-                            , outIndices
-#endif
-);
+    return BaseAdapter::Get(prim, cachePath, key, time, outIndices);
 }
-#endif
 
 void
-GeometryLightAdapter::_RemovePrim(SdfPath const& cachePath,
+MoonrayMeshLightAdapter::_RemovePrim(SdfPath const& cachePath,
                                   UsdImagingIndexProxy* index)
 {
     index->RemoveSprim(geometryLightToken, cachePath);

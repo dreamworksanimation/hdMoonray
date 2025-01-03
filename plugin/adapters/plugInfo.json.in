@@ -3,11 +3,11 @@
         {
             "Info": {
                 "Types": {
-                    "GeometryLightAdapter": {
+                    "MoonrayMeshLightAdapter": {
                         "bases": [
                             "UsdImagingLightAdapter"
                         ],
-                        "primTypeName": "GeometryLight"
+                        "primTypeName": "MoonrayMeshLight"
                     },
                     "MoonrayLightFilterAdapter": {
                         "bases": [
