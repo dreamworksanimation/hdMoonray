@@ -254,7 +254,7 @@ pipeline-configurations:
       ignore_failures: false
       resource:
 #      - EL7_RaTS2_cpu
-      - EL7_RaTS
+      - Hydra_RaTS
       postp: /opt/electriccloud/electriccommander/bin/postp
       name_filter: foobar
     release:
@@ -312,7 +312,7 @@ pipeline-configurations:
       ignore_failures: false
       resource:
 #      - EL7_RaTS2_cpu
-      - EL7_RaTS
+      - Hydra_RaTS
       postp: /opt/electriccloud/electriccommander/bin/postp
       name_filter: foobar
     release:
