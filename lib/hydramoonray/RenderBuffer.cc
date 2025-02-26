@@ -436,12 +436,16 @@ RenderBuffer::Resolve()
                 mAovName == pxr::HdAovTokens->primId ? -1.0f : 0.0f;
             pxr::WorkParallelForN(count, [inbuffer, outbuffer, emptyValue](size_t begin, size_t end) {
                     for (size_t i = begin; i < end; ++i) {
-                        if (std::isfinite(inbuffer[i]))
-                            outbuffer[i] = inbuffer[i];
-                        else
+                        // inbuffer contains values that display as "inf" and "-0.0" : these become
+                        // the minimum value when cast to int32. We can't use std::isfinite, because
+                        // we have -ffast-math enabled.
+                        int32_t intval = inbuffer[i];
+                        if (intval == std::numeric_limits<int32_t>::min())
                             outbuffer[i] = emptyValue;
+                        else
+                            outbuffer[i] = intval;
                     }
-                });
+            });
             if (mMoreOutputs[0]) {
                 // add other channels for higher-level instancers
                 for (size_t i = 0; i < INSTANCE_NESTING; ++i) {
@@ -449,10 +453,11 @@ RenderBuffer::Resolve()
                     inbuffer = reinterpret_cast<const float*>(mPixelData.mData);
                     pxr::WorkParallelForN(count, [inbuffer, outbuffer](size_t begin, size_t end) {
                             for (size_t i = begin; i < end; ++i) {
-                                if (std::isfinite(inbuffer[i]))
-                                    outbuffer[i] += int(inbuffer[i]);
+                                int32_t intval = inbuffer[i];
+                                if (intval != std::numeric_limits<int32_t>::min())
+                                    outbuffer[i] += intval;
                             }
-                        });
+                    });
                 }
             }
             mPixelData.mData = outbuffer;
