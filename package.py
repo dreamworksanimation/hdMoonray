@@ -39,29 +39,20 @@ else:
     build_system_pbr = 'cmake_modules-1.0'
 
 variants = [
-    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.10'],
-    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.10'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.3', 'opt_level-optdebug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.7'],
-    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.9'],
-    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.9'],
-    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-3.7'],
-    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-3.7'],
-    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-optdebug', 'python-3.7'],
-    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.22.5.x.2', 'opt_level-debug', 'python-3.7'],
-    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'opt_level-optdebug', 'python-3.9'],
-    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'opt_level-debug', 'python-3.9'],
-    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-optdebug', 'python-3.9'],
-    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'opt_level-debug', 'python-3.9'],
-    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-optdebug', 'python-2.7'],
-    ['os-CentOS-7', 'refplat-vfx2021.0', 'usd_imaging-0.21.8.x.2', 'opt_level-debug', 'python-2.7'],
+    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-optdebug', 'python-3.10'],
+    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-debug',    'python-3.10'],
+    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.24.3.x.5', 'openimageio-2.4.8.0.x',  'opt_level-optdebug', 'python-3.10'],
+    ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-optdebug', 'python-3.9'],
+    ['os-rocky-9', 'refplat-vfx2024.0', 'usd_imaging-0.24.3.x.5', 'openimageio-2.4.8.0.x',  'opt_level-optdebug', 'python-3.11'],
+
+    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'openimageio-2.3.20.0.x', 'opt_level-optdebug', 'python-3.9'],
+    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.3', 'openimageio-2.3.20.0.x', 'opt_level-debug',    'python-3.9'],
+    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-optdebug', 'python-3.9'],
+    ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-debug',    'python-3.9'],
 ]
 conf_CI_variants = list(filter(lambda v: 'os-CentOS-7' in v, variants))
 
 sconsTargets = {
-    'refplat-vfx2021.0': ['@install'] + unittestflags + ratsflags,
     'refplat-vfx2022.0': ['@install'] + unittestflags + ratsflags,
     'refplat-vfx2023.0': ['@install'] + unittestflags + ratsflags,
 }
@@ -75,7 +66,6 @@ requires = [
     'mcrt_messages-14.1',
     'mcrt_dataio-15.5',
     'mkl',
-    'openimageio-2.3.20.0.x',
 ]
 
 private_build_requires = [
@@ -96,7 +86,8 @@ tests = {
     }
 
 def commands():
-    prependenv('PXR_PLUGIN_PATH', '{root}/plugin/pxr')
+    prependenv('PXR_PLUGINPATH_NAME', '{root}/plugin/pxr') # usd_core-0.23.5 and later
+    prependenv('PXR_PLUGIN_PATH', '{root}/plugin/pxr') # usd_core-0.23.2 and earlier
     prependenv('PATH', '{root}/bin')
     prependenv('LD_LIBRARY_PATH', '{root}/lib64')
     prependenv('ARRAS_SESSION_PATH', '{root}/sessions/dwa')
