@@ -51,7 +51,7 @@ variants = [
     ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-optdebug', 'python-3.9'],
     ['os-CentOS-7', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-debug',    'python-3.9'],
 ]
-conf_CI_variants = list(filter(lambda v: 'os-CentOS-7' in v, variants))
+conf_CI_variants = variants
 
 sconsTargets = {
     'refplat-vfx2022.0': ['@install'] + unittestflags + ratsflags,
