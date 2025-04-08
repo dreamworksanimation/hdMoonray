@@ -189,10 +189,17 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
 
     for (auto p : mPrimvars) {
         const pxr::TfToken& name = p.first;
+#if PXR_VERSION < 2311
         if (name == pxr::HdInstancerTokens->instanceTransform ||
             name == pxr::HdInstancerTokens->scale ||
             name == pxr::HdInstancerTokens->rotate ||
             name == pxr::HdInstancerTokens->translate)
+#else
+        if (name == pxr::HdInstancerTokens->instanceTransforms ||
+            name == pxr::HdInstancerTokens->instanceScales ||
+            name == pxr::HdInstancerTokens->instanceRotations ||
+            name == pxr::HdInstancerTokens->instanceTranslations)
+#endif
             continue; // skip the ones used directly
 
         // HDM-130: Moonray InstanceGeometry primvars override primvars on the prototype, which
@@ -261,7 +268,11 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
 
         instancer->set("use_reference_xforms", true);
 
+#if PXR_VERSION < 2311
         auto i = mPrimvars.find(pxr::HdInstancerTokens->instanceTransform);
+#else
+        auto i = mPrimvars.find(pxr::HdInstancerTokens->instanceTransforms);
+#endif
         if (i != mPrimvars.end()) {
             instancer->set<int>("method", Method::XFORM_LIST);
             const pxr::VtValue& value = i->second.value;
@@ -276,7 +287,11 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
         } else {
             instancer->set<int>("method", Method::XFORM_ATTRIBUTES);
 
+#if PXR_VERSION < 2311
             i = mPrimvars.find(pxr::HdInstancerTokens->scale);
+#else
+            i = mPrimvars.find(pxr::HdInstancerTokens->instanceScales);
+#endif
             if (i != mPrimvars.end()) {
                 const pxr::VtValue& value = i->second.value;
                 const pxr::VtVec3fArray& v = value.Get<pxr::VtVec3fArray>();
@@ -288,7 +303,11 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
                 }
             }
 
+#if PXR_VERSION < 2311
             i = mPrimvars.find(pxr::HdInstancerTokens->rotate);
+#else
+            i = mPrimvars.find(pxr::HdInstancerTokens->instanceRotations);
+#endif
             if (i != mPrimvars.end()) {
                 const pxr::VtValue& value = i->second.value;
 
@@ -319,7 +338,11 @@ Instancer::makeInstanceGeometry(const pxr::SdfPath& prototypeId, scene_rdl2::rdl
                     }
                 }
             }
+#if PXR_VERSION < 2311
             i = mPrimvars.find(pxr::HdInstancerTokens->translate);
+#else
+            i = mPrimvars.find(pxr::HdInstancerTokens->instanceTranslations);
+#endif
             if (i != mPrimvars.end()) {
                 const pxr::VtValue& value = i->second.value;
                 const pxr::VtVec3fArray& v = value.Get<pxr::VtVec3fArray>();
