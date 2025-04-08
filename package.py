@@ -41,6 +41,7 @@ else:
 variants = [
     ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-optdebug', 'python-3.10'],
     ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-debug',    'python-3.10'],
+    ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.23.8.x',   'openimageio-2.4.8.0.x',  'opt_level-optdebug', 'python-3.10'],
     ['os-rocky-9', 'refplat-vfx2023.1', 'usd_imaging-0.24.3.x',   'openimageio-2.4.8.0.x',  'opt_level-optdebug', 'python-3.10'],
     ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-optdebug', 'python-3.9'],
     ['os-rocky-9', 'refplat-vfx2022.0', 'usd_imaging-0.22.5.x.4', 'openimageio-2.3.20.0.x', 'opt_level-debug',    'python-3.9'],
