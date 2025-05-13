@@ -14,7 +14,7 @@ on:
 
 jobs:
   trigger_CI_RaTS_plan:
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, rez]
     steps:
       - name: Run schedule
         run: |
